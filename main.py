@@ -1,3 +1,5 @@
+# 토큰을 발급받고 사용할 수 있습니다.
+
 import os
 import random
 import discord
@@ -9,8 +11,6 @@ with open(token_path, "r", encoding = "utf-8") as t:
     token = t.read()
 
 game = discord.Game("전적 검색")
-
-
 
 # 접두어, 상태, 활동상태 등 설정
 bot = commands.Bot (command_prefix = '!!', status = discord.Status.online, activity = game)
