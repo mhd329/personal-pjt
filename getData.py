@@ -1,8 +1,24 @@
-import sys
+import os
 import requests
 from urllib import parse
 
-def run_a_search(summonerName, Number_of_searches):
+def run_a_search(raw_summonerName):
+    
+    key_path = os.path.dirname(os.path.abspath(__file__)) + '/riot_api_key.txt'
+    with open(key_path, "r", encoding = "utf-8") as key:
+        api_key = key.read()
+    
+    summonerName = ''
+    distinction = []
+    Number_of_searches = ''
+    
+    for i in range(len(raw_summonerName)):
+        if ',' not in raw_summonerName[i]:
+            summonerName += raw_summonerName[i]
+        else:
+            distinction += raw_summonerName[i].split(",")
+            summonerName += distinction[0]
+            Number_of_searches = distinction[1]
 
     summonerName_lower = summonerName.replace(" ","").lower()
     encoding_summonerName = parse.quote(summonerName_lower)
@@ -11,10 +27,9 @@ def run_a_search(summonerName, Number_of_searches):
     pos = 10**ten
 
     winning_games = [] # 이긴 게임의 고유값들 리스트
-    losing_streak = 0 # 연패
-    winning_streak = 0 # 연승
+    #losing_streak = 0 연패
+    #winning_streak = 0 연승
 
-    api_key = "RGAPI-78191669-2f56-4f9f-b6d9-b456db6c7208"
     api_url = f'https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/{encoding_summonerName}'
     headers =\
     {
