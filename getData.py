@@ -78,5 +78,5 @@ def run_a_search(raw_summonerName):
         if (players_data[n]['summonerName'].replace(" ","").lower() == summonerName_lower) and (players_data[n]['win'] == True):
             winning_games.append(Id_list[i])
 
-    return (f"최근 솔로 랭크 게임 횟수는 전체 {Number_of_searches} 게임 중 {len(solo_rank_game)} 회 입니다.\n그 중 {len(winning_games)} 회 승리하였습니다. (승률 {(len(winning_games) / len(solo_rank_game) * 100 * pos + 0.5) // 1 / pos}%)")
+    return (f"최근 솔로 랭크 게임 횟수는 전체\n{Number_of_searches} 게임 중 {len(solo_rank_game)} 회 입니다.\n그 중 {len(winning_games)} 회 승리하였습니다.\n(승률 {(len(winning_games) / len(solo_rank_game) * 100 * pos + 0.5) // 1 / pos}%)")
     

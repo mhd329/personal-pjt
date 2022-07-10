@@ -6,6 +6,7 @@ import discord
 import getData
 from discord.ext import commands
 
+img_path = os.path.dirname(os.path.abspath(__file__)) + '/riot-games-rgb-logos-web'
 token_path = os.path.dirname(os.path.abspath(__file__)) + '/token.txt'
 with open(token_path, "r", encoding = "utf-8") as t:
     token = t.read()
@@ -66,6 +67,7 @@ async def leave(ctx):
 @bot.command(aliases = ["검색", "search", "찾기", "전적", "전적검색"])
 async def s(ctx, *raw_summonerName):
     ebd = discord.Embed (title = bot.user.name, description = '리그오브레전드 전적검색 봇', color = 0xF6BB43)
+    ebd.set_thumbnail(url="https://cdn.discordapp.com/attachments/995736483854036994/995737825133740082/lol-resize.png")
     
     summonerName = ''
     distinction = []
@@ -78,7 +80,7 @@ async def s(ctx, *raw_summonerName):
             summonerName += distinction[0]
     
     ebd.add_field (name = summonerName, value = getData.run_a_search(raw_summonerName), inline = False)
-    ebd.set_footer (text = bot.user.name)
+    ebd.set_footer (text = bot.user.name + ", This feature was created using Riot Games API.", icon_url="https://cdn.discordapp.com/attachments/995736483854036994/995745929363734548/001.3_RG_2021_LOGOMARK_CIRCLE_OFFWHITE_RED_CONTAINER.png")
     await ctx.send (embed = ebd)
 
 @bot.command(aliases = ["도움말", "도움", "사용법", "명령어"])
