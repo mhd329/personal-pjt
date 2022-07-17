@@ -1,6 +1,14 @@
-.vscode/
-__pycache__/
+# 폴더
+
+/discord_bot_trial/
+/.vscode/
+/__pycache__/
+/riot-games-rgb-logos-web/
+
+# 파일
 
 token.txt
 riot_api_key.txt
-/riot-games-rgb-logos-web
+requirements.txt
+
+
