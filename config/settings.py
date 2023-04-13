@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # library
     "rest_framework",
+    "rest_framework_simplejwt.token_blacklist",
     # apps
     "accounts",
     "todo",
@@ -169,7 +170,7 @@ SIMPLE_JWT = {
     # 액세스 토큰 발급할때마다 리프레시토큰 갱신 여부
     "ROTATE_REFRESH_TOKENS": False,
     # 만료된 액세스 토큰의 블랙리스트 추가 여부
-    "BLACKLIST_AFTER_ROTATION": False,
+    "BLACKLIST_AFTER_ROTATION": True,
     # 마지막 로그인 시간 업데이트 여부
     "UPDATE_LAST_LOGIN": True,
     # 서명에 사용할 알고리즘

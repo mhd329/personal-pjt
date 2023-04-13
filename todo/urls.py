@@ -4,19 +4,15 @@ from .views import *
 
 urlpatterns = [
     path(
+        "todo",
+        TodosAPIView.as_view(),
+    ),
+    path(
+        "todo/<int:todo_pk>",
+        TodoAPIView.as_view(),
+    ),
+    path(
         "all-todos",
-        TodosAPIView.as_view(),
-    ),
-    path(
-        "writing",
-        TodosAPIView.as_view(),
-    ),
-    path(
-        "check/<int:todo_pk>",
-        TodoAPIView.as_view(),
-    ),
-    path(
-        "renewal/<int:todo_pk>",
-        TodoAPIView.as_view(),
+        AllTodosAPIView.as_view(),
     ),
 ]
