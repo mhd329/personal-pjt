@@ -4,7 +4,7 @@ from rest_framework_simplejwt.serializers import (
     TokenRefreshSerializer,
 )
 from django.contrib.auth import get_user_model, authenticate
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from rest_framework.response import Response
 from .serializers import RegisterSerializer
 from rest_framework.views import APIView
@@ -28,7 +28,7 @@ class RegisterAPIView(APIView):
             res = Response(
                 {
                     "user": serializer.data,
-                    "message": "register success",
+                    "message": "회원가입 성공",
                     "token": {
                         "access_token": access_token,
                         "refresh_token": refresh_token,
@@ -44,37 +44,46 @@ class RegisterAPIView(APIView):
 
 class AuthView(APIView):
     # 유저 정보 확인
+    # 로그인 전 유저 정보를 jwt에서 추출
     def get(self, request):
+        # 디코딩을 위한 시크릿키가 있는 env 활성화
+        if "access_token" not in request.COOKIES:
+            return redirect("accounts:register")
         load_dotenv()
         try:
-            # access token을 decode 해서 유저 id 추출 => 유저 식별
-            access = request.COOKIES["access"]
+            access_token = request.COOKIES.get("access_token")
             payload = jwt.decode(
-                access, os.getenv("JWT_SECRET_KEY"), algorithms=["HS256"]
+                access_token, os.getenv("JWT_SECRET_KEY"), algorithms=["HS256"]
             )
-            pk = payload.get("user_id")
-            user = get_object_or_404(get_user_model(), pk=pk)
+            ###
+            print(payload, 111111111111111)
+            ###
+            user_pk = payload.get("user_id")
+            ###
+            print(user_pk, 222222222222222)
+            ###
+            user = get_object_or_404(get_user_model(), pk=user_pk)
             serializer = RegisterSerializer(instance=user)
             return Response(serializer.data, status=status.HTTP_200_OK)
-
         except jwt.exceptions.ExpiredSignatureError:
-            data = {"refresh": request.COOKIES.get("refresh", None)}
+            data = {
+                "refresh_token": request.COOKIES.get("refresh_token", None),
+            }
             serializer = TokenRefreshSerializer(data=data)
             if serializer.is_valid(raise_exception=True):
-                access = serializer.data.get("access", None)
-                refresh = serializer.data.get("refresh", None)
+                access_token = serializer.data.get("access_token", None)
+                refresh_token = serializer.data.get("refresh_token", None)
                 payload = jwt.decode(
-                    access, os.getenv("JWT_SECRET_KEY"), algorithms=["HS256"]
+                    access_token, os.getenv("JWT_SECRET_KEY"), algorithms=["HS256"]
                 )
-                pk = payload.get("user_id")
-                user = get_object_or_404(get_user_model(), pk=pk)
+                user_pk = payload.get("user_id")
+                user = get_object_or_404(get_user_model(), pk=user_pk)
                 serializer = RegisterSerializer(instance=user)
                 res = Response(serializer.data, status=status.HTTP_200_OK)
-                res.set_cookie("access", access)
-                res.set_cookie("refresh", refresh)
+                res.set_cookie("access_token", access_token)
+                res.set_cookie("refresh_token", refresh_token)
                 return res
             raise jwt.exceptions.InvalidTokenError
-
         except jwt.exceptions.InvalidTokenError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -91,25 +100,28 @@ class AuthView(APIView):
             res = Response(
                 {
                     "user": serializer.data,
-                    "message": "login success",
+                    "message": "로그인 성공",
                     "token": {
-                        "access": access_token,
-                        "refresh": refresh_token,
+                        "access_token": access_token,
+                        "refresh_token": refresh_token,
                     },
                 },
                 status=status.HTTP_200_OK,
             )
-            res.set_cookie("access", access_token, httponly=True)
-            res.set_cookie("refresh", refresh_token, httponly=True)
+            res.set_cookie("access_token", access_token, httponly=True)
+            res.set_cookie("refresh_token", refresh_token, httponly=True)
             return res
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     # 로그아웃
     def delete(self, request):
-        response = Response(
-            {"message": "Logout success"}, status=status.HTTP_202_ACCEPTED
+        res = Response(
+            {
+                "message": "로그아웃 성공",
+            },
+            status=status.HTTP_202_ACCEPTED,
         )
-        response.delete_cookie("access")
-        response.delete_cookie("refresh")
-        return response
+        res.set_cookie("access_token", "")
+        res.set_cookie("refresh_token", "")
+        return res
