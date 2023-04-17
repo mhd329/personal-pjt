@@ -5,8 +5,8 @@ from rest_framework_simplejwt.serializers import (
 )
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth import get_user_model, authenticate
-from django.shortcuts import get_object_or_404, redirect
 from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from .serializers import RegisterSerializer
 from rest_framework.views import APIView
@@ -72,7 +72,7 @@ class AuthView(APIView):
                     "refresh_token": request.COOKIES.get("refresh_token", None),
                 }
                 serializer = TokenRefreshSerializer(data=data)
-                if serializer.is_valid(raise_exception=True):
+                if serializer.is_valid():
                     access_token = serializer.data.get("access_token", None)
                     refresh_token = serializer.data.get("refresh_token", None)
                     payload = jwt.decode(
@@ -124,7 +124,6 @@ class AuthView(APIView):
 
     # 로그인
     def post(self, request):
-        print(str(request.user), 123123123123123)
         if str(request.user) != "AnonymousUser":
             user_email = request.user.email
             user = get_object_or_404(get_user_model(), email=user_email)
@@ -145,7 +144,7 @@ class AuthView(APIView):
             user = authenticate(
                 email=request.data.get("email"), password=request.data.get("password")
             )
-            if user is not None:
+            if user:
                 serializer = RegisterSerializer(user)
                 token = TokenObtainPairSerializer.get_token(user)
                 refresh_token = str(token)
@@ -153,7 +152,7 @@ class AuthView(APIView):
                 res = Response(
                     {
                         "user": serializer.data,
-                        "message": "로그인 성공",
+                        "message": "토큰 응답",
                         "token": {
                             "access_token": access_token,
                             "refresh_token": refresh_token,
