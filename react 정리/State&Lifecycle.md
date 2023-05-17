@@ -8,13 +8,14 @@
 
   == 리액트 컴포넌트의 (변경 가능한)데이터를 의미한다.
 
+  - state를 통해 렌더링에 필요한 데이터들을 관리하게 된다.
   - state는 개발자가 정의한다.
     - state는 클래스의 경우 생성자에서 정의된다.
     - 함수의 경우 useState라는 hook에서 정의된다.
   - 렌더링이나 데이터의 흐름에 관련된 값만 state에 포함시켜야 한다.
-    - 불필요하게 state가 변경될 경우 component가 다시 rendering되기 때문에 성능이 저하될 수 있다.
+    - 불필요하게 state가 변경될 경우 컴포넌트가 다시 렌더링되기 때문에 성능이 저하될 수 있다.
       - state는 직접 수정할 수 없다.
-      - setState 메서드를 통해 수정되어야 한다.
+      - setState 함수를 통해 수정되어야 한다.
         - 직접 수정할 수는 있지만 원칙적으로 금지된다.
 
 <br>
@@ -47,17 +48,24 @@
          - 컴포넌트의 props 변경
 
        - setState()
-         - state의 변경
-
+  
+         - state의 변경에 쓰이는 함수이다.
+  
+         ```jsx
+         this.setState({
+             state key : 변경할 state value
+         });
+         ```
+  
        - forceUpdate()
-
+  
          - 강제 업데이트
-
+  
          - 컴포넌트가 다시 렌더링됨
-
+  
     2. componentDidUpdate()
-
+  
   - Unmounting(사망 과정)
-
+  
     1. componentWillUnmount()
        - 상위 component에서 현재 component를 더이상 화면에 표시하지 않게 될때 unmount 된다.
