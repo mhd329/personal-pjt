@@ -46,7 +46,7 @@ class RegisterAPIView(APIView):
 class AuthView(APIView):
     # 헤더에 bearer 넣어서 보내기
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated] => 로그인 된 사람만 호출 허용하는 권한 설정
 
     # 로그인 페이지에 들어온 유저의 정보를 확인
     def get(self, request):
