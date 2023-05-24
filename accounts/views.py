@@ -4,8 +4,10 @@ from rest_framework_simplejwt.serializers import (
     TokenRefreshSerializer,
 )
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework.permissions import IsAuthenticated
+from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from .serializers import RegisterSerializer
@@ -20,26 +22,33 @@ class RegisterAPIView(APIView):
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.save()
-            token = TokenObtainPairSerializer.get_token(user)
-            refresh_token = str(token)
-            access_token = str(token.access_token)
-            # 회원가입 하게되면 토큰을 발급해준다.
-            res = Response(
-                {
-                    "user": serializer.data,
-                    "message": "회원가입 성공",
-                    "token": {
-                        "access_token": access_token,
-                        "refresh_token": refresh_token,
+            try:
+                user = serializer.create(serializer.validated_data)
+                validate_password(password=request.data["password"], user=user)
+                user.save()
+                token = TokenObtainPairSerializer.get_token(user)
+                refresh_token = str(token)
+                access_token = str(token.access_token)
+                # 회원가입 하게되면 토큰을 발급해준다.
+                res = Response(
+                    {
+                        "user": serializer.data,
+                        "message": "회원가입 성공",
+                        "token": {
+                            "access_token": access_token,
+                            "refresh_token": refresh_token,
+                        },
                     },
-                },
-                status=status.HTTP_201_CREATED,
-            )
-            # 토큰은 쿠키에 저장해놓고 사용하게 된다.
-            res.set_cookie("access_token", access_token, httponly=True)
-            res.set_cookie("refresh_token", refresh_token, httponly=True)
-            return res
+                    status=status.HTTP_201_CREATED,
+                )
+                # 토큰은 쿠키에 저장해놓고 사용하게 된다.
+                res.set_cookie("access_token", access_token, httponly=True)
+                res.set_cookie("refresh_token", refresh_token, httponly=True)
+                return res
+            except ValidationError as error:
+                return Response(error, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as error:
+                return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

@@ -1,6 +1,10 @@
 from django.db import models
 from django.core.validators import validate_email
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager,
+    PermissionsMixin,
+)
 
 
 # Create your models here.
@@ -13,7 +17,7 @@ class UserManager(BaseUserManager):
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
-        user.save(using=self._db)
+        # user.save(using=self._db) 유효성 검사를 위해 save를 분리함 => views.py의 RegisterAPIView로 옮김
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
