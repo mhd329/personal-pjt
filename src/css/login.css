@@ -1,0 +1,29 @@
+.login {
+  margin-top: 10rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.login__title {
+  margin: 1rem 0;
+}
+
+.login__form {
+  width: 30%;
+}
+
+.login__buttons {
+  display: flex;
+  justify-content: center;
+}
+
+.login__buttons--signup {
+  margin-left: 1rem;
+}
+
+.login__buttons--signup>a {
+  text-decoration: none;
+  color: white;
+}

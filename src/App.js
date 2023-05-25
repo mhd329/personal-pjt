@@ -1,9 +1,11 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Container from 'react-bootstrap/Container';
-import SignUpForm from "./components/SignUpForm";
+import SignUp from "./components/SignUp";
+import Login from "./components/Login";
 import Todos from "./components/Todos";
-import './App.css';
+import './css/login.css';
+import './css/signup.css';
 
 function App() {
   return (
@@ -11,9 +13,9 @@ function App() {
       <Container>
         <BrowserRouter>
           <Routes>
-            {/* <Route path="/" element={<LoginForm />} />
-          <Route path="/login" element={<LoginForm />} /> */}
-            <Route path="/signup" element={<SignUpForm />} />
+            <Route path="/" element={<Login />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
             <Route path="/todos" element={<Todos />} />
           </Routes>
         </BrowserRouter>

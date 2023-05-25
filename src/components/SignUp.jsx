@@ -5,18 +5,22 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Form } from 'react-bootstrap';
 import registUser from "./registUser";
 
-function SignUpForm(props) {
+function SignUp(props) {
     const [userEmail, setUserEmail] = useState("");
     const [userPassword1, setUserPassword1] = useState("");
     const [userPassword2, setUserPassword2] = useState("");
+    const [userAccessToken, setUserAccessToken] = useState("");
+    const [userRefreshToken, setUserRefreshToken] = useState("");
 
-    const userDateSet = [userEmail, userPassword1, userPassword2];
+    const userDataSet = [userEmail, userPassword1, userPassword2, userAccessToken, userRefreshToken];
 
     const goToLogin = useNavigate(
         "/login"
     );
 
-    useEffect(() => {}, userDateSet);
+    useEffect(registUser, userDataSet);
+    // 함수가 와야된다.
+    // (함수의 리턴값도 오면 안됨)
 
     const handleSubmit = event => {
         setUserEmail(event.target.formBasicEmail.value);
@@ -61,4 +65,4 @@ function SignUpForm(props) {
 
 
 
-export default SignUpForm;
+export default SignUp;
