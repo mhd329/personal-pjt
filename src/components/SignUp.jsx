@@ -3,29 +3,49 @@ import { useNavigate } from 'react-router-dom';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Form } from 'react-bootstrap';
-import registUser from "./registUser";
+
+import axios from "axios"
+
+// Hook은 오직 리액트 함수 내에서만 사용되어야 한다.
+// (일반 js 함수 내부에서 호출해서는 안됨)
+// 리액트 함수 최상위에서 호출해야 한다.
 
 function SignUp(props) {
+    const [formSubmitted, setFormSubmitted] = useState(false);
     const [userEmail, setUserEmail] = useState("");
     const [userPassword1, setUserPassword1] = useState("");
     const [userPassword2, setUserPassword2] = useState("");
     const [userAccessToken, setUserAccessToken] = useState("");
     const [userRefreshToken, setUserRefreshToken] = useState("");
 
-    const userDataSet = [userEmail, userPassword1, userPassword2, userAccessToken, userRefreshToken];
+    const userDataSet = [userEmail, userPassword1, userPassword2];
 
     const goToLogin = useNavigate(
         "/login"
     );
 
-    useEffect(registUser, userDataSet);
-    // 함수가 와야된다.
-    // (함수의 리턴값도 오면 안됨)
+    useEffect(() => {
+        if (formSubmitted) {
+            axios({
+                method: "post",
+                url: "http://127.0.0.1:8000/api/v1/accounts/register",
+                data: {
+                    email: userEmail,
+                    password: userPassword1,
+                    password2: userPassword2,
+                },
+            }).then((response) => {
+                console.log(response.data.token.access);
+                console.log(response.data.token.refresh);
+            });
+        }
+    }, userDataSet);
 
     const handleSubmit = event => {
         setUserEmail(event.target.formBasicEmail.value);
         setUserPassword1(event.target.formBasicPassword1.value);
         setUserPassword2(event.target.formBasicPassword2.value);
+        setFormSubmitted(true);
         event.preventDefault();
     };
 
