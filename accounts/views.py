@@ -22,33 +22,40 @@ class RegisterAPIView(APIView):
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
-            try:
-                user = serializer.create(serializer.validated_data)
-                validate_password(password=request.data["password"], user=user)
-                user.save()
-                token = TokenObtainPairSerializer.get_token(user)
-                refresh_token = str(token)
-                access_token = str(token.access_token)
-                # 회원가입 하게되면 토큰을 발급해준다.
-                res = Response(
-                    {
-                        "user": serializer.data,
-                        "message": "회원가입 성공",
-                        "token": {
-                            "access_token": access_token,
-                            "refresh_token": refresh_token,
+            pw1 = request.data["password"]
+            pw2 = request.data["password2"]
+            if pw1 == pw2:
+                try:
+                    user = serializer.create(serializer.validated_data)
+                    validate_password(password=request.data["password"], user=user)
+                    user.save()
+                    token = TokenObtainPairSerializer.get_token(user)
+                    refresh = str(token)
+                    access = str(token.access_token)
+                    # 회원가입 하게되면 토큰을 발급해준다.
+                    res = Response(
+                        {
+                            "user": serializer.data,
+                            "message": "회원가입 성공",
+                            "token": {
+                                "access": access,
+                                "refresh": refresh,
+                            },
                         },
-                    },
-                    status=status.HTTP_201_CREATED,
+                        status=status.HTTP_201_CREATED,
+                    )
+                    # 토큰은 쿠키에 저장해놓고 사용하게 된다.
+                    res.set_cookie("access", access, httponly=True)
+                    res.set_cookie("refresh", refresh, httponly=True)
+                    return res
+                except ValidationError as error:
+                    return Response(error, status=status.HTTP_400_BAD_REQUEST)
+                except Exception as error:
+                    return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            else:
+                return Response(
+                    ["두 비밀번호가 일치하지 않습니다."], status=status.HTTP_400_BAD_REQUEST
                 )
-                # 토큰은 쿠키에 저장해놓고 사용하게 된다.
-                res.set_cookie("access_token", access_token, httponly=True)
-                res.set_cookie("refresh_token", refresh_token, httponly=True)
-                return res
-            except ValidationError as error:
-                return Response(error, status=status.HTTP_400_BAD_REQUEST)
-            except Exception as error:
-                return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -62,12 +69,12 @@ class AuthView(APIView):
         # 디코딩을 위한 시크릿키가 있는 env 활성화
         load_dotenv()
         # 쿠키에 토큰이 있는 경우
-        if "access_token" in request.COOKIES:
+        if "access" in request.COOKIES:
             try:
-                access_token = request.COOKIES.get("access_token")
+                access = request.COOKIES.get("access")
                 # 토큰 디코딩을 해서 유저 정보 추출을 시도한다.
                 payload = jwt.decode(
-                    access_token, os.getenv("JWT_SECRET_KEY"), algorithms=["HS256"]
+                    access, os.getenv("JWT_SECRET_KEY"), algorithms=["HS256"]
                 )
                 user_email = payload.get("email")
                 user = get_object_or_404(get_user_model(), email=user_email)
@@ -78,14 +85,14 @@ class AuthView(APIView):
             except jwt.exceptions.ExpiredSignatureError:
                 # 재발급을 시도함
                 data = {
-                    "refresh_token": request.COOKIES.get("refresh_token", None),
+                    "refresh": request.COOKIES.get("refresh", None),
                 }
                 serializer = TokenRefreshSerializer(data=data)
                 if serializer.is_valid():
-                    access_token = serializer.data.get("access_token", None)
-                    refresh_token = serializer.data.get("refresh_token", None)
+                    access = serializer.data.get("access", None)
+                    refresh = serializer.data.get("refresh", None)
                     payload = jwt.decode(
-                        access_token, os.getenv("JWT_SECRET_KEY"), algorithms=["HS256"]
+                        access, os.getenv("JWT_SECRET_KEY"), algorithms=["HS256"]
                     )
                     user_email = payload.get("email")
                     user = get_object_or_404(get_user_model(), email=user_email)
@@ -95,14 +102,14 @@ class AuthView(APIView):
                             "user": serializer.data,
                             "message": "토큰을 재발급 하였습니다.",
                             "token": {
-                                "access_token": access_token,
-                                "refresh_token": refresh_token,
+                                "access": access,
+                                "refresh": refresh,
                             },
                         },
                         status=status.HTTP_200_OK,
                     )
-                    res.set_cookie("access_token", access_token)
-                    res.set_cookie("refresh_token", refresh_token)
+                    res.set_cookie("access", access)
+                    res.set_cookie("refresh", refresh)
                     return res
                 # 재발급 실패한 경우
                 raise jwt.exceptions.InvalidTokenError
@@ -112,8 +119,8 @@ class AuthView(APIView):
                     {
                         "message": "사용할 수 없는 토큰입니다.",
                         "token": {
-                            "access_token": request.COOKIES.get("access_token"),
-                            "refresh_token": request.COOKIES.get("refresh_token"),
+                            "access": request.COOKIES.get("access"),
+                            "refresh": request.COOKIES.get("refresh"),
                         },
                     },
                     status=status.HTTP_400_BAD_REQUEST,
@@ -124,8 +131,8 @@ class AuthView(APIView):
                 {
                     "message": "토큰이 존재하지 않습니다.",
                     "token": {
-                        "access_token": None,
-                        "refresh_token": None,
+                        "access": None,
+                        "refresh": None,
                     },
                 },
                 status=status.HTTP_200_OK,
@@ -142,8 +149,8 @@ class AuthView(APIView):
                     "user": serializer.data,
                     "message": "이미 로그인 하였습니다.",
                     "token": {
-                        "access_token": request.COOKIES.get("access_token"),
-                        "refresh_token": request.COOKIES.get("refresh_token"),
+                        "access": request.COOKIES.get("access"),
+                        "refresh": request.COOKIES.get("refresh"),
                     },
                 },
                 status=status.HTTP_400_BAD_REQUEST,
@@ -156,21 +163,21 @@ class AuthView(APIView):
             if user:
                 serializer = RegisterSerializer(user)
                 token = TokenObtainPairSerializer.get_token(user)
-                refresh_token = str(token)
-                access_token = str(token.access_token)
+                refresh = str(token)
+                access = str(token.access)
                 res = Response(
                     {
                         "user": serializer.data,
                         "message": "토큰 응답",
                         "token": {
-                            "access_token": access_token,
-                            "refresh_token": refresh_token,
+                            "access": access,
+                            "refresh": refresh,
                         },
                     },
                     status=status.HTTP_200_OK,
                 )
-                res.set_cookie("access_token", access_token, httponly=True)
-                res.set_cookie("refresh_token", refresh_token, httponly=True)
+                res.set_cookie("access", access, httponly=True)
+                res.set_cookie("refresh", refresh, httponly=True)
                 return res
             else:
                 res = Response(
@@ -190,6 +197,6 @@ class AuthView(APIView):
             },
             status=status.HTTP_202_ACCEPTED,
         )
-        res.set_cookie("access_token", "")
-        res.set_cookie("refresh_token", "")
+        res.set_cookie("access", "")
+        res.set_cookie("refresh", "")
         return res
