@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from 'react-router-dom';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Form } from 'react-bootstrap';
 
-import axios from "axios"
+import client from "../client";
+import cookie from 'react-cookies';
 
 // Hook은 오직 리액트 함수 내에서만 사용되어야 한다.
 // (일반 js 함수 내부에서 호출해서는 안됨)
 // 리액트 함수 최상위에서 호출해야 한다.
 
 function SignUp(props) {
+    const [validated, setValidated] = useState(false);
     const [formSubmitted, setFormSubmitted] = useState(false);
     const [userEmail, setUserEmail] = useState("");
     const [userPassword1, setUserPassword1] = useState("");
@@ -25,39 +27,49 @@ function SignUp(props) {
     );
 
     useEffect(() => {
+        // headers: { "Authorization": , "Content-Type": "application/json", Accept: "application/json", }
         if (formSubmitted) {
-            axios({
-                method: "post",
-                url: "http://127.0.0.1:8000/api/v1/accounts/register",
-                data: {
-                    email: userEmail,
-                    password: userPassword1,
-                    password2: userPassword2,
-                },
-            }).then((response) => {
-                console.log(response.data.token.access);
-                console.log(response.data.token.refresh);
-            });
-        }
+            async function createUser() {
+                try {
+                    const response = await client.post("register", {
+                        email: userEmail,
+                        password: userPassword1,
+                        password2: userPassword2,
+                    })
+                    console.log(response.data.token.access);
+                    console.log(response.data.token.refresh);
+                } catch (error) {
+                    console.log(error.response.data);
+                };
+            };
+            createUser();
+        };
     }, userDataSet);
 
-    const handleSubmit = event => {
+    const handleSubmit = useCallback(event => {
         setUserEmail(event.target.formBasicEmail.value);
         setUserPassword1(event.target.formBasicPassword1.value);
         setUserPassword2(event.target.formBasicPassword2.value);
-        setFormSubmitted(true);
+        const form = event.currentTarget;
+        if (form.checkValidity() === true) {
+            setFormSubmitted(true);
+        } else {
+            event.stopPropagation();
+        };
+        setValidated(true);
         event.preventDefault();
-    };
+    }, []);
 
     return (
         <div className="signup">
             <h1 className="signup__title">회원 가입</h1>
-            <Form className="signup__form" onSubmit={handleSubmit}>
+            <Form noValidate validated={validated} className="signup__form needs-validation" onSubmit={handleSubmit}>
                 <Form.Group className="mb-3" controlId="formBasicEmail">
                     <Form.Label>
                         아이디
                     </Form.Label>
                     <Form.Control
+                        required
                         type="email"
                         placeholder="이메일 형식으로 입력해주세요."
                     />
@@ -65,6 +77,7 @@ function SignUp(props) {
                 <Form.Group className="mb-3" controlId="formBasicPassword1">
                     <Form.Label>비밀번호</Form.Label>
                     <Form.Control
+                        required
                         type="password"
                     />
                 </Form.Group>
@@ -72,6 +85,7 @@ function SignUp(props) {
                     <Form.Label>비밀번호 확인</Form.Label>
                     <Form.Control
                         type="password"
+                        required="true"
                     />
                 </Form.Group>
                 <div className="signup__buttons">
