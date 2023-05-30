@@ -6,11 +6,11 @@ from rest_framework_simplejwt.serializers import (
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import get_user_model, authenticate
+from .serializers import RegisterSerializer, AuthSerializer
 from rest_framework.permissions import IsAuthenticated
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
-from .serializers import RegisterSerializer
 from rest_framework.views import APIView
 from rest_framework import status
 from dotenv import load_dotenv
@@ -45,8 +45,9 @@ class RegisterAPIView(APIView):
                         status=status.HTTP_201_CREATED,
                     )
                     # 토큰은 쿠키에 저장해놓고 사용하게 된다.
-                    res.set_cookie("access", access, httponly=True)
-                    res.set_cookie("refresh", refresh, httponly=True)
+                    # 배포시 secure=True, httponly=True 설정
+                    res.set_cookie("access", access)
+                    res.set_cookie("refresh", refresh)
                     return res
                 except ValidationError as error:
                     return Response(error, status=status.HTTP_400_BAD_REQUEST)
@@ -60,11 +61,15 @@ class RegisterAPIView(APIView):
 
 
 class AuthView(APIView):
-    # 헤더에 bearer 넣어서 보내기
-    authentication_classes = [JWTAuthentication]
-    # permission_classes = [IsAuthenticated] => 로그인 된 사람만 호출 허용하는 권한 설정
+    # 클라이언트는 요청 헤더에 bearer 넣어서 보내야 한다.
 
-    # 로그인 페이지에 들어온 유저의 정보를 확인
+    # 인증 클래스 설정
+    authentication_classes = [JWTAuthentication]
+
+    # 로그인 된 사람만 api 응답하는 권한 설정
+    permission_classes = [IsAuthenticated]
+
+    # 로그인이 필요한 페이지(권한이 필요한 페이지)에 들어온 유저의 토큰 유무를 확인
     def get(self, request):
         # 디코딩을 위한 시크릿키가 있는 env 활성화
         load_dotenv()
@@ -78,7 +83,7 @@ class AuthView(APIView):
                 )
                 user_email = payload.get("email")
                 user = get_object_or_404(get_user_model(), email=user_email)
-                serializer = RegisterSerializer(instance=user)
+                serializer = AuthSerializer(instance=user)
                 # 현재 유저 정보를 반환한다.
                 return Response(serializer.data, status=status.HTTP_200_OK)
             # 토큰 기한이 만료된 경우
@@ -96,11 +101,11 @@ class AuthView(APIView):
                     )
                     user_email = payload.get("email")
                     user = get_object_or_404(get_user_model(), email=user_email)
-                    serializer = RegisterSerializer(instance=user)
+                    serializer = AuthSerializer(instance=user)
                     res = Response(
                         {
                             "user": serializer.data,
-                            "message": "토큰을 재발급 하였습니다.",
+                            "message": "엑세스 토큰이 만료되어 재발급 하였습니다.",
                             "token": {
                                 "access": access,
                                 "refresh": refresh,
@@ -117,11 +122,7 @@ class AuthView(APIView):
             except jwt.exceptions.InvalidTokenError:
                 return Response(
                     {
-                        "message": "사용할 수 없는 토큰입니다.",
-                        "token": {
-                            "access": request.COOKIES.get("access"),
-                            "refresh": request.COOKIES.get("refresh"),
-                        },
+                        "message": "리프레시 토큰을 사용할 수 없습니다.",
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
@@ -130,24 +131,22 @@ class AuthView(APIView):
             return Response(
                 {
                     "message": "토큰이 존재하지 않습니다.",
-                    "token": {
-                        "access": None,
-                        "refresh": None,
-                    },
                 },
-                status=status.HTTP_200_OK,
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
+
+class LoginView(APIView):
     # 로그인
     def post(self, request):
         if str(request.user) != "AnonymousUser":
             user_email = request.user.email
             user = get_object_or_404(get_user_model(), email=user_email)
-            serializer = RegisterSerializer(instance=user)
+            serializer = AuthSerializer(instance=user)
             res = Response(
                 {
                     "user": serializer.data,
-                    "message": "이미 로그인 하였습니다.",
+                    "message": "이미 로그인 상태입니다.",
                     "token": {
                         "access": request.COOKIES.get("access"),
                         "refresh": request.COOKIES.get("refresh"),
@@ -161,14 +160,14 @@ class AuthView(APIView):
                 email=request.data.get("email"), password=request.data.get("password")
             )
             if user:
-                serializer = RegisterSerializer(user)
+                serializer = AuthSerializer(user)
                 token = TokenObtainPairSerializer.get_token(user)
                 refresh = str(token)
-                access = str(token.access)
+                access = str(token.access_token)
                 res = Response(
                     {
                         "user": serializer.data,
-                        "message": "토큰 응답",
+                        "message": "로그인 성공",
                         "token": {
                             "access": access,
                             "refresh": refresh,
@@ -176,9 +175,22 @@ class AuthView(APIView):
                     },
                     status=status.HTTP_200_OK,
                 )
-                res.set_cookie("access", access, httponly=True)
-                res.set_cookie("refresh", refresh, httponly=True)
-                return res
+                res.set_cookie(
+                    "access",
+                    access,
+                    httponly=True,
+                    path="/",
+                    secure=True,
+                    samesite=None,
+                )
+                res.set_cookie(
+                    "refresh",
+                    refresh,
+                    httponly=True,
+                    path="/",
+                    secure=True,
+                    samesite=None,
+                )
             else:
                 res = Response(
                     {
@@ -186,17 +198,16 @@ class AuthView(APIView):
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-                return res
+            return res
 
     # 로그아웃
     def delete(self, request):
-        print("로그아웃 전 쿠키 :", request.COOKIES)
         res = Response(
             {
                 "message": "로그아웃 성공",
             },
             status=status.HTTP_202_ACCEPTED,
         )
-        res.set_cookie("access", "")
-        res.set_cookie("refresh", "")
+        res.delete_cookie("access")
+        res.delete_cookie("refresh")
         return res

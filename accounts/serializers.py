@@ -20,3 +20,14 @@ class RegisterSerializer(serializers.ModelSerializer):
             password=validated_data["password"],
         )
         return user
+
+
+class AuthSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = "__all__"
+        extra_kwargs = {
+            "password": {
+                "write_only": True,
+            },
+        }

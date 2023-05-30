@@ -33,6 +33,7 @@ DEBUG = os.getenv("DEBUG") == "True"
 
 ALLOWED_HOSTS = [
     "127.0.0.1",
+    "localhost",
 ]
 
 
@@ -49,6 +50,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
+    "sslserver",
     # apps
     "accounts",
     "todo",
@@ -65,10 +67,10 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = [
     "http://localhost:3000",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
+    "http://127.0.0.1:3000",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -173,8 +175,8 @@ from datetime import timedelta
 
 SIMPLE_JWT = {
     # 토큰 라이프사이클 관리
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=60),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=14),
     # 액세스 토큰 발급할때마다 리프레시토큰 갱신 여부
     "ROTATE_REFRESH_TOKENS": False,
     # 만료된 액세스 토큰의 블랙리스트 추가 여부

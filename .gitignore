@@ -304,3 +304,8 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/django,python,windows,venv,dotenv
+
+# ssl 인증서
+*.crt
+*.csr
+*.key
