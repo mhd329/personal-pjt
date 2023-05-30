@@ -1,10 +1,13 @@
 import React from "react";
+import Logout from "./Logout";
 
-const Todos = (props) => {
+function Todos(props) {
+    
     return (
-        <>
+        <div>
             <h1>Todo page</h1>
-        </>
+            <Logout />
+        </div>
     )
 }
 

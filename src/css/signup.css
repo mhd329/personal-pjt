@@ -22,3 +22,7 @@
 .signup__buttons--cancel {
   margin-left: 1rem;
 }
+
+.form-text {
+  word-break: keep-all;
+}
