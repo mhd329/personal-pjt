@@ -1,38 +1,22 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from 'react-router-dom';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Form } from 'react-bootstrap';
 
-import client from "../client";
-import cookie from 'react-cookies';
-
-// Hook은 오직 리액트 함수 내에서만 사용되어야 한다.
-// (일반 js 함수 내부에서 호출해서는 안됨)
-// 리액트 함수 최상위에서 호출해야 한다.
+import client from "../utils/client";
+import useValidation from "../hooks/useValidation";
 
 function SignUp(props) {
+    const userDataSchema = {
+        email: '',
+        password: '',
+        password2: '',
+    };
+    const [userData, setUserData] = useValidation(userDataSchema);
     const [checkFormValid, setCheckFormValid] = useState(false);
     const [formSubmitted, setFormSubmitted] = useState(false);
-    const [user, setUser] = useState(
-        {
-            email: '',
-            password: '',
-            password2: '',
-            token: {
-                access: '',
-                refresh: '',
-            },
-        });
-
-    // 유효성 검사
-    const validEmail = new RegExp(/^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i);
-    const validPassword = new RegExp(/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,20})/);
-    const [checkValidData, setCheckValidData] = useState({
-        email: false,
-        password: false,
-        password2: false,
-    });
+    const [userObj, userValidation] = userData;
 
     const navigate = useNavigate();
     // 취소버튼 로그인창으로 돌아가기
@@ -49,20 +33,9 @@ function SignUp(props) {
         if (formSubmitted) {
             async function createUser() {
                 try {
-                    const response = await client.post("register", {
-                        email: user["email"],
-                        password: user["password"],
-                        password2: user["password2"],
+                    await client.post("register", userObj, {
+                        withCredentials: true
                     });
-                    // 쿠키는 서버에서 저장된 상태로 반환됨
-                    // cookie.save("access", response.data.token.access, {
-                    //     secure: true,
-                    //     httpOnly: true,
-                    // });
-                    // cookie.save("refresh", response.data.token.refresh, {
-                    //     secure: true,
-                    //     httpOnly: true,
-                    // });
                     goToMain();
                 } catch (error) {
                     alert(error.response.data.email === undefined ? error.response.data : error.response.data.email);
@@ -70,58 +43,25 @@ function SignUp(props) {
             };
             createUser();
         };
-        // 제출 완료한다음 제출 여부를 다시 false로 바꿈(제출과 동시에 input을 비워주면 중복제출이 방지되는 효과가 있다).
+        // 제출 완료한다음 제출 여부를 다시 false로 바꿈
+        // 1. formSubmitted이 true일 때만 제출하게 되면 컴포넌트 마운트 될 때마다 서버와 통신하게 되는 것이 방지된다.
+        // 2. 잘못된 제출의 경우 다시 제출하기 위해서 false로 바꿔줘야 한다.
         setFormSubmitted(false);
     }, [formSubmitted]);
 
-    // 이메일 입력시 작동하는 함수
-    const handleChangeEmail = event => {
-        setUser({
-            ...user,
-            email: event.currentTarget.value,
-        });
-        setCheckValidData({
-            ...checkValidData,
-            email: validEmail.test(user["email"]),
-        });
-    }
-
-    // 비밀번호 입력시 작동하는 함수
-    const handleChangePassword = event => {
-        setUser({
-            ...user,
-            password: event.currentTarget.value,
-        });
-        setCheckValidData({
-            ...checkValidData,
-            password: validPassword.test(event.currentTarget.value),
-            password2: validPassword.test(user["password2"]) && (event.currentTarget.value === user["password2"]),
-        });
-    }
-
-    // 비밀번호 확인 입력시 작동하는 함수
-    const handleChangePassword2 = event => {
-        setUser({
-            ...user,
-            password2: event.currentTarget.value,
-        });
-        setCheckValidData({
-            ...checkValidData,
-            password: validPassword.test(user["password"]),
-            password2: validPassword.test(event.currentTarget.value) && (user["password"] === event.currentTarget.value),
-        });
-    }
-
     // 폼 제출버튼 클릭시 작동하는 함수
     // 폼 전체 유효성 검사 실행
-    const handleSubmit = event => {
+    const completion = userValidation["email"] && userValidation["password"] && userValidation["password2"]
+    const handleSubmit = useCallback(event => {
         setCheckFormValid(true);
-        if (checkValidData["email"] && checkValidData["password"] && checkValidData["password2"]) {
+        if (completion) {
             setFormSubmitted(true);
+        } else {
+            alert("올바른 값을 작성해주세요.")
         };
         event.preventDefault();
         event.stopPropagation();
-    };
+    }, [completion]);
 
     return (
         <div className="signup">
@@ -136,9 +76,9 @@ function SignUp(props) {
                         type="email"
                         autoComplete="off"
                         placeholder="이메일 형식으로 입력해주세요."
-                        onChange={handleChangeEmail}
-                        isValid={checkValidData["email"]}
-                        isInvalid={checkFormValid && (!checkValidData["email"] && user["email"] !== '')}
+                        onChange={setUserData}
+                        isValid={userValidation["email"]}
+                        isInvalid={checkFormValid && (!userValidation["email"] && userObj["email"] !== '')}
                     />
                     <Form.Control.Feedback type="invalid">
                         올바른 이메일 주소를 입력해주세요.
@@ -149,9 +89,9 @@ function SignUp(props) {
                     <Form.Control
                         required
                         type="password"
-                        onChange={handleChangePassword}
-                        isValid={checkValidData["password"]}
-                        isInvalid={checkFormValid && (!checkValidData["password"] && user["password"] !== '')}
+                        onChange={setUserData}
+                        isValid={userValidation["password"]}
+                        isInvalid={checkFormValid && (!userValidation["password"] && userObj["password"] !== '')}
                     />
                     <Form.Text id="passwordHelpBlock" muted>
                         8~20자 사이의 영어 대소문자, 특수문자, 숫자 포함
@@ -165,9 +105,9 @@ function SignUp(props) {
                     <Form.Control
                         required
                         type="password"
-                        onChange={handleChangePassword2}
-                        isValid={checkValidData["password2"]}
-                        isInvalid={checkFormValid && (!checkValidData["password2"] && user["password2"] !== '')}
+                        onChange={setUserData}
+                        isValid={userValidation["password2"]}
+                        isInvalid={checkFormValid && (!userValidation["password2"] && userObj["password2"] !== '')}
                     />
                     <Form.Control.Feedback type="valid">
                         두 비밀번호가 일치합니다.

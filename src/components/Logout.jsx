@@ -1,31 +1,28 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
-import cookie from 'react-cookies';
-import client from "../client";
-import React from "react";
+import client from "../utils/client";
+import React, { useCallback } from "react";
 
 function Logout(props) {
-    const navigate = useNavigate();
     // 로그아웃시 로그인창으로 가기
+    const navigate = useNavigate();
     const goToLogin = () => {
         navigate("/login")
     };
 
-    const handleClick = () => {
+    const handleClick = useCallback(() => {
         async function logout() {
             try {
-                const response = await client.delete("login");
-                // 쿠키 저장및 삭제와 관련된 작업은 서버에서 처리됨
-                // cookie.remove("access");
-                // cookie.remove("refresh");
-                console.log(response);
+                await client.delete("login", {
+                    withCredentials: true
+                });
+                goToLogin();
             } catch (error) {
                 console.log(error);
             };
         };
         logout();
-        // goToLogin();
-    };
+    });
 
     return (
         <Button variant="primary" type="button" onClick={handleClick}>

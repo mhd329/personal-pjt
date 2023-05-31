@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Container from 'react-bootstrap/Container';
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
-import Todos from "./components/Todos";
+import Todos from "./pages/TodoPage";
 import './css/login.css';
 import './css/signup.css';
 
