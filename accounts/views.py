@@ -45,9 +45,12 @@ class RegisterAPIView(APIView):
                         status=status.HTTP_201_CREATED,
                     )
                     # 토큰은 쿠키에 저장해놓고 사용하게 된다.
-                    # 배포시 secure=True, httponly=True 설정
-                    res.set_cookie("access", access)
-                    res.set_cookie("refresh", refresh)
+                    res.set_cookie(
+                        "access", access, httponly=True, secure=True, samesite="none"
+                    )
+                    res.set_cookie(
+                        "refresh", refresh, httponly=True, secure=True, samesite="none"
+                    )
                     return res
                 except ValidationError as error:
                     return Response(error, status=status.HTTP_400_BAD_REQUEST)
@@ -113,8 +116,12 @@ class AuthView(APIView):
                         },
                         status=status.HTTP_200_OK,
                     )
-                    res.set_cookie("access", access)
-                    res.set_cookie("refresh", refresh)
+                    res.set_cookie(
+                        "access", access, httponly=True, secure=True, samesite="none"
+                    )
+                    res.set_cookie(
+                        "refresh", refresh, httponly=True, secure=True, samesite="none"
+                    )
                     return res
                 # 재발급 실패한 경우
                 raise jwt.exceptions.InvalidTokenError
@@ -176,20 +183,10 @@ class LoginView(APIView):
                     status=status.HTTP_200_OK,
                 )
                 res.set_cookie(
-                    "access",
-                    access,
-                    httponly=True,
-                    path="/",
-                    secure=True,
-                    samesite=None,
+                    "access", access, httponly=True, secure=True, samesite="none"
                 )
                 res.set_cookie(
-                    "refresh",
-                    refresh,
-                    httponly=True,
-                    path="/",
-                    secure=True,
-                    samesite=None,
+                    "refresh", refresh, httponly=True, secure=True, samesite="none"
                 )
             else:
                 res = Response(
@@ -208,6 +205,6 @@ class LoginView(APIView):
             },
             status=status.HTTP_202_ACCEPTED,
         )
-        res.delete_cookie("access")
-        res.delete_cookie("refresh")
+        res.delete_cookie("access", samesite="none")
+        res.delete_cookie("refresh", samesite="none")
         return res
