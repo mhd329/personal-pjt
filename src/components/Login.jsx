@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -14,15 +14,16 @@ function Login(props) {
     });
     const [formSubmitted, setFormSubmitted] = useState(false);
 
-    const handleSubmit = event => {
+    const handleSubmit = useCallback(event => {
+        setFormSubmitted(true);
         setUser({
             ...user,
             email: event.target.formBasicEmail.value,
             password: event.target.formBasicPassword.value,
         });
-        setFormSubmitted(true);
         event.preventDefault();
-    };
+        event.stopPropagation();
+    }, [formSubmitted]);
 
     // 로그인 성공시 todo페이지로 가기
     const navigate = useNavigate();

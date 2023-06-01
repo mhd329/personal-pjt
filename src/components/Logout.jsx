@@ -16,12 +16,12 @@ function Logout(props) {
                 await client.delete("login", {
                     withCredentials: true
                 });
-                goToLogin();
             } catch (error) {
                 console.log(error);
             };
         };
         logout();
+        goToLogin();
     });
 
     return (

@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default value => {
+export default (value) => {
     const validationObj = {};
     // 사용자 state
     const [user, setUser] = useState(value);
@@ -16,7 +16,7 @@ export default value => {
 
     // 입력시 유효성 검사 작동
     // 매 입력마다 검사해야 하기 때문에 useCallback을 쓰지 않음
-    const handler = event => {
+    const handler = (event) => {
         const inputId = event.currentTarget.id;
         setUser({
             ...user,

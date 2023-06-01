@@ -52,7 +52,7 @@ function SignUp(props) {
     // 폼 제출버튼 클릭시 작동하는 함수
     // 폼 전체 유효성 검사 실행
     const completion = userValidation["email"] && userValidation["password"] && userValidation["password2"]
-    const handleSubmit = useCallback(event => {
+    const handleSubmit = useCallback((event) => {
         setCheckFormValid(true);
         if (completion) {
             setFormSubmitted(true);

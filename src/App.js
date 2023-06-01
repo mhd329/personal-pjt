@@ -6,6 +6,7 @@ import Login from "./components/Login";
 import Todos from "./pages/TodoPage";
 import './css/login.css';
 import './css/signup.css';
+import Main from "./components/Main";
 
 function App() {
   return (
@@ -16,7 +17,7 @@ function App() {
             <Route path="/" element={<Login />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
-            <Route path="/todos" element={<Todos />} />
+            <Route path="/todos" element={<Main />} />
           </Routes>
         </BrowserRouter>
       </Container>
