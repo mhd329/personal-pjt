@@ -5,9 +5,7 @@ const client = axios.create({
     baseURL: "https://localhost:8443/api/v1/accounts/",
     timeout: 5000,
     headers: {
-        "Authorization": cookie.load("access") ? `Bearer ${cookie.load("access")}` : null,
-        "Content-Type": "application/json",
-        Accept: "application/json",
+        Authorization: cookie.load("access") ? `Bearer ${cookie.load("access")}` : null,
     }
 });
 

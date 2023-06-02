@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
+
 import { useNavigate } from 'react-router-dom';
+import { Link } from "react-router-dom";
+import cookie from 'react-cookies';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Form } from 'react-bootstrap';
-import { Link } from "react-router-dom";
 
 import client from "../utils/client";
 
@@ -38,10 +40,18 @@ function Login(props) {
                     const response = await client.post("login", user, {
                         withCredentials: true
                     });
+                    cookie.save("test", "testtesttest", {
+                        secure: true,
+                        httpOnly: true,
+                        sameSite: "none",
+                    })
                     console.log(response);
-                    goToMain();
+                    console.log(cookie.load("access"));
+                    console.log(cookie.load("test"));
+                    // goToMain();
                 } catch (error) {
-                    console.log(error.response);
+                    alert(error);
+                    console.log(error);
                 };
             };
             login();

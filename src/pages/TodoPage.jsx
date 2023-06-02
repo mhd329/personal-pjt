@@ -1,14 +1,15 @@
 import React from "react";
 import Logout from "../components/Logout";
+import Todos from "../components/Todos";
 
-function Todos(props) {
-    
+function TodoPage(props) {
+
     return (
         <div>
-            <h1>Todo page</h1>
+            <Todos />
             <Logout />
         </div>
     )
 }
 
-export default Todos;
+export default TodoPage;

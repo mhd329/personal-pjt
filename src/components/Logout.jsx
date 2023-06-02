@@ -13,11 +13,12 @@ function Logout(props) {
     const handleClick = useCallback(() => {
         async function logout() {
             try {
-                await client.delete("login", {
+                const response = await client.delete("login", {
                     withCredentials: true
                 });
+                console.log(response);
             } catch (error) {
-                console.log(error);
+                console.log(error.response.data.message);
             };
         };
         logout();
