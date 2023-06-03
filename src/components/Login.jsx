@@ -40,18 +40,13 @@ function Login(props) {
                     const response = await client.post("login", user, {
                         withCredentials: true
                     });
-                    cookie.save("test", "testtesttest", {
-                        secure: true,
-                        httpOnly: true,
-                        sameSite: "none",
-                    })
                     console.log(response);
-                    console.log(cookie.load("access"));
-                    console.log(cookie.load("test"));
-                    // goToMain();
+                    console.log(cookie.load(("access")));
+                    goToMain();
                 } catch (error) {
                     alert(error);
                     console.log(error);
+                    console.log(cookie.load(("access")));
                 };
             };
             login();
