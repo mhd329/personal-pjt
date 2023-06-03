@@ -3,12 +3,13 @@ from rest_framework_simplejwt.serializers import (
     TokenObtainPairSerializer,
     TokenRefreshSerializer,
 )
-from rest_framework_simplejwt.authentication import JWTAuthentication
+
+# from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import get_user_model, authenticate
 from .serializers import RegisterSerializer, AuthSerializer
-from rest_framework.permissions import IsAuthenticated
 from django.core.exceptions import ValidationError
+from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -19,6 +20,8 @@ import os
 
 
 class RegisterAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
@@ -46,10 +49,17 @@ class RegisterAPIView(APIView):
                     )
                     # 토큰은 쿠키에 저장해놓고 사용하게 된다.
                     res.set_cookie(
-                        "access", access, httponly=True, secure=True, samesite="none"
+                        "access",
+                        access,
+                        secure=True,
+                        samesite="none",
                     )
                     res.set_cookie(
-                        "refresh", refresh, httponly=True, secure=True, samesite="none"
+                        "refresh",
+                        refresh,
+                        httponly=True,
+                        secure=True,
+                        samesite="none",
                     )
                     return res
                 except ValidationError as error:
@@ -65,13 +75,6 @@ class RegisterAPIView(APIView):
 
 class AuthView(APIView):
     # 클라이언트는 요청 헤더에 bearer 넣어서 보내야 한다.
-
-    # 인증 클래스 설정
-    authentication_classes = [JWTAuthentication]
-
-    # 로그인 된 사람만 api 응답하는 권한 설정
-    permission_classes = [IsAuthenticated]
-
     # 로그인이 필요한 페이지(권한이 필요한 페이지)에 들어온 유저의 토큰 유무를 확인
     def get(self, request):
         # 디코딩을 위한 시크릿키가 있는 env 활성화
@@ -117,10 +120,17 @@ class AuthView(APIView):
                         status=status.HTTP_200_OK,
                     )
                     res.set_cookie(
-                        "access", access, httponly=True, secure=True, samesite="none"
+                        "access",
+                        access,
+                        secure=True,
+                        samesite="none",
                     )
                     res.set_cookie(
-                        "refresh", refresh, httponly=True, secure=True, samesite="none"
+                        "refresh",
+                        refresh,
+                        httponly=True,
+                        secure=True,
+                        samesite="none",
                     )
                     return res
                 # 재발급 실패한 경우
@@ -144,10 +154,27 @@ class AuthView(APIView):
 
 
 class LoginView(APIView):
+    """
+    처음 로그인 여부를 구분하려는 코드는 if str(request.user) != "AnonymousUser": 였다.
+    코드를 아래와 같이 바꾼 이유는 새로고침 시에는 위 코드가 의도대로 작동했지만 SPA에서는 새로고침 없이 컴포넌트만 새로 렌더링 되면서
+    화면이 바뀌기 때문에 그것을 사용한 의도에 맞는 코드로 일관성있게 해줄 필요가 있었다.
+    확인해보니 새로고침이 없으면 로그인을 해도 AnonymousUser가 나왔지만 등록된 쿠키는 정상적으로 가져오고 있었으므로,
+    쿠키의 여부로 회원을 구분하는 것이 맞다고 생각했다.
+    """
+
+    permission_classes = [AllowAny]
+    load_dotenv()
+
     # 로그인
     def post(self, request):
-        if str(request.user) != "AnonymousUser":
-            user_email = request.user.email
+        # if str(request.user) != "AnonymousUser":
+        if "access" in request.COOKIES:
+            access = request.COOKIES.get("access")
+            # 토큰 디코딩을 해서 유저 정보 추출을 시도한다.
+            payload = jwt.decode(
+                access, os.getenv("JWT_SECRET_KEY"), algorithms=["HS256"]
+            )
+            user_email = payload.get("email")
             user = get_object_or_404(get_user_model(), email=user_email)
             serializer = AuthSerializer(instance=user)
             res = Response(
@@ -183,10 +210,17 @@ class LoginView(APIView):
                     status=status.HTTP_200_OK,
                 )
                 res.set_cookie(
-                    "access", access, httponly=True, secure=True, samesite="none"
+                    "access",
+                    access,
+                    secure=True,
+                    samesite="none",
                 )
                 res.set_cookie(
-                    "refresh", refresh, httponly=True, secure=True, samesite="none"
+                    "refresh",
+                    refresh,
+                    httponly=True,
+                    secure=True,
+                    samesite="none",
                 )
             else:
                 res = Response(
