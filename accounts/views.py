@@ -5,6 +5,7 @@ from rest_framework_simplejwt.serializers import (
 )
 
 # from rest_framework_simplejwt.authentication import JWTAuthentication
+from config.token import TokenAuthenticationHandler, TokenNotFoundError
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import get_user_model, authenticate
 from .serializers import RegisterSerializer, AuthSerializer
@@ -158,24 +159,22 @@ class LoginView(APIView):
     처음 로그인 여부를 구분하려는 코드는 if str(request.user) != "AnonymousUser": 였다.
     코드를 아래와 같이 바꾼 이유는 새로고침 시에는 위 코드가 의도대로 작동했지만 SPA에서는 새로고침 없이 컴포넌트만 새로 렌더링 되면서
     화면이 바뀌기 때문에 그것을 사용한 의도에 맞는 코드로 일관성있게 해줄 필요가 있었다.
-    확인해보니 새로고침이 없으면 로그인을 해도 AnonymousUser가 나왔지만 등록된 쿠키는 정상적으로 가져오고 있었으므로,
+    확인해보니 새로고침이 없으면 로그인을 해도 AnonymousUser가 나왔지만 등록된 쿠키는 정상적으로 가져오고 있었다.
+    결론은 http통신은 기본적으로 무상태성 원칙을 고수해야한다고 생각한다.
+    그에 따라 서버는 클라이언트의 상태를 보존하지 않고 오직 토큰값만 받아오고 있으므로,
     쿠키의 여부로 회원을 구분하는 것이 맞다고 생각했다.
     """
 
     permission_classes = [AllowAny]
-    load_dotenv()
 
     # 로그인
     def post(self, request):
         # if str(request.user) != "AnonymousUser":
-        if "access" in request.COOKIES:
-            access = request.COOKIES.get("access")
-            # 토큰 디코딩을 해서 유저 정보 추출을 시도한다.
-            payload = jwt.decode(
-                access, os.getenv("JWT_SECRET_KEY"), algorithms=["HS256"]
-            )
-            user_email = payload.get("email")
-            user = get_object_or_404(get_user_model(), email=user_email)
+        try:
+            user = TokenAuthenticationHandler.check_user_from_token(request)
+        except TokenNotFoundError:
+            user = None
+        if user is not None:
             serializer = AuthSerializer(instance=user)
             res = Response(
                 {
