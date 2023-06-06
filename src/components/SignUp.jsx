@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from 'react-router-dom';
+import cookie from "react-cookies";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Form } from 'react-bootstrap';
@@ -33,12 +34,10 @@ function SignUp(props) {
         if (formSubmitted) {
             async function createUser() {
                 try {
-                    await client.post("register", userObj, {
-                        withCredentials: true
-                    });
+                    await client.post("register", userObj);
                     goToMain();
                 } catch (error) {
-                    alert(error.response.data.email === undefined ? error.response.data : error.response.data.email);
+                    alert(error.response.data.message);
                 };
             };
             createUser();

@@ -3,6 +3,8 @@ import { Button } from 'react-bootstrap';
 import client from "../utils/client";
 import React, { useCallback } from "react";
 
+import cookie from "react-cookies";
+
 function Logout(props) {
     // 로그아웃시 로그인창으로 가기
     const navigate = useNavigate();
@@ -13,8 +15,8 @@ function Logout(props) {
     const handleClick = useCallback(() => {
         async function logout() {
             try {
-                const response = await client.delete("login", {
-                    withCredentials: true
+                const response = await client.delete("logout", {
+                    headers: `bearer ${cookie.load("access") ? cookie.load("access") : null}`
                 });
                 console.log(response);
             } catch (error) {
@@ -22,8 +24,8 @@ function Logout(props) {
             };
         };
         logout();
-        goToLogin();
-    });
+        // goToLogin();
+    }, []);
 
     return (
         <Button variant="primary" type="button" onClick={handleClick}>
