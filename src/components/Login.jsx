@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 
 import { useNavigate, Link } from 'react-router-dom';
-import cookie from "react-cookies";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Form } from 'react-bootstrap';
@@ -36,7 +35,7 @@ function Login(props) {
         if (formSubmitted) {
             async function login() {
                 try {
-                    await client.post("login", user);
+                    await client.post("accounts/login", user);
                     goToMain();
                 } catch (error) {
                     alert(error.response.data.message);

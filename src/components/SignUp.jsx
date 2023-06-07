@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from 'react-router-dom';
-import cookie from "react-cookies";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Form } from 'react-bootstrap';
@@ -34,7 +33,7 @@ function SignUp(props) {
         if (formSubmitted) {
             async function createUser() {
                 try {
-                    await client.post("register", userObj);
+                    await client.post("accounts/register", userObj);
                     goToMain();
                 } catch (error) {
                     alert(error.response.data.message);

@@ -15,17 +15,18 @@ function Logout(props) {
     const handleClick = useCallback(() => {
         async function logout() {
             try {
-                const response = await client.delete("logout", {
-                    headers: `bearer ${cookie.load("access") ? cookie.load("access") : null}`
+                await client.delete("accounts/logout", {
+                    headers: {
+                        Authorization: `Bearer ${cookie.load("access") ? cookie.load("access") : null}`,
+                    },
                 });
-                console.log(response);
             } catch (error) {
-                console.log(error.response.data.message);
+                alert(error.response.data.message);
             };
         };
         logout();
-        // goToLogin();
-    }, []);
+        goToLogin();
+    }, [cookie.load("access")]);
 
     return (
         <Button variant="primary" type="button" onClick={handleClick}>
@@ -34,4 +35,4 @@ function Logout(props) {
     );
 }
 
-export default Logout;
+export default Logout; 
