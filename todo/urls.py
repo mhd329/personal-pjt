@@ -5,11 +5,11 @@ app_name = "todo"
 
 urlpatterns = [
     path(
-        "todo",
+        "todolist",
         TodosAPIView.as_view(),
     ),
     path(
-        "todo/<int:todo_pk>",
+        "todolist/<int:todo_pk>",
         TodoAPIView.as_view(),
     ),
     path(

@@ -17,3 +17,6 @@ class Todo(TimeStampedModel):
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        db_table = "Todo"
