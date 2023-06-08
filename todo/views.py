@@ -10,10 +10,10 @@ from .models import Todo
 
 
 # Create your views here.
-class TodosAPIView(APIView):
+class TodoListAPIView(APIView):  # 로그인 후 처음 나오는 메인 페이지
     def get(self, request):
-        user = TokenAuthenticationHandler.check_user_from_token(request)
         try:
+            user = TokenAuthenticationHandler.check_user_from_token(request)
             if user is not None:
                 todos = Todo.objects.filter(user_id=user.pk, complete=False)
                 serializer = TodoSerializer(todos, many=True)
@@ -33,12 +33,35 @@ class TodosAPIView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 
-    def post(self, request, user_pk):
-        serializer = TodoCreateSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request):  # 새로운 todo 항목 만들기
+        try:
+            serializer = TodoCreateSerializer(data=request.data)
+            user = TokenAuthenticationHandler.check_user_from_token(request)
+            if user is not None:
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data, status=status.HTTP_201_CREATED)
+                else:
+                    return Response(
+                        {
+                            "message": serializer.errors,
+                        },
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+            else:  # 쿠키에 토큰이 없거나 각종 예외의 경우(user == None)
+                return Response(
+                    {
+                        "message": "토큰이 존재하지 않습니다.",
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        except Exception as error:
+            return Response(
+                {
+                    "message": str(error),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 
 class TodoAPIView(APIView):

@@ -6,10 +6,10 @@ app_name = "todo"
 urlpatterns = [
     path(
         "todolist",
-        TodosAPIView.as_view(),
+        TodoListAPIView.as_view(),
     ),
     path(
-        "todolist/<int:todo_pk>",
+        "todo/detail/<int:todo_pk>",
         TodoAPIView.as_view(),
     ),
     path(
