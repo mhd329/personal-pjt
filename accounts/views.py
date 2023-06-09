@@ -17,13 +17,14 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from dotenv import load_dotenv
 import jwt
 import os
 
 
 class RegisterAPIView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [
+        AllowAny,
+    ]
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -166,7 +167,9 @@ class AuthView(APIView):
 
 
 class LoginView(APIView):  # 로그인
-    permission_classes = [AllowAny]
+    permission_classes = [
+        AllowAny,
+    ]
 
     def post(self, request):
         # if str(request.user) != "AnonymousUser":

@@ -25,7 +25,9 @@ class TodoListAPIView(APIView):  # 로그인 후 처음 나오는 메인 페이�
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-        except Exception as authorization_error:
+        except Exception as authorization_error: # 예외 발생시 사용자와 사용자의 인증 상태를 print
+            print(request.user)
+            print(request.user.is_authenticated)
             return Response(
                 {
                     "message": str(authorization_error),
