@@ -1,12 +1,13 @@
 import React from "react";
 import SignUp from "../components/SignUp";
+import SplitPane from "../components/SplitPane";
 
 function SignUpPage(props) {
 
     return (
-        <div>
-            <SignUp />
-        </div>
+        <SplitPane
+            main={<SignUp />}
+        />
     )
 }
 

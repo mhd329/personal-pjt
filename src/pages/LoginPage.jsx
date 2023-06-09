@@ -1,12 +1,14 @@
 import React from "react";
 import Login from "../components/Login";
+import SplitPane from "../components/SplitPane";
 
 function LoginPage(props) {
 
     return (
-        <div>
-            <Login />
-        </div>
+        <SplitPane
+            header={<h1 className="login__header--title">Todos</h1>}
+            main={<Login />}
+        />
     )
 }
 
