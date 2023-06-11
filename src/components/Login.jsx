@@ -18,8 +18,8 @@ function Login(props) {
         setFormSubmitted(true);
         setUser({
             ...user,
-            email: event.target.formBasicEmail.value,
-            password: event.target.formBasicPassword.value,
+            email: event.currentTarget.formBasicEmail.value,
+            password: event.currentTarget.formBasicPassword.value,
         });
         event.preventDefault();
         event.stopPropagation();
@@ -28,7 +28,7 @@ function Login(props) {
     // 로그인 성공시 todo페이지로 가기
     const navigate = useNavigate();
     const goToMain = () => {
-        navigate("/todos")
+        navigate("/todo-list")
     };
 
     useEffect(() => {

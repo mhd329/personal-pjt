@@ -4,16 +4,16 @@ import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Form } from 'react-bootstrap';
 
-import client from "../utils/client";
 import useValidation from "../hooks/useValidation";
+import client from "../utils/client";
 
 function SignUp(props) {
-    const userDataSchema = {
+    const userSchema = {
         email: '',
         password: '',
         password2: '',
     };
-    const [userData, setUserData] = useValidation(userDataSchema);
+    const [userData, setUserData] = useValidation(userSchema);
     const [checkFormValid, setCheckFormValid] = useState(false);
     const [formSubmitted, setFormSubmitted] = useState(false);
     const [userObj, userValidation] = userData;
@@ -25,7 +25,7 @@ function SignUp(props) {
     };
     // 로그인 성공시 todo페이지로 가기
     const goToMain = () => {
-        navigate("/todos")
+        navigate("/todo-list")
     };
 
     // 서버로 post요청

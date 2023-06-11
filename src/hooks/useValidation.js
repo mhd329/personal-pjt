@@ -1,13 +1,14 @@
 import { useState } from "react";
 
+// initialValue로 object가 들어온다.
 export default (value) => {
     const validationObj = {};
-    // 사용자 state
+    // 사용자에 대한 state 초기화
     const [user, setUser] = useState(value);
     for (const key in value) {
         validationObj[key] = false;
     };
-    // 유효성 state
+    // 유효성에 대한 state 초기화
     const [validation, setValidation] = useState(validationObj);
 
     // 정규 표현식을 통해 검사한다.

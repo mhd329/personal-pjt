@@ -3,7 +3,6 @@ import SignUp from "../components/SignUp";
 import SplitPane from "../components/SplitPane";
 
 function SignUpPage(props) {
-
     return (
         <SplitPane
             main={<SignUp />}
