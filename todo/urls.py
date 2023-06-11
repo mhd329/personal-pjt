@@ -5,7 +5,7 @@ app_name = "todo"
 
 urlpatterns = [
     path(
-        "todolist",
+        "todo-list",
         TodoListAPIView.as_view(),
     ),
     path(

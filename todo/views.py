@@ -10,7 +10,7 @@ from .models import Todo
 
 
 # Create your views here.
-class TodoListAPIView(APIView):  # 로그인 후 처음 나오는 메인 페이지
+class TodoListAPIView(APIView):  # 로그인 후 처음 나오는 메인 페이지에 담을 내용들
     def get(self, request):
         try:
             user = TokenAuthenticationHandler.check_user_from_token(request)
@@ -25,7 +25,7 @@ class TodoListAPIView(APIView):  # 로그인 후 처음 나오는 메인 페이�
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-        except Exception as authorization_error: # 예외 발생시 사용자와 사용자의 인증 상태를 print
+        except Exception as authorization_error:  # 예외 발생시 사용자와 사용자의 인증 상태를 print
             print(request.user)
             print(request.user.is_authenticated)
             return Response(
