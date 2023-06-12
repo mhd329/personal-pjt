@@ -27,16 +27,20 @@ function Login(props) {
 
     // 로그인 성공시 todo페이지로 가기
     const navigate = useNavigate();
-    const goToMain = () => {
-        navigate("/todo-list")
+    const goToMain = (uid) => {
+        navigate(`/todo-page/${uid}`, {
+            state: {
+                uid: uid,
+            },
+        });
     };
 
     useEffect(() => {
         if (formSubmitted) {
             async function login() {
                 try {
-                    await client.post("accounts/login", user);
-                    goToMain();
+                    const response = await client.post("accounts/login", user);
+                    goToMain(response.data.user.id);
                 } catch (error) {
                     alert(error.response.data.message);
                 };
@@ -70,7 +74,7 @@ function Login(props) {
                         로그인
                     </Button>
                     <Button className="login__buttons--signup" variant="primary">
-                        <Link to="/signup">
+                        <Link to="/account/signup">
                             회원가입
                         </Link>
                     </Button>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Form } from 'react-bootstrap';
@@ -18,14 +18,16 @@ function SignUp(props) {
     const [formSubmitted, setFormSubmitted] = useState(false);
     const [userObj, userValidation] = userData;
 
+    const location = useLocation();
+    const nowPath = location.pathname;
     const navigate = useNavigate();
     // 취소버튼 로그인창으로 돌아가기
     const goToLogin = () => {
-        navigate("/login")
+        navigate(`/login`)
     };
     // 로그인 성공시 todo페이지로 가기
     const goToMain = () => {
-        navigate("/todo-list")
+        navigate(`${nowPath}/todo-list`)
     };
 
     // 서버로 post요청

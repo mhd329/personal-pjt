@@ -2,14 +2,13 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Container from 'react-bootstrap/Container';
 
-import TodoPage from "./pages/TodoListPage";
-import LoginPage from "./pages/LoginPage";
-import SignUpPage from "./pages/SignUpPage";
-import AllTodosPage from "./pages/AllTodosPage";
-import TodoListPage from "./pages/TodoListPage";
+import TodoPage from "./pages/TodoPage";
+import NewTodoPage from "./pages/NewTodoPage";
+import AccountPage from "./pages/AccountPage";
 
 import './css/login.css';
 import './css/signup.css';
+
 
 function App() {
   return (
@@ -17,16 +16,20 @@ function App() {
       <Container>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<LoginPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
-            <Route path="/todo-list" element={<TodoListPage />} />
-            <Route path="/all-todos" element={<AllTodosPage />} />
-            <Route path="/todo-list/detail" element={<TodoPage />}>
-
+            <Route path="" element={<AccountPage content="login" />} />
+            <Route path="account">
+              <Route path="login" element={<AccountPage content="login" />} />
+              <Route path="signup" element={<AccountPage content="sign-up" />} />
             </Route>
-            <Route path="/all-todos/detail" element={<TodoPage />}>
-
+            <Route path="todo-page/:uid">
+              <Route path="" element={<TodoPage content="todo-list" />} />
+              <Route path="todo-list" element={<TodoPage content="todo-list" />}>
+                <Route path="detail" element={<TodoPage />} />
+              </Route>
+              <Route path="all-todos" element={<TodoPage content="all-todos" />}>
+                <Route path="detail" element={<TodoPage />} />
+              </Route>
+              <Route path="new" element={<NewTodoPage />} />
             </Route>
           </Routes>
         </BrowserRouter>
