@@ -26,8 +26,6 @@ class TodoListAPIView(APIView):  # 로그인 후 처음 나오는 메인 페이�
                     status=status.HTTP_400_BAD_REQUEST,
                 )
         except Exception as authorization_error:  # 예외 발생시 사용자와 사용자의 인증 상태를 print
-            print(request.user)
-            print(request.user.is_authenticated)
             return Response(
                 {
                     "message": str(authorization_error),
@@ -37,16 +35,18 @@ class TodoListAPIView(APIView):  # 로그인 후 처음 나오는 메인 페이�
 
     def post(self, request):  # 새로운 todo 항목 만들기
         try:
-            serializer = TodoCreateSerializer(data=request.data)
             user = TokenAuthenticationHandler.check_user_from_token(request)
+            serializer = TodoCreateSerializer(data=request.data)
             if user is not None:
                 if serializer.is_valid():
                     serializer.save()
                     return Response(serializer.data, status=status.HTTP_201_CREATED)
                 else:
+                    for key, value in serializer.errors.items():
+                        error_message = f"{key}: {value[0]}"
                     return Response(
                         {
-                            "message": serializer.errors,
+                            "message": error_message,
                         },
                         status=status.HTTP_400_BAD_REQUEST,
                     )
@@ -87,7 +87,12 @@ class AllTodosAPIView(APIView):
         user = TokenAuthenticationHandler.check_user_from_token(request)
         try:
             if user is not None:
-                todos = get_object_or_404(Todo, user_id=user.pk)
+                try:
+                    todos = get_object_or_404(Todo, user_id=user.pk)
+                except:  # Todo가 없음, 에러 메세지를 출력하는 대신 콘텐츠를 제공하지 않고 빈 화면을 보여준다.
+                    return Response(
+                        status=status.HTTP_204_NO_CONTENT,
+                    )
                 serializer = TodoSerializer(todos, many=True)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:  # 쿠키에 토큰이 없거나 각종 예외의 경우(user == None)
@@ -97,12 +102,12 @@ class AllTodosAPIView(APIView):
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-        except Exception as authorization_error:
+        except Exception as error:
             return Response(
                 {
-                    "message": str(authorization_error),
+                    "message": str(error),
                 },
-                status=status.HTTP_401_UNAUTHORIZED,
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
     def delete(self, request, user_pk):

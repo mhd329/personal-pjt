@@ -176,7 +176,7 @@ from datetime import timedelta
 
 SIMPLE_JWT = {
     # 토큰 라이프사이클 관리
-    "ACCESS_TOKEN_LIFETIME": timedelta(seconds=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=14),
     # 액세스 토큰 발급할때마다 리프레시토큰 갱신 여부
     "ROTATE_REFRESH_TOKENS": False,

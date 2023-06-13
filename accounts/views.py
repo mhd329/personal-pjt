@@ -43,6 +43,7 @@ class RegisterAPIView(APIView):
                     res = Response(
                         {
                             "user": serializer.data,
+                            "uid": user.id,
                             "message": "회원가입 성공",
                             "token": {
                                 "access": access,
@@ -87,9 +88,11 @@ class RegisterAPIView(APIView):
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+        for key, value in serializer.errors.items():
+            error_message = f"{key}: {value[0]}"
         return Response(
             {
-                "message": serializer.errors,
+                "message": error_message,
             },
             status=status.HTTP_400_BAD_REQUEST,
         )
