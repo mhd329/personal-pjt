@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from "react";
 import client from "../utils/client";
 import cookie from "react-cookies";
-import { Button } from 'react-bootstrap';
-
 
 function MapList(props) {
-    props.list.map((todo) =>
-        <div className="todo__main__todo-obj" key={`todo-id-${todo.id}`}>
+    const todoList = props.list.map((todo) =>
+        <div className="todo__main__todo-obj" id={`todo-id-${todo.id}`} key={`todo-id-${todo.id}`}>
             <h6>{todo.title}</h6>
             <p>{todo.important}</p>
             <p>{todo.complete}</p>
+        </div>
+    );
+    return (
+        <div>
+            {todoList}
         </div>
     );
 }
@@ -29,6 +32,7 @@ function TodoList(props) {
                 setTodoList(response.data);
             } catch (error) {
                 alert(error.response.data.message);
+                props.handler(error);
             };
         };
         getList();

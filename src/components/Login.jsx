@@ -28,7 +28,7 @@ function Login(props) {
     // 로그인 성공시 todo페이지로 가기
     const navigate = useNavigate();
     const goToMain = (uid) => {
-        navigate(`/todo-page/${uid}`, {
+        navigate(`/todo-page/${uid}/todo-list`, {
             state: {
                 uid: uid,
             },

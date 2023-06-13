@@ -9,7 +9,7 @@ function Logout(props) {
     // 로그아웃시 로그인창으로 가기
     const navigate = useNavigate();
     const goToLogin = () => {
-        navigate("/login")
+        navigate("/account/login");
     };
 
     const handleClick = useCallback(() => {
@@ -20,12 +20,12 @@ function Logout(props) {
                         Authorization: `Bearer ${cookie.load("access") ? cookie.load("access") : null}`,
                     },
                 });
+                goToLogin();
             } catch (error) {
                 alert(error.response.data.message);
             };
         };
         logout();
-        goToLogin();
     }, [cookie.load("access")]);
 
     return (

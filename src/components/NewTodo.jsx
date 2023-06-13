@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import client from "../utils/client";
 import cookie from "react-cookies";
 
@@ -9,6 +9,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 function NewTodo(props) {
     // todo 객체에 대한 스키마
     const todoSchema = {
+        user: 0,
         title: '',
         description: '',
         importance: '',
@@ -31,6 +32,10 @@ function NewTodo(props) {
         importance: false,
     });
 
+    // useLocation에서 uid가져옴
+    const { state } = useLocation();
+    const uid = state.uid;
+
     // navigation 생성
     const navigate = useNavigate();
     const goToBack = () => {
@@ -43,6 +48,7 @@ function NewTodo(props) {
         if (validationObj["title"] && validationObj["importance"]) {
             setTodo({
                 ...todoSchema,
+                user: uid,
                 title: title,
                 description: description,
                 importance: importance,
@@ -113,9 +119,9 @@ function NewTodo(props) {
                             },
                         });
                     console.log(response);
-                } catch (AxiosResponse) {
-                    alert(AxiosResponse.response.data.message);
-                    props.handle401();
+                } catch (error) {
+                    alert(error.response.data.message);
+                    props.handler(error);
                 };
             };
             postTodo();

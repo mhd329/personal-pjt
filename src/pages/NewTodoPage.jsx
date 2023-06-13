@@ -13,7 +13,7 @@ function NewTodoPage(props) {
     return (
         <SplitPane
             header={<h1 className="new-todo__header--title">새 할 것 만들기</h1>}
-            main={<NewTodo handle401={handle401} />}
+            main={<NewTodo handler={handle401} />}
         />
     )
 }
