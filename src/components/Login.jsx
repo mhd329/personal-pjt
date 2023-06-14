@@ -6,6 +6,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Form } from 'react-bootstrap';
 
 import client from "../utils/client";
+import cookie from "react-cookies";
 
 function Login(props) {
     const [user, setUser] = useState({
@@ -46,6 +47,8 @@ function Login(props) {
                 };
             };
             login();
+        } else { // 로그인 페이지 들어왔을 때 이미 로그인 했는지 여부 검사
+
         };
         setFormSubmitted(false);
     }, [formSubmitted]);

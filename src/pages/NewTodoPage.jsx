@@ -1,7 +1,7 @@
 import React from "react";
+import { useNavigate } from "react-router";
 import NewTodo from "../components/NewTodo";
 import SplitPane from "../components/SplitPane";
-import { useNavigate } from "react-router";
 
 function NewTodoPage(props) {
     const navigate = useNavigate();
@@ -12,7 +12,7 @@ function NewTodoPage(props) {
     };
     return (
         <SplitPane
-            header={<h1 className="new-todo__header--title">새 할 것 만들기</h1>}
+            header={<h1 className="header--title">새 할 것 만들기</h1>}
             main={<NewTodo handler={handle401} />}
         />
     )

@@ -28,7 +28,7 @@ function TodoPage(props) {
     }
     return (
         <SplitPane
-            header={<h1 className="todo__header--title">현재 할 것 목록</h1>}
+            header={<h1 className="header--title">현재 할 것 목록</h1>}
             main={contents(props.content, handle401)}
             footer={buttonType(props.content)}
         />

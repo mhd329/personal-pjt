@@ -6,13 +6,13 @@ import cookie from "react-cookies";
 
 function MapList(props) {
     const todoList = props.list.map((todo) =>
-    <Link to="detail">
-        <div className="todo__main__all-todos-obj" id={`todo-id-${todo.id}`} key={`todo-id-${todo.id}`}>
-            <h6>{todo.title}</h6>
-            <p>{todo.important}</p>
-            <p>{todo.complete}</p>
-        </div>
-    </Link>
+        <Link to="detail">
+            <div className="todo__main__all-todos-obj" id={`todo-id-${todo.id}`} key={`todo-id-${todo.id}`}>
+                <h6>{todo.title}</h6>
+                <p>{todo.important}</p>
+                <p>{todo.complete}</p>
+            </div>
+        </Link>
     );
     return (
         <div>
