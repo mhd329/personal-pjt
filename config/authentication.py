@@ -10,14 +10,15 @@ class CustomJWTAuthentication(JWTAuthentication):
     def authenticate(self, request):
         header = self.get_header(request)
         if header is None:
+            print("header is None")
             return None
 
         raw_token = self.get_raw_token(header)
         if raw_token is None:
+            print("raw_token is None")
             return None
 
         validated_token = self.get_validated_token(raw_token)
-
         return self.get_user(validated_token), validated_token
 
     def get_validated_token(self, raw_token):

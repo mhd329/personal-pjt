@@ -67,10 +67,35 @@ class TodoListAPIView(APIView):  # 로그인 후 처음 나오는 메인 페이�
 
 
 class TodoAPIView(APIView):
-    def get(self, request, user_pk, todo_pk):
-        todo = get_object_or_404(Todo, user_id=user_pk, pk=todo_pk)
-        serializer = TodoDetailSerializer(todo)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def get(self, request, todo_pk):
+        user = TokenAuthenticationHandler.check_user_from_token(request)
+        try:
+            if user is not None:
+                try:
+                    todo = get_object_or_404(Todo, user_id=user.id, pk=todo_pk)
+                except:  # Todo가 없음, 에러 메세지를 출력하는 대신 콘텐츠를 제공하지 않고 빈 화면을 보여준다.
+                    return Response(
+                        {
+                            "message": "잘못된 접근입니다.",
+                        },
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+                serializer = TodoDetailSerializer(todo)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(
+                    {
+                        "message": "토큰이 존재하지 않습니다.",
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        except Exception as error:
+            return Response(
+                {
+                    "message": str(error),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
     def patch(self, request, user_pk, todo_pk):
         todo = get_object_or_404(Todo, user_id=user_pk, pk=todo_pk)
