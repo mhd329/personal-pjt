@@ -24,12 +24,10 @@ function App() {
               <Route path="signup" element={<AccountPage content="sign-up" />} />
             </Route>
             <Route path="todo-page/:userId">
-              <Route path="todo-list" element={<TodoPage content="todo-list" />}>
-                <Route path="detail/:todoId" element={<TodoDetailPage />} />
-              </Route>
-              <Route path="all-todos" element={<TodoPage content="all-todos" />}>
-                <Route path="detail/:todoId" element={<TodoDetailPage />} />
-              </Route>
+              <Route path="todo-list" element={<TodoPage content="todo-list" />} />
+              <Route path="todo-list/detail/:todoId/" element={<TodoDetailPage />} />
+              <Route path="all-todos" element={<TodoPage content="all-todos" />} />
+              <Route path="all-todos/detail/:todoId/" element={<TodoDetailPage />} />
               <Route path="new" element={<NewTodoPage />} />
             </Route>
             <Route path="/*" element={<NotFound />} />

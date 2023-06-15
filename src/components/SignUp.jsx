@@ -27,7 +27,7 @@ function SignUp(props) {
     const goToMain = (uid) => {
         navigate(`/todo-page/${uid}/todo-list`, {
             state: {
-                uid: uid,
+                userId: uid,
             },
         });
     };

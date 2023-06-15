@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, Navigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import client from "../utils/client";
 import cookie from "react-cookies";
@@ -8,7 +8,7 @@ function MapList(props) {
     const { state } = useLocation();
     const todoList = props.list.map((todo) =>
         <div className="todo__main__todo-obj" key={`todo-id-${todo.id}`} id={`todo-id-${todo.id}`}>
-            <Link to={`detail/${todo.id}`} state={{ todoId: todo.id, uid: state.uid }}>
+            <Link to={`detail/${todo.id}`} state={{ todoId: todo.id, userId: state.userId }}>
                 <h6>{todo.title}</h6>
                 <p>{todo.important}</p>
                 <p>{todo.complete}</p>
@@ -16,9 +16,9 @@ function MapList(props) {
         </div>
     );
     return (
-        <>
+        <div>
             {todoList}
-        </>
+        </div>
     );
 }
 

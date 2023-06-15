@@ -34,7 +34,7 @@ function NewTodo(props) {
 
     // useLocation에서 uid가져옴
     const { state } = useLocation();
-    const uid = state.uid;
+    const uid = state.userId;
 
     // navigation 생성
     const navigate = useNavigate();

@@ -10,25 +10,25 @@ function Buttons(props) {
     const navigate = useNavigate();
     // todo페이지
     const goToTodoList = () => {
-        navigate(`/todo-page/${state.uid}/todo-list`, {
+        navigate(`/todo-page/${state.userId}/todo-list`, {
             state: {
-                uid: state.uid,
+                userId: state.userId,
             },
         });
     };
     // 모두 보기
     const goToAllTodos = () => {
-        navigate(`/todo-page/${state.uid}/all-todos`, {
+        navigate(`/todo-page/${state.userId}/all-todos`, {
             state: {
-                uid: state.uid,
+                userId: state.userId,
             },
         });
     };
     // 새로 만들기
     const goToNewTodo = () => {
-        navigate(`/todo-page/${state.uid}/new`, {
+        navigate(`/todo-page/${state.userId}/new`, {
             state: {
-                uid: state.uid,
+                userId: state.userId,
             },
         });
     };
