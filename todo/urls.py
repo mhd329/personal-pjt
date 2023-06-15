@@ -9,7 +9,7 @@ urlpatterns = [
         TodoListAPIView.as_view(),
     ),
     path(
-        "todo/detail/<int:todo_pk>",
+        "detail/<int:todo_pk>",
         TodoAPIView.as_view(),
     ),
     path(
