@@ -193,6 +193,7 @@ class LoginView(APIView):  # 로그인
                 )
                 return res
             else:
+                print(user)
                 # 유저 정보 추출이 되지 않았다면(== 유저가 로그인 하지 않은 상태라면) 실행
                 user = authenticate(
                     email=request.data["email"],

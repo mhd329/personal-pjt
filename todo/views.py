@@ -17,6 +17,7 @@ class TodoListAPIView(APIView):  # 로그인 후 처음 나오는 메인 페이�
             if user is not None:
                 todos = Todo.objects.filter(user_id=user.pk, complete=False)
                 serializer = TodoSerializer(todos, many=True)
+                print(serializer.data)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:  # 쿠키에 토큰이 없거나 각종 예외의 경우(user == None)
                 return Response(
@@ -35,6 +36,7 @@ class TodoListAPIView(APIView):  # 로그인 후 처음 나오는 메인 페이�
 
     def post(self, request):  # 새로운 todo 항목 만들기
         try:
+            print(request.data)
             user = TokenAuthenticationHandler.check_user_from_token(request)
             serializer = TodoCreateSerializer(data=request.data)
             if user is not None:
@@ -100,7 +102,6 @@ class TodoAPIView(APIView):
     def patch(self, request, user_pk, todo_pk):
         todo = get_object_or_404(Todo, user_id=user_pk, pk=todo_pk)
         serializer = TodoDetailSerializer(todo, data=request.data)
-        print(serializer)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_202_ACCEPTED)

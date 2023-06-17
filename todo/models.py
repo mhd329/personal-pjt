@@ -7,12 +7,17 @@ from config.settings import AUTH_USER_MODEL
 
 # 메인 모델
 class Todo(TimeStampedModel):
+    IMPORTANCE = (
+        ("low", "낮음"),
+        ("middle", "중간"),
+        ("high", "높음"),
+    )
     user = models.ForeignKey(
         AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="todos"
     )
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
-    important = models.BooleanField(default=False)
+    importance = models.CharField(max_length=6, choices=IMPORTANCE, default="low")
     complete = models.BooleanField(default=False)
 
     def __str__(self):

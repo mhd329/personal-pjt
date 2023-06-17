@@ -8,7 +8,7 @@ class TodoSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "title",
-            "important",
+            "importance",
             "complete",
         )
 
@@ -20,7 +20,7 @@ class TodoCreateSerializer(serializers.ModelSerializer):
             "user",
             "title",
             "description",
-            "important",
+            "importance",
         )
 
 
