@@ -163,10 +163,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # restframework
 REST_FRAMEWORK = {
-    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
-    "DEFAULT_AUTHENTICATION_CLASSES": (
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticated",
+    ),  # 허가 : 인증된 사람만 허가
+    "DEFAULT_AUTHENTICATION_CLASSES": (  # 인증 : 아래의 클래스로 인증
         # "rest_framework_simplejwt.authentication.JWTAuthentication",
-        "config.authentication.CustomJWTAuthentication",
+        "config.authentication.CustomJWTAuthentication",  # JWTAuthentication을 상속받아 커스텀
     ),
 }
 
@@ -177,10 +179,10 @@ from datetime import timedelta
 SIMPLE_JWT = {
     # 토큰 라이프사이클 관리
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=14),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     # 액세스 토큰 발급할때마다 리프레시토큰 갱신 여부
     "ROTATE_REFRESH_TOKENS": False,
-    # 만료된 액세스 토큰의 블랙리스트 추가 여부
+    # 기존 리프레시 토큰의 블랙리스트 추가 여부
     "BLACKLIST_AFTER_ROTATION": True,
     # 마지막 로그인 시간 업데이트 여부
     "UPDATE_LAST_LOGIN": True,

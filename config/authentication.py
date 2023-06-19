@@ -10,12 +10,12 @@ class CustomJWTAuthentication(JWTAuthentication):
     def authenticate(self, request):
         header = self.get_header(request)
         if header is None:
-            print("header is None")
+            # print("header is None")
             return None
 
         raw_token = self.get_raw_token(header)
         if raw_token is None:
-            print("raw_token is None")
+            # print("raw_token is None")
             return None
 
         validated_token = self.get_validated_token(raw_token)
@@ -34,7 +34,6 @@ class CustomJWTAuthentication(JWTAuthentication):
                         "message": e.args[0],
                     }
                 )
-
         raise InvalidToken(
             {
                 "detail": messages,

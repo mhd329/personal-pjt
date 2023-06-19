@@ -2,7 +2,6 @@
 from .serializers import TodoSerializer, TodoCreateSerializer, TodoDetailSerializer
 from config.cookie import TokenAuthenticationHandler
 from django.shortcuts import get_object_or_404
-from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
@@ -17,7 +16,6 @@ class TodoListAPIView(APIView):  # 로그인 후 처음 나오는 메인 페이�
             if user is not None:
                 todos = Todo.objects.filter(user_id=user.pk, complete=False)
                 serializer = TodoSerializer(todos, many=True)
-                print(serializer.data)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:  # 쿠키에 토큰이 없거나 각종 예외의 경우(user == None)
                 return Response(
@@ -26,17 +24,16 @@ class TodoListAPIView(APIView):  # 로그인 후 처음 나오는 메인 페이�
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-        except Exception as authorization_error:  # 예외 발생시 사용자와 사용자의 인증 상태를 print
+        except Exception as error:  # 예외 발생시 사용자와 사용자의 인증 상태를 print
             return Response(
                 {
-                    "message": str(authorization_error),
+                    "message": str(error),
                 },
-                status=status.HTTP_401_UNAUTHORIZED,
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
     def post(self, request):  # 새로운 todo 항목 만들기
         try:
-            print(request.data)
             user = TokenAuthenticationHandler.check_user_from_token(request)
             serializer = TodoCreateSerializer(data=request.data)
             if user is not None:

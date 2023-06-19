@@ -98,74 +98,71 @@ class RegisterAPIView(APIView):
         )
 
 
-class AuthView(APIView):
+class TokenRefreshView(APIView):
     # 클라이언트는 요청 헤더에 bearer 넣어서 보내야 한다.
-    def get(self, request):
-        try:  # 로그인이 필요한 페이지(권한이 필요한 페이지)에 들어온 유저의 토큰 유무를 확인하는 로직
+    def post(self, request):
+        try:
             user = TokenAuthenticationHandler.check_user_from_token(request)
-            if user is not None:
+            if user == "token expired":
+                try:
+                    data = {
+                        "refresh": request.COOKIES.get("refresh", None),
+                    }
+                    token_serializer = TokenRefreshSerializer(data=data)
+                    if token_serializer.is_valid():
+                        access = token_serializer.validated_data.get("access", None)
+                        user = TokenAuthenticationHandler.check_user_from_token(
+                            None, access
+                        )
+                        user_serializer = AuthSerializer(user)
+                        res = Response(
+                            {
+                                "user": user_serializer.data,
+                                "message": "엑세스 토큰이 만료되어 재발급 하였습니다.",
+                                "token": {
+                                    "access": access,
+                                },
+                            },
+                            status=status.HTTP_200_OK,
+                        )
+                        res.set_cookie(
+                            "access",
+                            access,
+                            secure=True,
+                            samesite="none",
+                        )
+                        return res
+                except Exception as error:
+                    print("못쓰는 refresh token")
+                    return Response(
+                        {
+                            "message": error,
+                        },
+                        status=status.HTTP_401_UNAUTHORIZED,
+                    )
+            
                 serializer = AuthSerializer(instance=user)
                 return Response(serializer.data, status=status.HTTP_200_OK)
-            else:  # 쿠키에 토큰이 없는 경우(user == None)
+            else:
                 return Response(
                     {
                         "message": "토큰이 존재하지 않습니다.",
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-        except jwt.exceptions.ExpiredSignatureError:  # 액세스 토큰 기한 만료로 인한 재발급 시도
-            try:
-                data = {
-                    "refresh": request.COOKIES.get("refresh", None),
-                }
-                serializer = TokenRefreshSerializer(data=data)
-                if serializer.is_valid():
-                    access = serializer.data.get("access", None)
-                    refresh = serializer.data.get("refresh", None)
-                    payload = jwt.decode(
-                        access, os.getenv("JWT_SECRET_KEY"), algorithms=["HS256"]
-                    )
-                    user_email = payload.get("email")
-                    user = get_object_or_404(get_user_model(), email=user_email)
-                    serializer = AuthSerializer(instance=user)
-                    res = Response(
-                        {
-                            "user": serializer.data,
-                            "message": "엑세스 토큰이 만료되어 재발급 하였습니다.",
-                            "token": {
-                                "access": access,
-                                "refresh": refresh,
-                            },
-                        },
-                        status=status.HTTP_200_OK,
-                    )
-                    res.set_cookie(
-                        "access",
-                        access,
-                        secure=True,
-                        samesite="none",
-                    )
-                    res.set_cookie(
-                        "refresh",
-                        refresh,
-                        httponly=True,
-                        secure=True,
-                        samesite="none",
-                    )
-                    return res
-            except jwt.exceptions.InvalidTokenError:  # 액세스 토큰 재발급 실패
-                return Response(
-                    {
-                        "message": "액세스 토큰을 재발급 할 수 없습니다(유효하지 않은 리프레시 토큰입니다).",
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-        except jwt.exceptions.InvalidTokenError:  # 사용할 수 없는 토큰
+        except jwt.exceptions.ExpiredSignatureError:  # 이미 만료된 액세스 토큰
             return Response(
                 {
-                    "message": "유효하지 않은 액세스 토큰입니다.",
+                    "message": "다시 로그인 해 주세요.",
                 },
-                status=status.HTTP_400_BAD_REQUEST,
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        except Exception as error:
+            return Response(
+                {
+                    "message": error,
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
 
@@ -179,21 +176,58 @@ class LoginView(APIView):  # 로그인
         try:
             user = TokenAuthenticationHandler.check_user_from_token(request)
             if user is not None:  # user!=None, 유저가 이미 있음을 의미함
-                serializer = AuthSerializer(instance=user)
-                res = Response(
-                    {
-                        "user": serializer.data,
-                        "message": "이미 로그인 상태입니다.",
-                        "token": {
-                            "access": request.COOKIES["access"],
-                            "refresh": request.COOKIES["refresh"],
+                if user == "token expired":
+                    try:
+                        data = {
+                            "refresh": request.COOKIES.get("refresh", None),
+                        }
+                        token_serializer = TokenRefreshSerializer(data=data)
+                        if token_serializer.is_valid():
+                            access = token_serializer.validated_data.get("access", None)
+                            user = TokenAuthenticationHandler.check_user_from_token(
+                                None, access
+                            )
+                            user_serializer = AuthSerializer(user)
+                            res = Response(
+                                {
+                                    "user": user_serializer.data,
+                                    "message": "엑세스 토큰이 만료되어 재발급 하였습니다.",
+                                    "token": {
+                                        "access": access,
+                                    },
+                                },
+                                status=status.HTTP_200_OK,
+                            )
+                            res.set_cookie(
+                                "access",
+                                access,
+                                secure=True,
+                                samesite="none",
+                            )
+                            return res
+                    except Exception as error:
+                        print("못쓰는 refresh token")
+                        return Response(
+                            {
+                                "message": error,
+                            },
+                            status=status.HTTP_401_UNAUTHORIZED,
+                        )
+                else:
+                    serializer = AuthSerializer(instance=user)
+                    res = Response(
+                        {
+                            "user": serializer.data,
+                            "message": "이미 로그인 상태입니다.",
+                            "token": {
+                                "access": request.COOKIES["access"],
+                                "refresh": request.COOKIES["refresh"],
+                            },
                         },
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-                return res
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                    return res
             else:
-                print(user)
                 # 유저 정보 추출이 되지 않았다면(== 유저가 로그인 하지 않은 상태라면) 실행
                 user = authenticate(
                     email=request.data["email"],

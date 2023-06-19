@@ -7,15 +7,21 @@ import os
 
 class TokenAuthenticationHandler:
     @staticmethod
-    def check_user_from_token(request):
+    def check_user_from_token(request, token=None):
         try:
             access = request.COOKIES["access"]
+            if (request is None) and (token is not None):
+                access = token
             load_dotenv()
-            payload = jwt.decode(
-                access, os.getenv("JWT_SECRET_KEY"), algorithms=["HS256"]
-            )
+            try:
+                payload = jwt.decode(
+                    access, os.getenv("JWT_SECRET_KEY"), algorithms=["HS256"]
+                )
+            except jwt.exceptions.ExpiredSignatureError:
+                return "token expired"
             user_email = payload.get("email")
             user = get_object_or_404(get_user_model(), email=user_email)
             return user
-        except:
-            ...
+        except Exception as error:
+            print("check_user_from_token:\nerror:", error)
+            return None
