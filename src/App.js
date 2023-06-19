@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import Container from 'react-bootstrap/Container';
 
@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 
 import './css/login.css';
 import './css/signup.css';
+import './css/counter.css';
 
 function App() {
   return (
@@ -34,6 +35,9 @@ function App() {
           </Routes>
         </BrowserRouter>
       </Container>
+      <div className="counter">
+        {}
+      </div>
     </div>
   );
 }

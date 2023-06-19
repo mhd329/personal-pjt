@@ -93,7 +93,7 @@ function NewTodo(props) {
     const handleImportanceChange = (event) => {
         const importanceValue = event.currentTarget.value;
         setImportance(importanceValue);
-        if (importanceValue !== "none" && (importanceValue === "1" || importanceValue === "2" || importanceValue === "3")) {
+        if (importanceValue !== "none" && (importanceValue === "row" || importanceValue === "middle" || importanceValue === "high")) {
             setValidationObj({
                 ...validationObj,
                 importance: true,
@@ -119,6 +119,7 @@ function NewTodo(props) {
                             },
                         });
                     console.log(response);
+
                 } catch (error) {
                     alert(error.response.data.message);
                     props.handler(error);
@@ -171,9 +172,9 @@ function NewTodo(props) {
                         isInvalid={checkFormValid && !validationObj["importance"]}
                     >
                         <option value="none">중요도를 선택해주세요.</option>
-                        <option value="1">낮음</option>
-                        <option value="2">중간</option>
-                        <option value="3">높음</option>
+                        <option value="row">낮음</option>
+                        <option value="middle">중간</option>
+                        <option value="high">높음</option>
                     </Form.Select>
                     <Form.Control.Feedback type="invalid">
                         중요도를 선택하지 않으셨습니다.
