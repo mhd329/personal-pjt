@@ -8,6 +8,7 @@ import NewTodoPage from "./pages/NewTodoPage";
 import AccountPage from "./pages/AccountPage";
 import TodoDetailPage from "./pages/TodoDetailPage";
 import NotFound from "./pages/NotFound";
+import TokenRefreshButton from "./components/TokenRefreshButton";
 
 import './css/login.css';
 import './css/signup.css';
@@ -33,11 +34,11 @@ function App() {
             </Route>
             <Route path="/*" element={<NotFound />} />
           </Routes>
+          <div className="counter">
+            {<TokenRefreshButton />}
+          </div>
         </BrowserRouter>
       </Container>
-      <div className="counter">
-        {}
-      </div>
     </div>
   );
 }
