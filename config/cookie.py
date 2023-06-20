@@ -8,9 +8,13 @@ import os
 class TokenAuthenticationHandler:
     @staticmethod
     def check_user_from_token(request, token=None):
+        if request is not None:
+            try:
+                access = request.COOKIES["access"]
+            except KeyError:
+                raise KeyError("토큰이 존재하지 않습니다.")
         try:
-            access = request.COOKIES["access"]
-            if (request is None) and (token is not None):
+            if token is not None:
                 access = token
             load_dotenv()
             try:
@@ -19,6 +23,7 @@ class TokenAuthenticationHandler:
                 )
             except jwt.exceptions.ExpiredSignatureError:
                 return "token expired"
+            print(payload)
             user_email = payload.get("email")
             user = get_object_or_404(get_user_model(), email=user_email)
             return user
