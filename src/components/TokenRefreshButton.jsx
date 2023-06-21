@@ -11,7 +11,6 @@ import cookie from "react-cookies";
 
 function TokenRefreshButton(props) {
     const [count, setCount] = useState(1800);
-    const [response, setResponse] = useState({});
     const navigate = useNavigate();
     const goToLogin = () => {
         navigate("/account/login");
@@ -20,29 +19,29 @@ function TokenRefreshButton(props) {
     const seconds = count % 60;
     useEffect(() => {
         const timer = setInterval(() => {
-            setCount(count--);
-            if (count === 0) {
-                alert("로그인 시간이 만료되었습니다.\n다시 로그인 해 주세요.");
-                clearInterval(timer);
-                goToLogin();
-            };
+            setCount(count => count - 1);
         }, 1000);
+        if (count === -1) {
+            alert("로그인 시간이 만료되었습니다.\n다시 로그인 해 주세요.");
+            clearInterval(timer);
+            goToLogin();
+        };
         return () => clearInterval(timer);
     }, [count])
     const handleClick = useCallback(() => {
         async function requestNewToken() {
             try {
-                const response = await client.post("accounts/refresh", {
+                await client.post("accounts/refresh", {
                     headers: {
                         Authorization: `Bearer ${cookie.load("access") ? cookie.load("access") : null}`,
                     },
                 });
-                setResponse(response);
             } catch (error) {
                 alert(error.response.data.message);
             };
         };
         requestNewToken();
+        setCount(1800);
     });
     return (
         <div>
