@@ -8,12 +8,9 @@ import os
 class TokenAuthenticationHandler:
     @staticmethod
     def check_user_from_token(request, token=None):
-        if request is not None:
-            try:
-                access = request.COOKIES["access"]
-            except KeyError:
-                raise KeyError("토큰이 존재하지 않습니다.")
         try:
+            if request is not None:
+                access = request.COOKIES.get("access")
             if token is not None:
                 access = token
             load_dotenv()
