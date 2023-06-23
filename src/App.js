@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import Container from 'react-bootstrap/Container';
 
@@ -25,7 +25,7 @@ function App() {
               <Route path="login" element={<AccountPage content="login" />} />
               <Route path="signup" element={<AccountPage content="sign-up" />} />
             </Route>
-            <Route path="todo-page/:userId" element={<TokenRefreshButton />}>
+            <Route path="todo-page/:userId">
               <Route path="todo-list" element={<TodoPage content="todo-list" />} />
               <Route path="todo-list/detail/:todoId/" element={<TodoDetailPage />} />
               <Route path="all-todos" element={<TodoPage content="all-todos" />} />
@@ -34,6 +34,7 @@ function App() {
             </Route>
             <Route path="/*" element={<NotFound />} />
           </Routes>
+          <TokenRefreshButton />
         </BrowserRouter>
       </Container>
     </div>
