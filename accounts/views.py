@@ -99,7 +99,6 @@ class RegisterAPIView(APIView):
 
 
 class TokenRefreshView(APIView):
-    # 클라이언트는 요청 헤더에 bearer 넣어서 보내야 한다.
     def post(self, request):
         try:
             user = TokenAuthenticationHandler.check_user_from_token(request)
@@ -119,10 +118,16 @@ class TokenRefreshView(APIView):
                         token_serializer = TokenRefreshSerializer(data=data)
                         if token_serializer.is_valid():
                             access = token_serializer.validated_data.get("access", None)
+                            decoded_access = jwt.decode(
+                                access,
+                                os.getenv("JWT_SECRET_KEY"),
+                                algorithms=["HS256"],
+                            )
                             res = Response(
                                 {
                                     "token": {
                                         "access": access,
+                                        "exp": decoded_access["exp"],
                                     },
                                 },
                                 status=status.HTTP_200_OK,
@@ -135,7 +140,7 @@ class TokenRefreshView(APIView):
                             )
                             return res
                     except Exception as error:
-                        print("못쓰는 refresh token")
+                        print("TokenRefreshView, post: 못쓰는 refresh token")
                         return Response(
                             {
                                 "message": error,
@@ -205,7 +210,7 @@ class LoginView(APIView):  # 로그인
                             )
                             return res
                     except Exception as error:
-                        print("못쓰는 refresh token")
+                        print("LoginView, post: 못쓰는 refresh token")
                         return Response(
                             {
                                 "message": error,
@@ -313,6 +318,61 @@ class LogoutView(APIView):  # 로그아웃
             return Response(
                 {
                     "message": str(error),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
+class CheckTokenexpirationView(APIView):
+    def post(self, request):
+        try:
+            user = TokenAuthenticationHandler.check_user_from_token(request)
+            if user is not None:  # user!=None, 유저가 이미 있음을 의미함
+                if user == "token expired":
+                    return Response(
+                        {},
+                        status=status.HTTP_200_OK,
+                    )
+                else:
+                    serializer = AuthSerializer(instance=user)
+                    print("LoginView, get: 만료되지 않은 토큰")
+                    res = Response(
+                        {
+                            "user": serializer.data,
+                            "message": "이미 로그인 상태입니다.",
+                        },
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                    return res
+        except Exception as error:
+            return Response(
+                {
+                    "message": str(error),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+    def get(self, request):
+        try:
+            token_exp = TokenAuthenticationHandler.check_token_expiry_time(request)
+            if token_exp == "token expired":
+                return Response(
+                    {
+                        "message": "토큰이 만료되었습니다.",
+                    },
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+            else:
+                return Response(
+                    {
+                        "exp": token_exp,
+                    },
+                    status=status.HTTP_200_OK,
+                )
+        except Exception as error:
+            return Response(
+                {
+                    "message": error,
                 },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
