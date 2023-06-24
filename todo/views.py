@@ -96,13 +96,38 @@ class TodoAPIView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
-    def patch(self, request, user_pk, todo_pk):
-        todo = get_object_or_404(Todo, user_id=user_pk, pk=todo_pk)
-        serializer = TodoDetailSerializer(todo, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def patch(self, request, todo_pk):
+        user = TokenAuthenticationHandler.check_user_from_token(request)
+        try:
+            if user is not None:
+                try:
+                    todo = get_object_or_404(Todo, user_id=user.id, pk=todo_pk)
+                except:  # Todo가 없음, 에러 메세지를 출력하는 대신 콘텐츠를 제공하지 않고 빈 화면을 보여준다.
+                    return Response(
+                        {
+                            "message": "잘못된 접근입니다.",
+                        },
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+                serializer = TodoDetailSerializer(todo)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(
+                    {
+                        "message": "토큰이 존재하지 않습니다.",
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        except Exception as error:
+            return Response(
+                {
+                    "message": str(error),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 
 class AllTodosAPIView(APIView):

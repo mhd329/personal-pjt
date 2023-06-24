@@ -99,6 +99,31 @@ class RegisterAPIView(APIView):
 
 
 class TokenRefreshView(APIView):
+    def get(self, request):
+        try:
+            token_exp = TokenAuthenticationHandler.check_token_expiry_time(request)
+            if token_exp == "token expired":
+                return Response(
+                    {
+                        "message": "토큰이 만료되었습니다.",
+                    },
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+            else:
+                return Response(
+                    {
+                        "exp": token_exp,
+                    },
+                    status=status.HTTP_200_OK,
+                )
+        except Exception as error:
+            return Response(
+                {
+                    "message": error,
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
     def post(self, request):
         try:
             user = TokenAuthenticationHandler.check_user_from_token(request)
@@ -174,6 +199,38 @@ class LoginView(APIView):  # 로그인
     permission_classes = [
         AllowAny,
     ]
+    authentication_classes = []
+
+    def get(self, request):
+        try:
+            user = TokenAuthenticationHandler.check_user_from_token(request)
+            if user is not None:  # user!=None, 유저가 이미 있음을 의미함
+                if user == "token expired":
+                    return Response(
+                        status=status.HTTP_200_OK,
+                    )
+                else:
+                    serializer = AuthSerializer(instance=user)
+                    print("LoginView, get: 만료되지 않은 토큰")
+                    res = Response(
+                        {
+                            "user": serializer.data,
+                            "message": "이미 로그인 상태입니다.",
+                        },
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                    return res
+            else:
+                return Response(
+                    status=status.HTTP_200_OK,
+                )
+        except Exception as error:
+            return Response(
+                {
+                    "message": str(error),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
     def post(self, request):
         # if str(request.user) != "AnonymousUser":
@@ -324,6 +381,8 @@ class LogoutView(APIView):  # 로그아웃
 
 
 class CheckTokenexpirationView(APIView):
+    authentication_classes = []
+
     def post(self, request):
         try:
             user = TokenAuthenticationHandler.check_user_from_token(request)
@@ -348,31 +407,6 @@ class CheckTokenexpirationView(APIView):
             return Response(
                 {
                     "message": str(error),
-                },
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
-    def get(self, request):
-        try:
-            token_exp = TokenAuthenticationHandler.check_token_expiry_time(request)
-            if token_exp == "token expired":
-                return Response(
-                    {
-                        "message": "토큰이 만료되었습니다.",
-                    },
-                    status=status.HTTP_401_UNAUTHORIZED,
-                )
-            else:
-                return Response(
-                    {
-                        "exp": token_exp,
-                    },
-                    status=status.HTTP_200_OK,
-                )
-        except Exception as error:
-            return Response(
-                {
-                    "message": error,
                 },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )

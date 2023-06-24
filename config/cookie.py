@@ -26,6 +26,8 @@ class TokenAuthenticationHandler:
             if token is not None:
                 access = token
             load_dotenv()
+            if access is None:  # access token이 없음
+                return None
             try:
                 payload = jwt.decode(
                     access, os.getenv("JWT_SECRET_KEY"), algorithms=["HS256"]
@@ -36,5 +38,5 @@ class TokenAuthenticationHandler:
             user = get_object_or_404(get_user_model(), email=user_email)
             return user
         except Exception as error:
-            print("check_user_from_token:\nerror:", error)
+            print("(check_user_from_token) error:", error)
             return None
