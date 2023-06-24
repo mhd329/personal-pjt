@@ -1,18 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import client from "../utils/client";
 import cookie from "react-cookies";
 
 
 function MapList(props) {
-    const todoList = props.list.map((todo) =>
-        <Link to="detail">
-            <div className="todo__main__all-todos-obj" id={`todo-id-${todo.id}`} key={`todo-id-${todo.id}`}>
+    const { state } = useLocation();
+    console.log(props.list)
+    function translate(importance) {
+        if (importance === "high") {
+            return "높음"
+        } else if (importance === "middle") {
+            return "중간"
+        } else if (importance === "low") {
+            return "낮음"
+        };
+    }
+    const todoList = props.list.map((todo) => 
+        <div className="todo__main__todo-obj" key={`todo-id-${todo.id}`} id={`todo-id-${todo.id}`}>
+            <Link to={`detail/${todo.id}`} state={{ todoId: todo.id, userId: state.userId }}>
                 <h6>{todo.title}</h6>
-                <p>{todo.important}</p>
-                <p>{todo.complete}</p>
-            </div>
-        </Link>
+                <p>{translate(todo.importance)}</p>
+            </Link>
+        </div>
     );
     return (
         <div>

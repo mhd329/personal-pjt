@@ -8,15 +8,18 @@ import cookie from "react-cookies";
 function TodoDetail(props) {
     const [todoDetail, setTodoDetail] = useState({});
     const [todoDetailTemp, setTodoDetailTemp] = useState({});
+    const [complete, setComplete] = useState(false);
     const { state } = useLocation();
     const title = useRef(null);
     const description = useRef(null);
     const importance = useRef(null);
     const buttons = useRef(null);
-
+    const changeButton = useRef(null);
+    const updatedAt = useRef(null);
     function setData(setFunctionArray, response) {
         setFunctionArray.map((f) => {
             f({
+                user: state.userId,
                 id: response.data.id,
                 title: response.data.title,
                 description: response.data.description,
@@ -27,7 +30,6 @@ function TodoDetail(props) {
             })
         })
     }
-
     useEffect(() => {
         async function getTodo() {
             try {
@@ -37,10 +39,10 @@ function TodoDetail(props) {
                     },
                 });
                 setData([setTodoDetail, setTodoDetailTemp], response);
+                setComplete(response.data.complete);
             } catch (error) {
-                console.log(error)
-                // alert(error.response.data.message);
-                // props.handler(error);
+                alert(error.response.data.message);
+                props.handler(error);
             };
         };
         getTodo();
@@ -67,14 +69,52 @@ function TodoDetail(props) {
         })
     };
 
+    const handleComplete = useCallback((event) => {
+        const answer = window.confirm("정말 완료 하시겠습니까?\n완료하는 경우 더 이상 수정할 수 없습니다.");
+        if (answer) {
+            setTodoDetail({
+                ...todoDetail,
+                complete: true,
+            });
+            setComplete(true);
+        };
+    }, [todoDetail]);
+
+    useEffect(() => {
+        if (complete) {
+            async function completeTodo() {
+                try {
+                    const response = await client.patch(`todo/detail/${state.todoId}`, todoDetail, {
+                        headers: {
+                            Authorization: `Bearer ${cookie.load("access") ? cookie.load("access") : null}`,
+                        },
+                    });
+                    if (response.status === 202) {
+                        title.current.disabled = true;
+                        description.current.disabled = true;
+                        importance.current.disabled = true;
+                        buttons.current.hidden = true;
+                        changeButton.current.hidden = true;
+                    };
+                } catch (error) {
+                    console.log(error)
+                    alert(error.response.data.message);
+                    props.handler(error);
+                };
+            };
+            completeTodo();
+        };
+    }, [complete]);
+
     const handleClick = (event) => {
         title.current.disabled = false;
         description.current.disabled = false;
         importance.current.disabled = false;
         buttons.current.hidden = false;
+        changeButton.current.hidden = true;
     };
 
-    const handleCancellation = (event) => {
+    function cancel() {
         setTodoDetail({
             ...todoDetail,
             title: todoDetailTemp["title"],
@@ -88,10 +128,28 @@ function TodoDetail(props) {
         description.current.disabled = true;
         importance.current.disabled = true;
         buttons.current.hidden = true;
+        changeButton.current.hidden = false;
+    }
+
+    const handleCancellation = (event) => {
+        cancel();
     };
 
+    function compare() {
+        if (todoDetail["title"] === todoDetailTemp["title"] &&
+            todoDetail["description"] === todoDetailTemp["description"] &&
+            todoDetail["importance"] === todoDetailTemp["importance"]) {
+            return true;
+        };
+        return false;
+    }
+
     const handleSubmit = useCallback((event) => {
-        if ((todoDetail["title"].length !== 0) && (todoDetail["importance"] !== "none")) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (compare()) {
+            cancel();
+        } else if ((todoDetail["title"].length !== 0) && (todoDetail["importance"] !== "none")) {
             async function patchTodo() {
                 try {
                     const response = await client.patch(`todo/detail/${state.todoId}`, todoDetail, {
@@ -99,22 +157,31 @@ function TodoDetail(props) {
                             Authorization: `Bearer ${cookie.load("access") ? cookie.load("access") : null}`,
                         },
                     });
-                    console.log(response);
+                    if (response.status === 202) {
+                        setData([setTodoDetail, setTodoDetailTemp], response);
+                        title.current.disabled = true;
+                        description.current.disabled = true;
+                        importance.current.disabled = true;
+                        buttons.current.hidden = true;
+                        changeButton.current.hidden = false;
+                    };
                 } catch (error) {
                     alert(error.response.data.message);
                     props.handler(error);
                 };
             };
             patchTodo();
+        } else {
+            alert("다시 입력해주세요.");
         };
         event.preventDefault();
         event.stopPropagation();
-    });
+    }, [todoDetail]);
 
     return (
         <div>
             <Form noValidate className="todo-detail__form needs-validation">
-                <Form.Group className="mb-3" controlId="title" onSubmit={handleSubmit}>
+                <Form.Group className="mb-3" controlId="title">
                     <Form.Label>
                         제목
                     </Form.Label>
@@ -167,12 +234,19 @@ function TodoDetail(props) {
                         중요도를 선택해주세요.
                     </Form.Control.Feedback>
                 </Form.Group>
-                <div id="buttons" ref={buttons} className="todo-detail__buttons" hidden>
-                    <Button className="todo-detail__buttons--submit" variant="primary" type="submit">완료</Button>
+                {todoDetail["complete"] ? <Button className="mb-3" variant="secondary" disabled>
+                    완료됨
+                </Button> : <Button className="mb-3" variant="warning" onClick={handleComplete}>
+                    완료하기
+                </Button>}
+                <p>작성일: {todoDetail["created_at"]}</p>
+                <p ref={updatedAt}>수정일: {todoDetail["updated_at"]}</p>
+                <div ref={buttons} className="todo-detail__buttons" hidden>
+                    <Button className="todo-detail__buttons--submit" variant="primary" type="submit" onClick={handleSubmit}>수정 완료</Button>
                     <Button className="todo-detail__buttons--cancel" variant="danger" type="button" onClick={handleCancellation}>취소</Button>
                 </div>
             </Form>
-            <Button onClick={handleClick}>수정하기</Button>
+            <Button ref={changeButton} onClick={handleClick}>수정하기</Button>
         </div>
     );
 }

@@ -20,7 +20,7 @@ function App() {
       <Container>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Navigate to="account/login" />} />
+            <Route index path="/" element={<Navigate to="account/login" />} />
             <Route path="/account">
               <Route path="login" element={<AccountPage content="login" />} />
               <Route path="signup" element={<AccountPage content="sign-up" />} />
