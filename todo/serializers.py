@@ -28,3 +28,9 @@ class TodoDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Todo
         fields = "__all__"
+
+
+class TodoChangeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Todo
+        fields = "__all__"

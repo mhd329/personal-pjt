@@ -1,5 +1,10 @@
 # from django.shortcuts import render
-from .serializers import TodoSerializer, TodoCreateSerializer, TodoDetailSerializer
+from .serializers import (
+    TodoSerializer,
+    TodoCreateSerializer,
+    TodoDetailSerializer,
+    TodoChangeSerializer,
+)
 from config.cookie import TokenAuthenticationHandler
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
@@ -67,8 +72,8 @@ class TodoListAPIView(APIView):  # 로그인 후 처음 나오는 메인 페이�
 
 class TodoAPIView(APIView):
     def get(self, request, todo_pk):
-        user = TokenAuthenticationHandler.check_user_from_token(request)
         try:
+            user = TokenAuthenticationHandler.check_user_from_token(request)
             if user is not None:
                 try:
                     todo = get_object_or_404(Todo, user_id=user.id, pk=todo_pk)
@@ -97,8 +102,8 @@ class TodoAPIView(APIView):
             )
 
     def patch(self, request, todo_pk):
-        user = TokenAuthenticationHandler.check_user_from_token(request)
         try:
+            user = TokenAuthenticationHandler.check_user_from_token(request)
             if user is not None:
                 try:
                     todo = get_object_or_404(Todo, user_id=user.id, pk=todo_pk)
@@ -109,7 +114,7 @@ class TodoAPIView(APIView):
                         },
                         status=status.HTTP_404_NOT_FOUND,
                     )
-                serializer = TodoDetailSerializer(todo)
+                serializer = TodoChangeSerializer(todo, data=request.data)
                 if serializer.is_valid():
                     serializer.save()
                     return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
@@ -136,7 +141,7 @@ class AllTodosAPIView(APIView):
         try:
             if user is not None:
                 try:
-                    todos = get_object_or_404(Todo, user_id=user.pk)
+                    todos = Todo.objects.filter(user_id=user.pk)
                 except:  # Todo가 없음, 에러 메세지를 출력하는 대신 콘텐츠를 제공하지 않고 빈 화면을 보여준다.
                     return Response(
                         status=status.HTTP_204_NO_CONTENT,
