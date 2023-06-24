@@ -8,33 +8,6 @@ import { Button, Form } from 'react-bootstrap';
 import client from "../utils/client";
 import cookie from "react-cookies";
 
-function CheckTokenValidity() {
-    const navigate = useNavigate();
-    const goToMain = (uid) => {
-        navigate(`/todo-page/${uid}/todo-list`, {
-            state: {
-                userId: uid,
-            },
-        });
-    };
-    useEffect(() => {
-        async function postCheckRequest() {
-            try {
-                const response = await client.get("accounts/login",
-                    null,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${cookie.load("access") ? cookie.load("access") : null}`,
-                        },
-                    });
-                console.log(response.data.user.id);
-            } catch (error) {
-                alert(error.response.data.message);
-            };
-        };
-        postCheckRequest();
-    }, []);
-}
 
 function Login(props) {
     const [user, setUser] = useState({
@@ -78,16 +51,17 @@ function Login(props) {
         } else { // 로그인 페이지 들어왔을 때 이미 로그인 했는지 여부 검사
             async function checkToken() {
                 try {
-                    const response = await client.get("accounts/login",
-                        null,
+                    await client.get("accounts/login", cookie.load("access") ?
                         {
                             headers: {
-                                Authorization: `Bearer ${cookie.load("access") ? cookie.load("access") : null}`,
+                                Authorization: `Bearer ${cookie.load("access")}`,
                             },
-                        });
+                        } : null);
                 } catch (error) {
                     alert(error.response.data.message);
-                    goToMain(error.response.data.user.id);
+                    if (error.response.status === 400 && error.response.data.user.id) {
+                        goToMain(error.response.data.user.id);
+                    };
                 };
             };
             checkToken();

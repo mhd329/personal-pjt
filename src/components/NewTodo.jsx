@@ -41,6 +41,13 @@ function NewTodo(props) {
     const goToBack = () => {
         navigate(-1); // 취소 버튼 클릭 시 뒤로 가기
     };
+    const goToList = () => {
+        navigate(`/todo-page/${uid}/todo-list`, {
+            state: {
+                userId: uid,
+            },
+        }); // 만들기 성공하면 리스트로 가기
+    };
 
     // 제출 버튼 클릭
     const handleSubmit = useCallback((event) => {
@@ -93,7 +100,7 @@ function NewTodo(props) {
     const handleImportanceChange = (event) => {
         const importanceValue = event.currentTarget.value;
         setImportance(importanceValue);
-        if (importanceValue !== "none" && (importanceValue === "row" || importanceValue === "middle" || importanceValue === "high")) {
+        if (importanceValue !== "none" && (importanceValue === "low" || importanceValue === "middle" || importanceValue === "high")) {
             setValidationObj({
                 ...validationObj,
                 importance: true,
@@ -119,7 +126,9 @@ function NewTodo(props) {
                             },
                         });
                     console.log(response);
-
+                    if (response.status === 201) {
+                        goToList();
+                    }
                 } catch (error) {
                     alert(error.response.data.message);
                     props.handler(error);
@@ -172,7 +181,7 @@ function NewTodo(props) {
                         isInvalid={checkFormValid && !validationObj["importance"]}
                     >
                         <option value="none">중요도를 선택해주세요.</option>
-                        <option value="row">낮음</option>
+                        <option value="low">낮음</option>
                         <option value="middle">중간</option>
                         <option value="high">높음</option>
                     </Form.Select>

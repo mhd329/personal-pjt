@@ -9,35 +9,37 @@ import client from "../utils/client";
 import cookie from "react-cookies";
 
 function TokenRefresh(props) {
-    const [count, setCount] = useState(1800);
+    const [count, setCount] = useState(0);
     const navigate = useNavigate();
     const goToLogin = () => {
         navigate("/account/login");
     };
     const minutes = parseInt(count / 60);
-    const seconds = count % 60;
+    const seconds = Math.floor(count % 60);
     useEffect(() => {
         async function getExp() {
             try {
-                const response = await client.get("accounts/refresh", null, { // data에 해당하는 두 번째 매개변수는 반드시 전달되야 하는 것 같다.
-                    headers: {
-                        Authorization: `Bearer ${cookie.load("access") ? cookie.load("access") : null}`,
-                    },
-                });
-                console.log(response)
+                const response = await client.get("accounts/refresh",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${cookie.load("access") ? cookie.load("access") : null}`,
+                        },
+                    });
+                const timer = (response.data.exp * 1000) - new Date().getTime();
+                setCount(timer / 1000);
             } catch (error) {
                 alert(error.response);
                 console.log(error)
             };
         };
         getExp();
-        setCount(1800);
     }, []);
     useEffect(() => {
         const timer = setInterval(() => {
             setCount(count => count - 1);
         }, 1000);
-        if (count === -1) {
+        if (count < 0) {
+            setCount(0);
             alert("로그인 시간이 만료되었습니다.\n다시 로그인 해 주세요.");
             clearInterval(timer);
             goToLogin();
@@ -47,17 +49,18 @@ function TokenRefresh(props) {
     const handleClick = useCallback(() => {
         async function requestNewToken() {
             try {
-                await client.post("accounts/refresh", null, { // data에 해당하는 두 번째 매개변수는 반드시 전달되야 하는 것 같다.
+                const response = await client.post("accounts/refresh", null, {
                     headers: {
                         Authorization: `Bearer ${cookie.load("access") ? cookie.load("access") : null}`,
                     },
                 });
+                const timer = (response.data.token.exp * 1000) - new Date().getTime();
+                setCount(timer / 1000);
             } catch (error) {
                 alert(error.response.data.message);
             };
         };
         requestNewToken();
-        setCount(1800);
     });
     return (
         <div>

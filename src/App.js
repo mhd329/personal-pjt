@@ -20,16 +20,16 @@ function App() {
       <Container>
         <BrowserRouter>
           <Routes>
-            <Route path="" element={<Navigate to="account/login" />} />
-            <Route path="account">
+            <Route path="/" element={<Navigate to="account/login" />} />
+            <Route path="/account">
               <Route path="login" element={<AccountPage content="login" />} />
               <Route path="signup" element={<AccountPage content="sign-up" />} />
             </Route>
-            <Route path="todo-page/:userId">
+            <Route path="/todo-page/:userId">
               <Route path="todo-list" element={<TodoPage content="todo-list" />} />
-              <Route path="todo-list/detail/:todoId/" element={<TodoDetailPage />} />
+              <Route path="todo-list/detail/:todoId" element={<TodoDetailPage />} />
               <Route path="all-todos" element={<TodoPage content="all-todos" />} />
-              <Route path="all-todos/detail/:todoId/" element={<TodoDetailPage />} />
+              <Route path="all-todos/detail/:todoId" element={<TodoDetailPage />} />
               <Route path="new" element={<NewTodoPage />} />
             </Route>
             <Route path="/*" element={<NotFound />} />

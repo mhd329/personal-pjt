@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Button, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import client from "../utils/client";
@@ -38,8 +38,9 @@ function TodoDetail(props) {
                 });
                 setData([setTodoDetail, setTodoDetailTemp], response);
             } catch (error) {
-                alert(error.response.data.message);
-                props.handler(error);
+                console.log(error)
+                // alert(error.response.data.message);
+                // props.handler(error);
             };
         };
         getTodo();
@@ -88,10 +89,32 @@ function TodoDetail(props) {
         importance.current.disabled = true;
         buttons.current.hidden = true;
     };
+
+    const handleSubmit = useCallback((event) => {
+        if ((todoDetail["title"].length !== 0) && (todoDetail["importance"] !== "none")) {
+            async function patchTodo() {
+                try {
+                    const response = await client.patch(`todo/detail/${state.todoId}`, todoDetail, {
+                        headers: {
+                            Authorization: `Bearer ${cookie.load("access") ? cookie.load("access") : null}`,
+                        },
+                    });
+                    console.log(response);
+                } catch (error) {
+                    alert(error.response.data.message);
+                    props.handler(error);
+                };
+            };
+            patchTodo();
+        };
+        event.preventDefault();
+        event.stopPropagation();
+    });
+
     return (
         <div>
             <Form noValidate className="todo-detail__form needs-validation">
-                <Form.Group className="mb-3" controlId="title">
+                <Form.Group className="mb-3" controlId="title" onSubmit={handleSubmit}>
                     <Form.Label>
                         제목
                     </Form.Label>
@@ -104,12 +127,13 @@ function TodoDetail(props) {
                         defaultValue={todoDetail["title"]}
                         maxLength="100"
                         onChange={handleTitleChange}
+                        isInvalid={todoDetail["title"] ? todoDetail["title"].length === 0 : true}
                     />
                     <Form.Text muted>
                         {todoDetail["title"] ? todoDetail["title"].length : 0} / 100
                     </Form.Text>
                     <Form.Control.Feedback type="invalid">
-                        { }
+                        제목을 입력해주세요.
                     </Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="description">
@@ -129,6 +153,7 @@ function TodoDetail(props) {
                         ref={importance}
                         key={todoDetail["id"]}
                         defaultValue={todoDetail["importance"]}
+                        isInvalid={todoDetail["importance"] === "none"}
                         disabled
                         required
                         onChange={handleImportantChange}
@@ -139,7 +164,7 @@ function TodoDetail(props) {
                         <option value="high">높음</option>
                     </Form.Select>
                     <Form.Control.Feedback type="invalid">
-                        중요도를 선택하지 않으셨습니다.
+                        중요도를 선택해주세요.
                     </Form.Control.Feedback>
                 </Form.Group>
                 <div id="buttons" ref={buttons} className="todo-detail__buttons" hidden>
