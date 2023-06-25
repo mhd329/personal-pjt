@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Button, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -6,9 +6,11 @@ import client from "../utils/client";
 import cookie from "react-cookies";
 
 function TodoDetail(props) {
+    const navigate = useNavigate();
     const [todoDetail, setTodoDetail] = useState({});
     const [todoDetailTemp, setTodoDetailTemp] = useState({});
     const [complete, setComplete] = useState(false);
+    const [deleteTodo, setDeleteTodo] = useState(false);
     const { state } = useLocation();
     const title = useRef(null);
     const description = useRef(null);
@@ -105,6 +107,39 @@ function TodoDetail(props) {
             completeTodo();
         };
     }, [complete]);
+
+    const handleDelete = useCallback((event) => {
+        const answer = window.confirm("정말 삭제 하시겠습니까?\n삭제하면 더 이상 확인할 수 없습니다.");
+        if (answer) {
+            setDeleteTodo(true);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (deleteTodo) {
+            async function removeTodo() {
+                try {
+                    const response = await client.delete(`todo/detail/${state.todoId}`, {
+                        headers: {
+                            Authorization: `Bearer ${cookie.load("access") ? cookie.load("access") : null}`,
+                        },
+                    });
+                    if (response.status === 200) {
+                        navigate(`/todo-page/${state.userId}/all-todos`, {
+                            state: {
+                                userId: state.userId,
+                            },
+                        })
+                    };
+                } catch (error) {
+                    console.log(error)
+                    alert(error.response.data.message);
+                    props.handler(error);
+                };
+            };
+            removeTodo();
+        };
+    }, [deleteTodo]);
 
     const handleClick = (event) => {
         title.current.disabled = false;
@@ -239,6 +274,9 @@ function TodoDetail(props) {
                 </Button> : <Button className="mb-3" variant="warning" onClick={handleComplete}>
                     완료하기
                 </Button>}
+                <Button className="mb-3" variant="danger" onClick={handleDelete}>
+                    삭제하기
+                </Button>
                 <p>작성일: {todoDetail["created_at"]}</p>
                 <p ref={updatedAt}>수정일: {todoDetail["updated_at"]}</p>
                 <div ref={buttons} className="todo-detail__buttons" hidden>

@@ -44,6 +44,7 @@ function Login(props) {
                     const response = await client.post("accounts/login", user);
                     goToMain(response.data.user.id);
                 } catch (error) {
+                    console.log(error)
                     alert(error.response.data.message);
                 };
             };
