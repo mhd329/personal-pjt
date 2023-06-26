@@ -141,7 +141,7 @@ function NewTodo(props) {
 
     return (
         <div className="new-todo">
-            <h1 className="new-todo__title">할 것 등록</h1>
+            <h1 className="new-todo__title">새 할 것 만들기</h1>
             <Form noValidate className="new-todo__form needs-validation" onSubmit={handleSubmit}>
                 <Form.Group className="mb-3" controlId="title">
                     <Form.Label>

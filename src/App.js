@@ -3,12 +3,14 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import Container from 'react-bootstrap/Container';
 
 
-import TodoPage from "./pages/TodoPage";
+import TodoHomePage from "./pages/TodoHomePage";
+import TodoListPage from "./pages/TodoListPage";
+import AllTodosPage from "./pages/AllTodosPage";
 import NewTodoPage from "./pages/NewTodoPage";
-import AccountPage from "./pages/AccountPage";
+import SignUpPage from "./pages/SignUpPage";
+import LoginPage from "./pages/LoginPage";
 import TodoDetailPage from "./pages/TodoDetailPage";
-import NotFound from "./pages/NotFound";
-import TokenRefreshButton from "./components/TokenRefreshButton";
+import NotFoundPage from "./pages/NotFoundPage";
 
 import './css/login.css';
 import './css/signup.css';
@@ -20,21 +22,18 @@ function App() {
       <Container>
         <BrowserRouter>
           <Routes>
-            <Route index path="/" element={<Navigate to="account/login" />} />
-            <Route path="/account">
-              <Route path="login" element={<AccountPage content="login" />} />
-              <Route path="signup" element={<AccountPage content="sign-up" />} />
-            </Route>
-            <Route path="/todo-page/:userId">
-              <Route path="todo-list" element={<TodoPage content="todo-list" />} />
-              <Route path="todo-list/detail/:todoId" element={<TodoDetailPage />} />
-              <Route path="all-todos" element={<TodoPage content="all-todos" />} />
+            <Route index element={<Navigate to="/account/login" />} />
+            <Route path="/account/login" element={<LoginPage />} />
+            <Route path="/account/signup" element={<SignUpPage />} />
+            <Route exact path="/todo-page/:userId" element={<TodoHomePage />}>
+              <Route index element={<TodoListPage />} />
+              <Route path="detail/:todoId" element={<TodoDetailPage />} />
+              <Route path="all-todos" element={<AllTodosPage />} />
               <Route path="all-todos/detail/:todoId" element={<TodoDetailPage />} />
               <Route path="new" element={<NewTodoPage />} />
             </Route>
-            <Route path="/*" element={<NotFound />} />
+            <Route path="/*" element={<NotFoundPage />} />
           </Routes>
-          <TokenRefreshButton />
         </BrowserRouter>
       </Container>
     </div>

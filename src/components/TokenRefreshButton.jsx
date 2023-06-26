@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button } from 'react-bootstrap';
@@ -8,7 +8,7 @@ import { Button } from 'react-bootstrap';
 import client from "../utils/client";
 import cookie from "react-cookies";
 
-function TokenRefresh(props) {
+function TokenRefreshButton(props) {
     const [count, setCount] = useState(0);
     const navigate = useNavigate();
     const goToLogin = () => {
@@ -68,15 +68,6 @@ function TokenRefresh(props) {
             <div>{minutes.toString().length === 2 ? minutes : "0" + minutes} : {seconds.toString().length === 2 ? seconds : "0" + seconds}</div>
         </div>
     );
-}
-
-function TokenRefreshButton(props) {
-    const { pathname } = useLocation();
-    return (
-        <div>
-            {pathname.includes("account") ? null : <TokenRefresh />}
-        </div>
-    )
 }
 
 export default TokenRefreshButton;

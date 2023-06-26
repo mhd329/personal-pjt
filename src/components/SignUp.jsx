@@ -23,9 +23,9 @@ function SignUp(props) {
     const goToLogin = () => {
         navigate(-1)
     };
-    // 로그인 성공시 todo페이지로 가기
+    // 로그인 성공시 todo 홈페이지로 간다.
     const goToMain = (uid) => {
-        navigate(`/todo-page/${uid}/todo-list`, {
+        navigate(`/todo-page/${uid}`, {
             state: {
                 userId: uid,
             },

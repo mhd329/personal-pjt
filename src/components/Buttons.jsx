@@ -8,7 +8,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 function Buttons(props) {
     const { state } = useLocation();
     const navigate = useNavigate();
-    // todo페이지
+    // 할 일 페이지
     const goToTodoList = () => {
         navigate(`/todo-page/${state.userId}/todo-list`, {
             state: {
@@ -16,7 +16,7 @@ function Buttons(props) {
             },
         });
     };
-    // 모두 보기
+    // 할 일들 모두 보기
     const goToAllTodos = () => {
         navigate(`/todo-page/${state.userId}/all-todos`, {
             state: {
@@ -34,9 +34,9 @@ function Buttons(props) {
     };
     return (
         <div className="buttons">
-            <div className="buttons__new-todo">
+            {props.newTodo && <div className="buttons__new-todo">
                 <Button onClick={goToNewTodo}>새 할 것</Button>
-            </div>
+            </div>}
             {props.todoList && <div className="buttons__todo-list">
                 <Button onClick={goToTodoList}>할일 보기</Button>
             </div>}

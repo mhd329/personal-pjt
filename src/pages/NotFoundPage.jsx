@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 
-function NotFound(props) {
+function NotFoundPage(props) {
     const [count, setCount] = useState(5);
     const navigate = useNavigate();
     useEffect(() => {
@@ -23,4 +23,4 @@ function NotFound(props) {
     )
 }
 
-export default NotFound;
+export default NotFoundPage;
