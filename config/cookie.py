@@ -16,6 +16,8 @@ class TokenAuthenticationHandler:
             )
         except jwt.exceptions.ExpiredSignatureError:
             return "token expired"
+        except Exception as error:
+            print("(check_token_expiry_time) error:", error)
         return payload["exp"]
 
     @staticmethod
