@@ -1,9 +1,10 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import NewTodo from "../components/NewTodo";
 
 function NewTodoPage(props) {
     const navigate = useNavigate();
+    const { userId } = useOutletContext();
     const handle401 = (AxiosResponse) => {
         if (AxiosResponse.response.status === 401) {
             navigate("/account/login");
@@ -11,7 +12,7 @@ function NewTodoPage(props) {
     };
     return (
         <>
-            <NewTodo handler={handle401} />
+            <NewTodo handler={handle401} userId={userId} />
         </>
     )
 }

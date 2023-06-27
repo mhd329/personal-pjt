@@ -63,9 +63,8 @@ function TokenRefreshButton(props) {
         requestNewToken();
     });
     return (
-        <div>
-            <Button onClick={handleClick}>로그인 연장</Button>
-            <div>{minutes.toString().length === 2 ? minutes : "0" + minutes} : {seconds.toString().length === 2 ? seconds : "0" + seconds}</div>
+        <div className="refresh-button">
+            <Button onClick={handleClick}><span>{minutes.toString().length === 2 ? minutes : "0" + minutes} : {seconds.toString().length === 2 ? seconds : "0" + seconds} </span>로그인 연장</Button>
         </div>
     );
 }

@@ -29,7 +29,7 @@ function Logout(props) {
     }, [cookie.load("access")]);
 
     return (
-        <Button variant="primary" type="button" onClick={handleClick}>
+        <Button variant="warning" type="button" onClick={handleClick}>
             로그아웃
         </Button>
     );

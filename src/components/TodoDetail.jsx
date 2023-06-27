@@ -7,11 +7,11 @@ import cookie from "react-cookies";
 
 function TodoDetail(props) {
     const navigate = useNavigate();
+    const { state } = useLocation();
     const [todoDetail, setTodoDetail] = useState({});
     const [todoDetailTemp, setTodoDetailTemp] = useState({});
     const [complete, setComplete] = useState(false);
     const [deleteTodo, setDeleteTodo] = useState(false);
-    const { state } = useLocation();
     const title = useRef(null);
     const description = useRef(null);
     const importance = useRef(null);
@@ -20,8 +20,8 @@ function TodoDetail(props) {
     const updatedAt = useRef(null);
     function setData(setFunctionArray, response) {
         setFunctionArray.map((f) => {
-            f({
-                user: state.userId,
+            return f({
+                user: props.userId,
                 id: response.data.id,
                 title: response.data.title,
                 description: response.data.description,
@@ -29,9 +29,14 @@ function TodoDetail(props) {
                 complete: response.data.complete,
                 created_at: response.data.created_at,
                 updated_at: response.data.updated_at,
-            })
-        })
+            });
+        });
     }
+
+    const goBack = () => { // 목록으로 가기(뒤로가기)
+        navigate(-1);
+    };
+
     useEffect(() => {
         async function getTodo() {
             try {
@@ -81,7 +86,6 @@ function TodoDetail(props) {
             setComplete(true);
         };
     }, [todoDetail]);
-
     useEffect(() => {
         if (complete) {
             async function completeTodo() {
@@ -125,9 +129,9 @@ function TodoDetail(props) {
                         },
                     });
                     if (response.status === 200) {
-                        navigate(`/todo-page/${state.userId}/all-todos`, {
+                        navigate(`/todo-page/${props.userId}/all-todos`, {
                             state: {
-                                userId: state.userId,
+                                userId: props.userId,
                             },
                         })
                     };
@@ -214,7 +218,8 @@ function TodoDetail(props) {
     }, [todoDetail]);
 
     return (
-        <div>
+        <div className="todo-detail">
+            <h1 className="todo-detail__title mb-5">자세히 보기</h1>
             <Form noValidate className="todo-detail__form needs-validation">
                 <Form.Group className="mb-3" controlId="title">
                     <Form.Label>
@@ -269,22 +274,27 @@ function TodoDetail(props) {
                         중요도를 선택해주세요.
                     </Form.Control.Feedback>
                 </Form.Group>
-                {todoDetail["complete"] ? <Button className="mb-3" variant="secondary" disabled>
-                    완료됨
-                </Button> : <Button className="mb-3" variant="warning" onClick={handleComplete}>
-                    완료하기
-                </Button>}
-                <Button className="mb-3" variant="danger" onClick={handleDelete}>
-                    삭제하기
-                </Button>
+                <div className="todo-detail__buttons__completion">
+                    {todoDetail["complete"] ? <Button className="mb-3 mx-2" variant="secondary" disabled>
+                        완료됨
+                    </Button> : <Button className="mb-3 mx-2" variant="warning" onClick={handleComplete}>
+                        완료하기
+                    </Button>}
+                    <Button className="mb-3 mx-2" variant="danger" onClick={handleDelete}>
+                        삭제하기
+                    </Button>
+                </div>
                 <p>작성일: {todoDetail["created_at"]}</p>
                 <p ref={updatedAt}>수정일: {todoDetail["updated_at"]}</p>
-                <div ref={buttons} className="todo-detail__buttons" hidden>
-                    <Button className="todo-detail__buttons--submit" variant="primary" type="submit" onClick={handleSubmit}>수정 완료</Button>
-                    <Button className="todo-detail__buttons--cancel" variant="danger" type="button" onClick={handleCancellation}>취소</Button>
+                <div className="todo-detail__buttons">
+                    <div ref={buttons} className="todo-detail__buttons__change" hidden>
+                        <Button className="todo-detail__buttons--submit mx-2" variant="primary" type="submit" onClick={handleSubmit}>수정 완료</Button>
+                        <Button className="todo-detail__buttons--cancel mx-2" variant="danger" type="button" onClick={handleCancellation}>취소</Button>
+                    </div>
+                    <Button ref={changeButton} onClick={handleClick} className="mx-2">수정하기</Button>
+                    <Button onClick={goBack} className="mx-2">목록으로 가기</Button>
                 </div>
             </Form>
-            <Button ref={changeButton} onClick={handleClick}>수정하기</Button>
         </div>
     );
 }

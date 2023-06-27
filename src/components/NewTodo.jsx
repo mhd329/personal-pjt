@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import client from "../utils/client";
 import cookie from "react-cookies";
 
@@ -32,9 +32,7 @@ function NewTodo(props) {
         importance: false,
     });
 
-    // useLocation에서 uid가져옴
-    const { state } = useLocation();
-    const uid = state.userId;
+    const uid = props.userId;
 
     // navigation 생성
     const navigate = useNavigate();
@@ -42,7 +40,7 @@ function NewTodo(props) {
         navigate(-1); // 취소 버튼 클릭 시 뒤로 가기
     };
     const goToList = () => {
-        navigate(`/todo-page/${uid}/todo-list`, {
+        navigate(`/todo-page/${uid}`, {
             state: {
                 userId: uid,
             },
@@ -141,7 +139,7 @@ function NewTodo(props) {
 
     return (
         <div className="new-todo">
-            <h1 className="new-todo__title">새 할 것 만들기</h1>
+            <h1 className="new-todo__title mb-5">새 할 것 만들기</h1>
             <Form noValidate className="new-todo__form needs-validation" onSubmit={handleSubmit}>
                 <Form.Group className="mb-3" controlId="title">
                     <Form.Label>
@@ -190,8 +188,8 @@ function NewTodo(props) {
                     </Form.Control.Feedback>
                 </Form.Group>
                 <div className="new-todo__buttons">
-                    <Button className="new-todo__buttons--submit" variant="primary" type="submit">완료</Button>
-                    <Button className="new-todo__buttons--cancel" variant="danger" type="button" onClick={goToBack}>취소</Button>
+                    <Button className="new-todo__buttons--submit mx-2" variant="primary" type="submit">완료</Button>
+                    <Button className="new-todo__buttons--cancel mx-2" variant="danger" type="button" onClick={goToBack}>취소</Button>
                 </div>
             </Form>
         </div>

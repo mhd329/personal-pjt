@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, Link } from "react-router-dom";
+import Card from 'react-bootstrap/Card';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import { Link } from "react-router-dom";
 import client from "../utils/client";
 import cookie from "react-cookies";
 
 
 function MapList(props) {
-    const { state } = useLocation();
-    console.log(props.list)
     function translate(importance) {
         if (importance === "high") {
             return "높음"
@@ -16,18 +17,22 @@ function MapList(props) {
             return "낮음"
         };
     }
-    const todoList = props.list.map((todo) => 
-        <div className="todo__main__todo-obj" key={`todo-id-${todo.id}`} id={`todo-id-${todo.id}`}>
-            <Link to={`detail/${todo.id}`} state={{ todoId: todo.id, userId: state.userId }}>
-                <h6>{todo.title}</h6>
-                <p>{translate(todo.importance)}</p>
+    const todoList = props.list.map((todo) =>
+        <Col xs={4} md={2} className="todo-obj" key={`todo-id-${todo.id}`} id={`todo-id-${todo.id}`}>
+            <Link to={`detail/${todo.id}`} state={{ todoId: todo.id, userId: props.userId }} style={{ textDecoration: "none", color: "black" }}>
+                <Card>
+                    <Card.Body>
+                        <Card.Title>{todo.title}</Card.Title>
+                        <Card.Subtitle className="mb-2">{translate(todo.importance)}</Card.Subtitle>
+                    </Card.Body>
+                </Card>
             </Link>
-        </div>
+        </Col>
     );
     return (
-        <div>
+        <>
             {todoList}
-        </div>
+        </>
     );
 }
 
@@ -52,9 +57,9 @@ function AllTodos(props) {
         getList();
     }, []);
     return (
-        <div className="todo__main__all-todos">
-            {allTodosList.length === 0 ? <p>아무 것도 없습니다.</p> : <MapList list={allTodosList} />}
-        </div>
+        <Row>
+            {allTodosList.length === 0 ? <p>아무 것도 없습니다.</p> : <MapList list={allTodosList} userId={props.userId} />}
+        </Row>
     );
 }
 

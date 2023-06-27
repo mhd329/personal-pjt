@@ -1,5 +1,4 @@
 import React from "react";
-import Buttons from "../components/Buttons";
 import TodoList from "../components/TodoList";
 import { useNavigate, useOutletContext } from "react-router-dom";
 
@@ -13,9 +12,9 @@ function TodoListPage(props) {
     };
 
     return (
-        <>
+        <div className="content">
             <TodoList handler={handle401} userId={userId} />
-        </>
+        </div>
     );
 }
 

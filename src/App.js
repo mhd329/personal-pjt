@@ -15,6 +15,7 @@ import NotFoundPage from "./pages/NotFoundPage";
 import './css/login.css';
 import './css/signup.css';
 import './css/counter.css';
+import './css/todo.css';
 
 function App() {
   return (
