@@ -199,6 +199,7 @@ class LoginView(APIView):  # 로그인
     permission_classes = [
         AllowAny,
     ]
+    authentication_classes = []
 
     def get(self, request):
         try:
