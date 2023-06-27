@@ -62,6 +62,13 @@
   width: 30%;
 }
 
+.todo-detail__time {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+}
+
 .todo-detail__form>.todo-detail__buttons,
 .todo-detail__buttons__completion {
   display: flex;

@@ -5,6 +5,24 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import client from "../utils/client";
 import cookie from "react-cookies";
 
+function convert(rowDate) {
+    if (!rowDate) {
+        return rowDate;
+    };
+    const datetime = new Date(rowDate.replace("+09:00", "Z"));
+    const options = {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric",
+        timeZone: "UTC",
+    };
+    const formattedDate = new Intl.DateTimeFormat('ko-kr', options).format(datetime);
+    return formattedDate;
+}
+
 function TodoDetail(props) {
     const navigate = useNavigate();
     const { state } = useLocation();
@@ -274,18 +292,20 @@ function TodoDetail(props) {
                         중요도를 선택해주세요.
                     </Form.Control.Feedback>
                 </Form.Group>
+                <div className="todo-detail__time">
+                    <p className="mb-0">작성일: {convert(todoDetail["created_at"])}</p>
+                    <p ref={updatedAt}>수정일: {convert(todoDetail["updated_at"])}</p>
+                </div>
                 <div className="todo-detail__buttons__completion">
                     {todoDetail["complete"] ? <Button className="mb-3 mx-2" variant="secondary" disabled>
                         완료됨
-                    </Button> : <Button className="mb-3 mx-2" variant="warning" onClick={handleComplete}>
+                    </Button> : <Button className="mb-3 mx-2" variant="primary" onClick={handleComplete}>
                         완료하기
                     </Button>}
                     <Button className="mb-3 mx-2" variant="danger" onClick={handleDelete}>
                         삭제하기
                     </Button>
                 </div>
-                <p>작성일: {todoDetail["created_at"]}</p>
-                <p ref={updatedAt}>수정일: {todoDetail["updated_at"]}</p>
                 <div className="todo-detail__buttons">
                     <div ref={buttons} className="todo-detail__buttons__change" hidden>
                         <Button className="todo-detail__buttons--submit mx-2" variant="primary" type="submit" onClick={handleSubmit}>수정 완료</Button>
