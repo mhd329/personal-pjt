@@ -5,7 +5,6 @@ import Col from 'react-bootstrap/Col';
 import React, { useState, useEffect } from "react";
 import client from "../utils/client";
 import cookie from "react-cookies";
-import { Container } from "react-bootstrap";
 
 
 function MapList(props) {

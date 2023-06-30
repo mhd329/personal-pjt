@@ -8,6 +8,7 @@ import { Button, Form } from 'react-bootstrap';
 import client from "../utils/client";
 import cookie from "react-cookies";
 
+import Swal from "sweetalert2";
 
 function Login(props) {
     const [user, setUser] = useState({
@@ -44,8 +45,15 @@ function Login(props) {
                     const response = await client.post("accounts/login", user);
                     goToMain(response.data.user.id);
                 } catch (error) {
-                    console.log(error)
-                    alert(error.response.data.message);
+                    if (/^4\d{2}$/.test(error.response.status.toString())) {
+                        Swal.fire({
+                            icon: "warning",
+                            text: error.response.data.message,
+                            confirmButtonText: "확인",
+                        });
+                    } else {
+                        alert(error.response.data.message);
+                    }
                 };
             };
             login();
@@ -59,9 +67,15 @@ function Login(props) {
                             },
                         } : null);
                 } catch (error) {
-                    alert(error.response.data.message);
                     if (error.response.status === 400 && error.response.data.user.id) {
+                        Swal.fire({
+                            icon: "warning",
+                            text: error.response.data.message,
+                            confirmButtonText: "확인",
+                        });
                         goToMain(error.response.data.user.id);
+                    } else {
+                        alert(error.response.data.message);
                     };
                 };
             };

@@ -7,6 +7,8 @@ import { Button, Form } from 'react-bootstrap';
 import useValidation from "../hooks/useValidation";
 import client from "../utils/client";
 
+import Swal from "sweetalert2";
+
 function SignUp(props) {
     const userSchema = {
         email: '',
@@ -60,7 +62,11 @@ function SignUp(props) {
         if (completion) {
             setFormSubmitted(true);
         } else {
-            alert("올바른 값을 작성해주세요.")
+            Swal.fire({
+                icon: "warning",
+                text: "올바른 값을 작성해주세요.",
+                confirmButtonText: "확인",
+            });
         };
         event.preventDefault();
         event.stopPropagation();

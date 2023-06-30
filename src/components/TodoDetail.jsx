@@ -4,7 +4,12 @@ import { Button, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import client from "../utils/client";
 import cookie from "react-cookies";
+import Swal from "sweetalert2";
 
+// 날짜가 ISO 8601 형식으로 나온다.
+// 사용자 관점에서 보기 편한 방식으로 conversion 하기 위한 함수
+// 첫 렌더링시 날짜 데이터가 들어오지 않는(rowDate === undifined: 날짜를 비롯한 detail은 useEffect로 렌더링이 끝난 후 응답된다.)
+// 상황에 대한 조건문을 추가하였다.
 function convert(rowDate) {
     if (!rowDate) {
         return rowDate;
@@ -26,19 +31,25 @@ function convert(rowDate) {
 function TodoDetail(props) {
     const navigate = useNavigate();
     const { state } = useLocation();
+
     const [todoDetail, setTodoDetail] = useState({});
     const [todoDetailTemp, setTodoDetailTemp] = useState({});
+
     const [complete, setComplete] = useState(false);
     const [deleteTodo, setDeleteTodo] = useState(false);
+
     const title = useRef(null);
     const description = useRef(null);
     const importance = useRef(null);
     const buttons = useRef(null);
     const changeButton = useRef(null);
     const updatedAt = useRef(null);
+
+    // 요청에 대한 응답이 오면 todoDetail, todoDetailTemp 두 state의 set함수를 사용하기 위한 함수
+    // 첫 번째 매개변수로 set함수가 담긴 배열이 들어가고 두 번째로 응답이 들어간다.
     function setData(setFunctionArray, response) {
-        setFunctionArray.map((f) => {
-            return f({
+        setFunctionArray.map((setFunction) => {
+            return setFunction({
                 user: props.userId,
                 id: response.data.id,
                 title: response.data.title,
@@ -95,14 +106,23 @@ function TodoDetail(props) {
     };
 
     const handleComplete = useCallback((event) => {
-        const answer = window.confirm("정말 완료 하시겠습니까?\n완료하는 경우 더 이상 수정할 수 없습니다.");
-        if (answer) {
-            setTodoDetail({
-                ...todoDetail,
-                complete: true,
-            });
-            setComplete(true);
-        };
+        Swal.fire({
+            title: "정말 완료 하시겠습니까?",
+            text: "완료하는 경우 더 이상 수정할 수 없습니다.",
+            showCancelButton: true,
+            confirmButtonColor: "red",
+            cancelButtonColor: "gray",
+            confirmButtonText: "완료",
+            cancelButtonText: "취소",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                setTodoDetail({
+                    ...todoDetail,
+                    complete: true,
+                });
+                setComplete(true);
+            };
+        });
     }, [todoDetail]);
     useEffect(() => {
         if (complete) {
@@ -131,10 +151,19 @@ function TodoDetail(props) {
     }, [complete]);
 
     const handleDelete = useCallback((event) => {
-        const answer = window.confirm("정말 삭제 하시겠습니까?\n삭제하면 더 이상 확인할 수 없습니다.");
-        if (answer) {
-            setDeleteTodo(true);
-        };
+        Swal.fire({
+            title: "정말 삭제 하시겠습니까?",
+            text: "삭제하면 더 이상 확인할 수 없습니다.",
+            showCancelButton: true,
+            confirmButtonColor: "red",
+            cancelButtonColor: "gray",
+            confirmButtonText: "삭제",
+            cancelButtonText: "취소",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                setDeleteTodo(true);
+            };
+        });
     }, []);
 
     useEffect(() => {
@@ -171,6 +200,7 @@ function TodoDetail(props) {
         changeButton.current.hidden = true;
     };
 
+    // 취소하는 경우 변경 전의 값으로 돌아가면서 수정 등의 버튼들을 비활성화한다.
     function cancel() {
         setTodoDetail({
             ...todoDetail,
@@ -192,6 +222,8 @@ function TodoDetail(props) {
         cancel();
     };
 
+    // 수정 시 temp의 내용과 달라진 점이 있는지 비교검사하는 함수
+    // 전과 같다면 true, 달라졌다면 false를 리턴한다.
     function compare() {
         if (todoDetail["title"] === todoDetailTemp["title"] &&
             todoDetail["description"] === todoDetailTemp["description"] &&
@@ -205,8 +237,10 @@ function TodoDetail(props) {
         event.preventDefault();
         event.stopPropagation();
         if (compare()) {
+            // 변화가 없다면 취소처리한다.
             cancel();
         } else if ((todoDetail["title"].length !== 0) && (todoDetail["importance"] !== "none")) {
+            // 변화가 있다면 유효성 검사 후 patch 요청
             async function patchTodo() {
                 try {
                     const response = await client.patch(`todo/detail/${state.todoId}`, todoDetail, {
@@ -229,7 +263,11 @@ function TodoDetail(props) {
             };
             patchTodo();
         } else {
-            alert("다시 입력해주세요.");
+            Swal.fire({
+                icon: "error",
+                text: "다시 입력해주세요.",
+                confirmButtonText: "확인",
+            });
         };
         event.preventDefault();
         event.stopPropagation();

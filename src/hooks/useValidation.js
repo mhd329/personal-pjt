@@ -1,15 +1,17 @@
 import { useState } from "react";
 
 // initialValue로 object가 들어온다.
-export default (value) => {
+// object는 유저 스키마가 들어온다.
+export default (object) => {
     const validationObj = {};
     // 사용자에 대한 state 초기화
-    const [user, setUser] = useState(value);
-    for (const key in value) {
+    const [user, setUser] = useState(object);
+    for (const key in object) {
         validationObj[key] = false;
     };
     // 유효성에 대한 state 초기화
     const [validation, setValidation] = useState(validationObj);
+    // 유효성 검사를 SignUp에서만 사용하기 때문에 email, password에 대한 항목만 설정해두었다.
 
     // 정규 표현식을 통해 검사한다.
     const validEmail = new RegExp(/^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i);
@@ -61,6 +63,7 @@ export default (value) => {
             });
         };
     };
+    // 유저 객체와 유효성 검사 객체(검사대상 key에 대해 boolean 형식의 value)가 data에 담겨 set함수와 함께 반환된다.
     const data = [user, validation];
     return [data, handler];
 };

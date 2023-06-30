@@ -6,6 +6,8 @@ import cookie from "react-cookies";
 import { Button, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+import Swal from "sweetalert2";
+
 function NewTodo(props) {
     // todo 객체에 대한 스키마
     const todoSchema = {
@@ -59,6 +61,12 @@ function NewTodo(props) {
                 importance: importance,
             });
             setFormSubmitted(true);
+        } else {
+            Swal.fire({
+                icon: "warning",
+                text: "올바른 값을 작성해주세요.",
+                confirmButtonText: "확인",
+            });
         };
         event.preventDefault();
         event.stopPropagation();
