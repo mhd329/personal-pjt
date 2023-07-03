@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Button, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import client from "../utils/client";
-import cookie from "react-cookies";
+import { Cookies } from "react-cookie";
 import Swal from "sweetalert2";
 
 // 날짜가 ISO 8601 형식으로 나온다.
@@ -29,6 +29,7 @@ function convert(rowDate) {
 }
 
 function TodoDetail(props) {
+    const cookie = new Cookies();
     const navigate = useNavigate();
     const { state } = useLocation();
 
@@ -71,7 +72,7 @@ function TodoDetail(props) {
             try {
                 const response = await client.get(`todo/detail/${state.todoId}`, {
                     headers: {
-                        Authorization: `Bearer ${cookie.load("access") ? cookie.load("access") : null}`,
+                        Authorization: `Bearer ${cookie.get("access") ? cookie.get("access") : null}`,
                     },
                 });
                 setData([setTodoDetail, setTodoDetailTemp], response);
@@ -130,7 +131,7 @@ function TodoDetail(props) {
                 try {
                     const response = await client.patch(`todo/detail/${state.todoId}`, todoDetail, {
                         headers: {
-                            Authorization: `Bearer ${cookie.load("access") ? cookie.load("access") : null}`,
+                            Authorization: `Bearer ${cookie.get("access") ? cookie.get("access") : null}`,
                         },
                     });
                     if (response.status === 202) {
@@ -172,7 +173,7 @@ function TodoDetail(props) {
                 try {
                     const response = await client.delete(`todo/detail/${state.todoId}`, {
                         headers: {
-                            Authorization: `Bearer ${cookie.load("access") ? cookie.load("access") : null}`,
+                            Authorization: `Bearer ${cookie.get("access") ? cookie.get("access") : null}`,
                         },
                     });
                     if (response.status === 200) {
@@ -245,7 +246,7 @@ function TodoDetail(props) {
                 try {
                     const response = await client.patch(`todo/detail/${state.todoId}`, todoDetail, {
                         headers: {
-                            Authorization: `Bearer ${cookie.load("access") ? cookie.load("access") : null}`,
+                            Authorization: `Bearer ${cookie.get("access") ? cookie.get("access") : null}`,
                         },
                     });
                     if (response.status === 202) {

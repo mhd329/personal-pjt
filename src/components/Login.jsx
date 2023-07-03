@@ -6,11 +6,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Form } from 'react-bootstrap';
 
 import client from "../utils/client";
-import cookie from "react-cookies";
+import { Cookies } from "react-cookie";
 
 import Swal from "sweetalert2";
 
 function Login(props) {
+    const cookie = new Cookies();
     const [user, setUser] = useState({
         email: '',
         password: '',
@@ -45,6 +46,7 @@ function Login(props) {
                     const response = await client.post("accounts/login", user);
                     goToMain(response.data.user.id);
                 } catch (error) {
+                    console.log(error)
                     if (/^4\d{2}$/.test(error.response.status.toString())) {
                         Swal.fire({
                             icon: "warning",
@@ -60,10 +62,10 @@ function Login(props) {
         } else { // 로그인 페이지 들어왔을 때 이미 로그인 했는지 여부 검사
             async function checkToken() {
                 try {
-                    await client.get("accounts/login", cookie.load("access") ?
+                    await client.get("accounts/login", cookie.get("access") ?
                         {
                             headers: {
-                                Authorization: `Bearer ${cookie.load("access")}`,
+                                Authorization: `Bearer ${cookie.get("access")}`,
                             },
                         } : null);
                 } catch (error) {
@@ -93,6 +95,7 @@ function Login(props) {
                         아이디
                     </Form.Label>
                     <Form.Control
+                        placeholder="example@example.com"
                         type="email"
                         autoComplete="off"
                     />

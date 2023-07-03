@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from 'react-router-dom';
 import client from "../utils/client";
-import cookie from "react-cookies";
+import { Cookies } from "react-cookie";
 
 import { Button, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -9,6 +9,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Swal from "sweetalert2";
 
 function NewTodo(props) {
+    const cookie = new Cookies();
     // todo 객체에 대한 스키마
     const todoSchema = {
         user: 0,
@@ -128,7 +129,7 @@ function NewTodo(props) {
                         todo,
                         {
                             headers: {
-                                Authorization: `Bearer ${cookie.load("access") ? cookie.load("access") : null}`,
+                                Authorization: `Bearer ${cookie.get("access") ? cookie.get("access") : null}`,
                             },
                         });
                     console.log(response);

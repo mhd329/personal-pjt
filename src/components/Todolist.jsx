@@ -4,7 +4,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import React, { useState, useEffect } from "react";
 import client from "../utils/client";
-import cookie from "react-cookies";
+import { Cookies } from "react-cookie";
 
 
 function MapList(props) {
@@ -39,13 +39,14 @@ function MapList(props) {
 
 // 일반적인 todolist => 상태 false인 todo 목록이 기본으로 나옴
 function TodoList(props) {
+    const cookie = new Cookies();
     const [todoList, setTodoList] = useState([]);
     useEffect(() => {
         async function getList() {
             try {
                 const response = await client.get("todo/todo-list", {
                     headers: {
-                        Authorization: `Bearer ${cookie.load("access") ? cookie.load("access") : null}`,
+                        Authorization: `Bearer ${cookie.get("access") ? cookie.get("access") : null}`,
                     },
                 });
                 setTodoList(response.data);

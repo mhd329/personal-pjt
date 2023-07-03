@@ -4,7 +4,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import { Link } from "react-router-dom";
 import client from "../utils/client";
-import cookie from "react-cookies";
+import { Cookies } from "react-cookie";
 
 
 function MapList(props) {
@@ -39,13 +39,14 @@ function MapList(props) {
 
 // 모든 todolist => 완료 여부를 가리지 않음
 function AllTodos(props) {
+    const cookie = new Cookies();
     const [allTodosList, setAllTodosList] = useState([]);
     useEffect(() => {
         async function getList() {
             try {
                 const response = await client.get("todo/all-todos", {
                     headers: {
-                        Authorization: `Bearer ${cookie.load("access") ? cookie.load("access") : null}`,
+                        Authorization: `Bearer ${cookie.get("access") ? cookie.get("access") : null}`,
                     },
                 });
                 setAllTodosList(response.data);
