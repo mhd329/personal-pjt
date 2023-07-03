@@ -34,6 +34,7 @@ class CustomJWTAuthentication(JWTAuthentication):
                         "message": e.args[0],
                     }
                 )
+        # 수정이 필요한 부분은 이 부분이었다.
         raise InvalidToken(
             {
                 "detail": messages,
