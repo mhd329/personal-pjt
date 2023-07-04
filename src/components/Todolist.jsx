@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import Card from 'react-bootstrap/Card';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import client from "../utils/client";
 import { Cookies } from "react-cookie";
 
@@ -18,7 +18,7 @@ function MapList(props) {
         };
     }
     const todoList = props.list.map((todo) =>
-        <Col xs={4} md={2} className="todo-obj" key={`todo-id-${todo.id}`} id={`todo-id-${todo.id}`}>
+        <Col className="todo-obj" key={`todo-id-${todo.id}`} id={`todo-id-${todo.id}`}>
             <Link to={`detail/${todo.id}`} state={{ todoId: todo.id, userId: props.userId }} style={{ textDecoration: "none", color: "black" }}>
                 <Card>
                     <Card.Body>
@@ -29,38 +29,65 @@ function MapList(props) {
             </Link>
         </Col>
     );
-    return (
-        <>
-            {todoList}
-        </>
-    );
+    const md = 4;
+    const mdSize = 4;
+    if (todoList.length > mdSize) {
+        const tidyTodoList = []
+        while (todoList.length > mdSize) {
+            const todos = []
+            for (let i = 0; i < mdSize; i++) {
+                const todo = todoList.shift();
+                todos.push(todo);
+            };
+            tidyTodoList.push(<Row md={md} className="mx-2 my-4">{todos}</Row>);
+        };
+        tidyTodoList.push(<Row md={md} className="mx-2 my-4">{todoList}</Row>);
+        return (
+            <>
+                {tidyTodoList}
+            </>
+        );
+    } else {
+        return (
+            <Row md={md} className="mx-2 my-4">
+                {todoList}
+            </Row>
+        );
+    }
 }
 
 
 // 일반적인 todolist => 상태 false인 todo 목록이 기본으로 나옴
 function TodoList(props) {
-    const cookie = new Cookies();
-    const [todoList, setTodoList] = useState([]);
-    useEffect(() => {
-        async function getList() {
-            try {
-                const response = await client.get("todo/todo-list", {
-                    headers: {
-                        Authorization: `Bearer ${cookie.get("access") ? cookie.get("access") : null}`,
-                    },
-                });
-                setTodoList(response.data);
-            } catch (error) {
-                alert(error.response.data.message);
-                props.handler(error);
-            };
-        };
-        getList();
+    const accessToken = useCallback(() => {
+        const cookie = new Cookies();
+        return cookie.get("access");
     }, []);
+
+    const [todoList, setTodoList] = useState([]);
+
+    const getList = useCallback(async () => {
+        try {
+            const response = await client.get("todo/todo-list", {
+                headers: {
+                    Authorization: `Bearer ${accessToken() ? accessToken() : null}`,
+                },
+            });
+            setTodoList(response.data);
+        } catch (error) {
+            alert(error.response.data.message);
+            props.handler(error);
+        };
+    }, [props, accessToken]);
+
+    useEffect(() => {
+        getList();
+    }, [getList]);
+
     return (
-        <Row>
+        <>
             {todoList.length === 0 ? <p>아직 할 것이 없습니다.</p> : <MapList list={todoList} userId={props.userId} />}
-        </Row >
+        </>
     );
 }
 

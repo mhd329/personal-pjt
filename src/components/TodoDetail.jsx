@@ -28,8 +28,13 @@ function convert(rowDate) {
     return formattedDate;
 }
 
+// todoDetail 메인 컴포넌트
+
 function TodoDetail(props) {
-    const cookie = new Cookies();
+    const accessToken = useCallback(() => {
+        const cookie = new Cookies();
+        return cookie.get("access");
+    }, []);
     const navigate = useNavigate();
     const { state } = useLocation();
 
@@ -42,13 +47,14 @@ function TodoDetail(props) {
     const title = useRef(null);
     const description = useRef(null);
     const importance = useRef(null);
-    const buttons = useRef(null);
+    const buttonGroup1 = useRef(null);
+    const buttonGroup2 = useRef(null);
     const changeButton = useRef(null);
     const updatedAt = useRef(null);
 
     // 요청에 대한 응답이 오면 todoDetail, todoDetailTemp 두 state의 set함수를 사용하기 위한 함수
     // 첫 번째 매개변수로 set함수가 담긴 배열이 들어가고 두 번째로 응답이 들어간다.
-    function setData(setFunctionArray, response) {
+    const setData = useCallback((setFunctionArray, response) => {
         setFunctionArray.map((setFunction) => {
             return setFunction({
                 user: props.userId,
@@ -61,29 +67,36 @@ function TodoDetail(props) {
                 updated_at: response.data.updated_at,
             });
         });
-    }
+    }, [props]);
 
-    const goBack = () => { // 목록으로 가기(뒤로가기)
+    // 목록으로 가기(뒤로가기)
+
+    const goBack = () => {
         navigate(-1);
     };
 
-    useEffect(() => {
-        async function getTodo() {
-            try {
-                const response = await client.get(`todo/detail/${state.todoId}`, {
-                    headers: {
-                        Authorization: `Bearer ${cookie.get("access") ? cookie.get("access") : null}`,
-                    },
-                });
-                setData([setTodoDetail, setTodoDetailTemp], response);
-                setComplete(response.data.complete);
-            } catch (error) {
-                alert(error.response.data.message);
-                props.handler(error);
-            };
+    // todo detail get요청
+
+    const getTodo = useCallback(async () => {
+        try {
+            const response = await client.get(`todo/detail/${state.todoId}`, {
+                headers: {
+                    Authorization: `Bearer ${accessToken() ? accessToken() : null}`,
+                },
+            });
+            setData([setTodoDetail, setTodoDetailTemp], response);
+            setComplete(response.data.complete);
+        } catch (error) {
+            alert(error.response.data.message);
+            props.handler(error);
         };
+    }, [props, accessToken, setData, state]);
+
+    useEffect(() => {
         getTodo();
-    }, []);
+    }, [getTodo]);
+
+    // 제목 변경
 
     const handleTitleChange = (event) => {
         setTodoDetail({
@@ -92,6 +105,8 @@ function TodoDetail(props) {
         })
     };
 
+    // 상세 변경
+
     const handleDescriptionChange = (event) => {
         setTodoDetail({
             ...todoDetail,
@@ -99,12 +114,16 @@ function TodoDetail(props) {
         })
     };
 
+    // 중요도 변경
+
     const handleImportantChange = (event) => {
         setTodoDetail({
             ...todoDetail,
             importance: event.currentTarget.value,
         })
     };
+
+    // todo 완료처리 버튼
 
     const handleComplete = useCallback((event) => {
         Swal.fire({
@@ -125,31 +144,37 @@ function TodoDetail(props) {
             };
         });
     }, [todoDetail]);
+
+    // todo 완료처리 request
+
+    const completeTodo = useCallback(async () => {
+        try {
+            const response = await client.patch(`todo/detail/${state.todoId}`, todoDetail, {
+                headers: {
+                    Authorization: `Bearer ${accessToken() ? accessToken() : null}`,
+                },
+            });
+            if (response.status === 202) {
+                title.current.disabled = true;
+                description.current.disabled = true;
+                importance.current.disabled = true;
+                buttonGroup2.current.hidden = true;
+                changeButton.current.hidden = true;
+            };
+        } catch (error) {
+            console.log(error)
+            alert(error.response.data.message);
+            props.handler(error);
+        };
+    }, [props, state, todoDetail, accessToken]);
+
     useEffect(() => {
         if (complete) {
-            async function completeTodo() {
-                try {
-                    const response = await client.patch(`todo/detail/${state.todoId}`, todoDetail, {
-                        headers: {
-                            Authorization: `Bearer ${cookie.get("access") ? cookie.get("access") : null}`,
-                        },
-                    });
-                    if (response.status === 202) {
-                        title.current.disabled = true;
-                        description.current.disabled = true;
-                        importance.current.disabled = true;
-                        buttons.current.hidden = true;
-                        changeButton.current.hidden = true;
-                    };
-                } catch (error) {
-                    console.log(error)
-                    alert(error.response.data.message);
-                    props.handler(error);
-                };
-            };
             completeTodo();
         };
-    }, [complete]);
+    }, [completeTodo, complete]);
+
+    // todo 삭제처리 버튼
 
     const handleDelete = useCallback((event) => {
         Swal.fire({
@@ -167,42 +192,56 @@ function TodoDetail(props) {
         });
     }, []);
 
+    // todo 삭제처리 요청
+
+    const removeTodo = useCallback(async () => {
+        try {
+            const response = await client.delete(`todo/detail/${state.todoId}`, {
+                headers: {
+                    Authorization: `Bearer ${accessToken() ? accessToken() : null}`,
+                },
+            });
+            if (response.status === 200) {
+                navigate(`/todo-page/${props.userId}/all-todos`, {
+                    state: {
+                        userId: props.userId,
+                    },
+                })
+            };
+        } catch (error) {
+            console.log(error)
+            alert(error.response.data.message);
+            props.handler(error);
+        };
+    }, [accessToken, navigate, props, state]);
+
     useEffect(() => {
         if (deleteTodo) {
-            async function removeTodo() {
-                try {
-                    const response = await client.delete(`todo/detail/${state.todoId}`, {
-                        headers: {
-                            Authorization: `Bearer ${cookie.get("access") ? cookie.get("access") : null}`,
-                        },
-                    });
-                    if (response.status === 200) {
-                        navigate(`/todo-page/${props.userId}/all-todos`, {
-                            state: {
-                                userId: props.userId,
-                            },
-                        })
-                    };
-                } catch (error) {
-                    console.log(error)
-                    alert(error.response.data.message);
-                    props.handler(error);
-                };
-            };
             removeTodo();
         };
-    }, [deleteTodo]);
+    }, [removeTodo, deleteTodo]);
 
-    const handleClick = (event) => {
+    // 수정하기 버튼
+
+    const handleChangeButton = (event) => {
+        console.log(buttonGroup1);
         title.current.disabled = false;
         description.current.disabled = false;
         importance.current.disabled = false;
-        buttons.current.hidden = false;
-        changeButton.current.hidden = true;
+        buttonGroup1.current.hidden = true;
+        buttonGroup2.current.hidden = false;
     };
 
+    // 취소 버튼
+
+    const handleCancellation = (event) => {
+        cancel();
+    };
+
+    // 취소처리 함수
     // 취소하는 경우 변경 전의 값으로 돌아가면서 수정 등의 버튼들을 비활성화한다.
-    function cancel() {
+
+    const cancel = useCallback(() => {
         setTodoDetail({
             ...todoDetail,
             title: todoDetailTemp["title"],
@@ -215,24 +254,48 @@ function TodoDetail(props) {
         title.current.disabled = true;
         description.current.disabled = true;
         importance.current.disabled = true;
-        buttons.current.hidden = true;
+        buttonGroup1.current.hidden = false;
+        buttonGroup2.current.hidden = true;
         changeButton.current.hidden = false;
-    }
+    }, [todoDetail, todoDetailTemp]);
 
-    const handleCancellation = (event) => {
-        cancel();
-    };
-
+    // 비교 함수
     // 수정 시 temp의 내용과 달라진 점이 있는지 비교검사하는 함수
     // 전과 같다면 true, 달라졌다면 false를 리턴한다.
-    function compare() {
+
+    const compare = useCallback(() => {
         if (todoDetail["title"] === todoDetailTemp["title"] &&
             todoDetail["description"] === todoDetailTemp["description"] &&
             todoDetail["importance"] === todoDetailTemp["importance"]) {
             return true;
         };
         return false;
-    }
+    }, [todoDetail, todoDetailTemp]);
+
+    // 수정 후 서버로 제출
+
+    const patchTodo = useCallback(async () => {
+        try {
+            const response = await client.patch(`todo/detail/${state.todoId}`, todoDetail, {
+                headers: {
+                    Authorization: `Bearer ${accessToken() ? accessToken() : null}`,
+                },
+            });
+            if (response.status === 202) {
+                setData([setTodoDetail, setTodoDetailTemp], response);
+                title.current.disabled = true;
+                description.current.disabled = true;
+                importance.current.disabled = true;
+                buttonGroup2.current.hidden = true;
+                changeButton.current.hidden = false;
+            };
+        } catch (error) {
+            alert(error.response.data.message);
+            props.handler(error);
+        };
+    }, [accessToken, props, setData, state, todoDetail]);
+
+    // 수정 후 제출버튼 클릭
 
     const handleSubmit = useCallback((event) => {
         event.preventDefault();
@@ -241,27 +304,7 @@ function TodoDetail(props) {
             // 변화가 없다면 취소처리한다.
             cancel();
         } else if ((todoDetail["title"].length !== 0) && (todoDetail["importance"] !== "none")) {
-            // 변화가 있다면 유효성 검사 후 patch 요청
-            async function patchTodo() {
-                try {
-                    const response = await client.patch(`todo/detail/${state.todoId}`, todoDetail, {
-                        headers: {
-                            Authorization: `Bearer ${cookie.get("access") ? cookie.get("access") : null}`,
-                        },
-                    });
-                    if (response.status === 202) {
-                        setData([setTodoDetail, setTodoDetailTemp], response);
-                        title.current.disabled = true;
-                        description.current.disabled = true;
-                        importance.current.disabled = true;
-                        buttons.current.hidden = true;
-                        changeButton.current.hidden = false;
-                    };
-                } catch (error) {
-                    alert(error.response.data.message);
-                    props.handler(error);
-                };
-            };
+            // 변화가 있다면 유효성 검사 후 수정 요청
             patchTodo();
         } else {
             Swal.fire({
@@ -272,7 +315,7 @@ function TodoDetail(props) {
         };
         event.preventDefault();
         event.stopPropagation();
-    }, [todoDetail]);
+    }, [patchTodo, cancel, compare, todoDetail]);
 
     return (
         <div className="todo-detail">
@@ -335,22 +378,28 @@ function TodoDetail(props) {
                     <p className="mb-0">작성일: {convert(todoDetail["created_at"])}</p>
                     <p ref={updatedAt}>수정일: {convert(todoDetail["updated_at"])}</p>
                 </div>
-                <div className="todo-detail__buttons__completion">
-                    {todoDetail["complete"] ? <Button className="mb-3 mx-2" variant="secondary" disabled>
-                        완료됨
-                    </Button> : <Button className="mb-3 mx-2" variant="primary" onClick={handleComplete}>
-                        완료하기
-                    </Button>}
-                    <Button className="mb-3 mx-2" variant="danger" onClick={handleDelete}>
-                        삭제하기
-                    </Button>
-                </div>
                 <div className="todo-detail__buttons">
-                    <div ref={buttons} className="todo-detail__buttons__change" hidden>
+                    <div ref={buttonGroup1} className="todo-detail__buttons__completion">
+                        <Button ref={changeButton} onClick={handleChangeButton} className="mx-2">
+                            수정하기
+                        </Button>
+                        {todoDetail["complete"] ? <Button className="mx-2" variant="secondary" disabled>
+                            완료됨
+                        </Button> : <Button className="mx-2" variant="warning" onClick={handleComplete}>
+                            완료하기
+                        </Button>}
+                        <Button className="mx-2" variant="danger" onClick={handleDelete}>
+                            삭제하기
+                        </Button>
+                    </div>
+                </div>
+                <div className="todo-detail__buttons mb-3">
+                    <div ref={buttonGroup2} className="todo-detail__buttons__change" hidden>
                         <Button className="todo-detail__buttons--submit mx-2" variant="primary" type="submit" onClick={handleSubmit}>수정 완료</Button>
                         <Button className="todo-detail__buttons--cancel mx-2" variant="danger" type="button" onClick={handleCancellation}>취소</Button>
                     </div>
-                    <Button ref={changeButton} onClick={handleClick} className="mx-2">수정하기</Button>
+                </div>
+                <div className="todo-detail__buttons">
                     <Button onClick={goBack} className="mx-2">목록으로 가기</Button>
                 </div>
             </Form>

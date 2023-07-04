@@ -9,17 +9,13 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Swal from "sweetalert2";
 
 function NewTodo(props) {
-    const cookie = new Cookies();
-    // todo 객체에 대한 스키마
-    const todoSchema = {
-        user: 0,
-        title: '',
-        description: '',
-        importance: '',
-    };
+    const accessToken = useCallback(() => {
+        const cookie = new Cookies();
+        return cookie.get("access");
+    }, []);
 
     // todo 상태 초기화
-    const [todo, setTodo] = useState(todoSchema);
+    const [todo, setTodo] = useState({});
 
     // 각 항목 초기화
     const [title, setTitle] = useState(''); // todo 제목
@@ -35,6 +31,7 @@ function NewTodo(props) {
         importance: false,
     });
 
+    // 전달받은 uid
     const uid = props.userId;
 
     // navigation 생성
@@ -42,20 +39,20 @@ function NewTodo(props) {
     const goToBack = () => {
         navigate(-1); // 취소 버튼 클릭 시 뒤로 가기
     };
-    const goToList = () => {
+    const goToList = useCallback(() => {
         navigate(`/todo-page/${uid}`, {
             state: {
                 userId: uid,
             },
         }); // 만들기 성공하면 리스트로 가기
-    };
+    }, [navigate, uid]);
 
     // 제출 버튼 클릭
     const handleSubmit = useCallback((event) => {
         setCheckFormValid(true); // 유효성 검사 실행
         if (validationObj["title"] && validationObj["importance"]) {
             setTodo({
-                ...todoSchema,
+                ...todo,
                 user: uid,
                 title: title,
                 description: description,
@@ -71,7 +68,7 @@ function NewTodo(props) {
         };
         event.preventDefault();
         event.stopPropagation();
-    }, [validationObj["title"] && validationObj["importance"]]);
+    }, [todo, description, importance, title, uid, validationObj]);
 
     // 제목 입력시 이벤트 감지하여 제목 설정
     const handleTitleChange = (event) => {
@@ -120,30 +117,32 @@ function NewTodo(props) {
         }
     };
 
-    // 폼 제출시 axios
+    // 폼 제출 요청
+    const postTodo = useCallback(async () => {
+        try {
+            const response = await client.post("todo/todo-list",
+                todo,
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken() ? accessToken() : null}`,
+                    },
+                });
+            console.log(response);
+            if (response.status === 201) {
+                goToList();
+            }
+        } catch (error) {
+            alert(error.response.data.message);
+            props.handler(error);
+        };
+    }, [todo, props, accessToken, goToList]);
+
+    // 폼 제출시 axios 요청 작동
     useEffect(() => {
         if (formSubmitted) {
-            async function postTodo() {
-                try {
-                    const response = await client.post("todo/todo-list",
-                        todo,
-                        {
-                            headers: {
-                                Authorization: `Bearer ${cookie.get("access") ? cookie.get("access") : null}`,
-                            },
-                        });
-                    console.log(response);
-                    if (response.status === 201) {
-                        goToList();
-                    }
-                } catch (error) {
-                    alert(error.response.data.message);
-                    props.handler(error);
-                };
-            };
             postTodo();
         };
-    }, [formSubmitted]);
+    }, [postTodo, formSubmitted]);
 
 
     return (

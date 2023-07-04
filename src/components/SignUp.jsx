@@ -26,33 +26,33 @@ function SignUp(props) {
         navigate(-1)
     };
     // 로그인 성공시 todo 홈페이지로 간다.
-    const goToMain = (uid) => {
+    const goToMain = useCallback((uid) => {
         navigate(`/todo-page/${uid}`, {
             state: {
                 userId: uid,
             },
         });
-    };
+    }, [navigate]);
 
     // 서버로 post요청
+    const createUser = useCallback(async () => {
+        try {
+            const response = await client.post("accounts/register", userObj);
+            goToMain(response.data.uid);
+        } catch (error) {
+            alert(error.response.data.message);
+        };
+    }, [goToMain, userObj]);
+
     useEffect(() => {
         if (formSubmitted) {
-            async function createUser() {
-                try {
-                    const response = await client.post("accounts/register", userObj);
-                    console.log(response)
-                    goToMain(response.data.uid);
-                } catch (error) {
-                    alert(error.response.data.message);
-                };
-            };
             createUser();
         };
         // 제출 완료한다음 제출 여부를 다시 false로 바꿈
         // 1. formSubmitted이 true일 때만 제출하게 되면 컴포넌트 마운트 될 때마다 서버와 통신하게 되는 것이 방지된다.
         // 2. 잘못된 제출의 경우 다시 제출하기 위해서 false로 바꿔줘야 한다.
         setFormSubmitted(false);
-    }, [formSubmitted]);
+    }, [createUser, formSubmitted]);
 
     // 폼 제출버튼 클릭시 작동하는 함수
     // 폼 전체 유효성 검사 실행

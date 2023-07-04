@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Card from 'react-bootstrap/Card';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -17,8 +17,9 @@ function MapList(props) {
             return "낮음"
         };
     }
-    const todoList = props.list.map((todo) =>
-        <Col xs={4} md={2} className="todo-obj" key={`todo-id-${todo.id}`} id={`todo-id-${todo.id}`}>
+    const rawTodoList = props.list;
+    const todoList = rawTodoList.map((todo) =>
+        <Col className="todo-obj" key={`todo-id-${todo.id}`} id={`todo-id-${todo.id}`}>
             <Link to={`detail/${todo.id}`} state={{ todoId: todo.id, userId: props.userId }} style={{ textDecoration: "none", color: "black" }}>
                 <Card>
                     <Card.Body>
@@ -29,38 +30,65 @@ function MapList(props) {
             </Link>
         </Col>
     );
-    return (
-        <>
-            {todoList}
-        </>
-    );
+    const md = 4;
+    const mdSize = 4;
+    // 길이가 긴 경우 잘라서 반환
+    if (todoList.length > mdSize) {
+        const tidyTodoList = []
+        while (todoList.length > mdSize) {
+            const todos = []
+            for (let i = 0; i < mdSize; i++) {
+                const todo = todoList.shift();
+                todos.push(todo);
+            };
+            tidyTodoList.push(<Row md={md} className="mx-2 my-4">{todos}</Row>);
+        };
+        tidyTodoList.push(<Row md={md} className="mx-2 my-4">{todoList}</Row>);
+        return (
+            <>
+                {tidyTodoList}
+            </>
+        );
+    } else {
+        // 길이가 길지 않으면 그냥 반환
+        return (
+            <Row md={md} className="mx-2 my-4">
+                {todoList}
+            </Row>
+        );
+    }
 }
 
 
 // 모든 todolist => 완료 여부를 가리지 않음
 function AllTodos(props) {
-    const cookie = new Cookies();
-    const [allTodosList, setAllTodosList] = useState([]);
-    useEffect(() => {
-        async function getList() {
-            try {
-                const response = await client.get("todo/all-todos", {
-                    headers: {
-                        Authorization: `Bearer ${cookie.get("access") ? cookie.get("access") : null}`,
-                    },
-                });
-                setAllTodosList(response.data);
-            } catch (error) {
-                alert(error.response.data.message);
-                props.handler(error);
-            };
-        };
-        getList();
+    const accessToken = useCallback(() => {
+        const cookie = new Cookies();
+        return cookie.get("access");
     }, []);
+    const [allTodosList, setAllTodosList] = useState([]);
+
+    const getList = useCallback(async () => {
+        try {
+            const response = await client.get("todo/all-todos", {
+                headers: {
+                    Authorization: `Bearer ${accessToken() ? accessToken() : null}`,
+                },
+            });
+            setAllTodosList(response.data);
+        } catch (error) {
+            alert(error.response.data.message);
+            props.handler(error);
+        };
+    }, [props, accessToken]);
+
+    useEffect(() => {
+        getList();
+    }, [getList]);
     return (
-        <Row>
+        <>
             {allTodosList.length === 0 ? <p>아무 것도 없습니다.</p> : <MapList list={allTodosList} userId={props.userId} />}
-        </Row>
+        </>
     );
 }
 

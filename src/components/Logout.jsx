@@ -6,19 +6,22 @@ import React, { useCallback } from "react";
 import { Cookies } from "react-cookie";
 
 function Logout(props) {
-    const cookie = new Cookies();
+    const accessToken = useCallback(() => {
+        const cookie = new Cookies();
+        return cookie.get("access");
+    }, []);
     // 로그아웃시 로그인창으로 가기
     const navigate = useNavigate();
-    const goToLogin = () => {
+    const goToLogin = useCallback(() => {
         navigate("/account/login");
-    };
+    }, [navigate]);
 
     const handleClick = useCallback(() => {
         async function logout() {
             try {
                 await client.delete("accounts/logout", {
                     headers: {
-                        Authorization: `Bearer ${cookie.get("access") ? cookie.get("access") : null}`,
+                        Authorization: `Bearer ${accessToken() ? accessToken() : null}`,
                     },
                 });
                 goToLogin();
@@ -27,7 +30,7 @@ function Logout(props) {
             };
         };
         logout();
-    }, [cookie.get("access")]);
+    }, [goToLogin, accessToken]);
 
     return (
         <Button variant="primary" type="button" onClick={handleClick}>

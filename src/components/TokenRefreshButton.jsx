@@ -67,7 +67,7 @@ function TokenRefreshButton(props) {
             setCount(0);
         };
         return () => clearInterval(timer);
-    }, [count, goToLogin]);
+    }, [rawCount, goToLogin]);
     const handleClick = useCallback(() => {
         async function requestNewToken() {
             try {

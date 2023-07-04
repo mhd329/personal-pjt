@@ -11,7 +11,10 @@ import { Cookies } from "react-cookie";
 import Swal from "sweetalert2";
 
 function Login(props) {
-    const cookie = new Cookies();
+    const accessToken = useCallback(() => {
+        const cookie = new Cookies();
+        return cookie.get("access");
+    }, []);
     const [user, setUser] = useState({
         email: '',
         password: '',
@@ -27,64 +30,71 @@ function Login(props) {
         });
         event.preventDefault();
         event.stopPropagation();
-    }, [formSubmitted]);
+    }, [user]);
 
     // 로그인 성공시 todo 홈페이지로 간다.
     const navigate = useNavigate();
-    const goToMain = (uid) => {
+    const goToMain = useCallback((uid) => {
         navigate(`/todo-page/${uid}`, {
             state: {
                 userId: uid,
             },
         });
-    };
+    }, [navigate]);
+
+    // 로그인 요청
+
+    const login = useCallback(async () => {
+        try {
+            const response = await client.post("accounts/login", user);
+            goToMain(response.data.user.id);
+        } catch (error) {
+            if (/^4\d{2}$/.test(error.response.status.toString())) {
+                Swal.fire({
+                    icon: "warning",
+                    text: error.response.data.message,
+                    confirmButtonText: "확인",
+                });
+            } else {
+                alert(error.response.data.message);
+            }
+        };
+    }, [goToMain, user]);
+
+    // 로그인 페이지 들어왔을 때 토큰 검사
+
+    const checkToken = useCallback(async () => {
+        try {
+            await client.get("accounts/login", accessToken() ?
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken()}`,
+                    },
+                } : null);
+        } catch (error) {
+            if (error.response.status === 400 && error.response.data.user.id) {
+                Swal.fire({
+                    icon: "warning",
+                    text: error.response.data.message,
+                    confirmButtonText: "확인",
+                });
+                goToMain(error.response.data.user.id);
+            } else {
+                alert(error.response.data.message);
+            };
+        };
+    }, [goToMain, accessToken]);
 
     useEffect(() => {
         if (formSubmitted) {
-            async function login() {
-                try {
-                    const response = await client.post("accounts/login", user);
-                    goToMain(response.data.user.id);
-                } catch (error) {
-                    console.log(error)
-                    if (/^4\d{2}$/.test(error.response.status.toString())) {
-                        Swal.fire({
-                            icon: "warning",
-                            text: error.response.data.message,
-                            confirmButtonText: "확인",
-                        });
-                    } else {
-                        alert(error.response.data.message);
-                    }
-                };
-            };
+            // 폼 제출하여 로그인 요청
             login();
-        } else { // 로그인 페이지 들어왔을 때 이미 로그인 했는지 여부 검사
-            async function checkToken() {
-                try {
-                    await client.get("accounts/login", cookie.get("access") ?
-                        {
-                            headers: {
-                                Authorization: `Bearer ${cookie.get("access")}`,
-                            },
-                        } : null);
-                } catch (error) {
-                    if (error.response.status === 400 && error.response.data.user.id) {
-                        Swal.fire({
-                            icon: "warning",
-                            text: error.response.data.message,
-                            confirmButtonText: "확인",
-                        });
-                        goToMain(error.response.data.user.id);
-                    } else {
-                        alert(error.response.data.message);
-                    };
-                };
-            };
+        } else {
+            // 로그인 페이지 들어왔을 때 이미 로그인 했는지 여부 검사
             checkToken();
         };
         setFormSubmitted(false);
-    }, [formSubmitted]);
+    }, [login, checkToken, formSubmitted]);
 
     return (
         <div className="login">

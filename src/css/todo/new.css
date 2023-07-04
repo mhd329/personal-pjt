@@ -3,6 +3,7 @@
   flex-flow: column;
   justify-content: center;
   align-items: center;
+  padding: 1rem;
 }
 
 .new-todo__form {
