@@ -86,7 +86,7 @@ function TodoList(props) {
 
     return (
         <>
-            {todoList.length === 0 ? <p>아직 할 것이 없습니다.</p> : <MapList list={todoList} userId={props.userId} />}
+            {todoList.length === 0 ? <div className="nothing"><p className="help-text">아직 할 것이 없습니다.</p></div> : <MapList list={todoList} userId={props.userId} />}
         </>
     );
 }

@@ -2,7 +2,8 @@ import { useState } from "react";
 
 // initialValue로 object가 들어온다.
 // object는 유저 스키마가 들어온다.
-export default (object) => {
+
+const useValidation = (object) => {
     const validationObj = {};
     // 사용자에 대한 state 초기화
     const [user, setUser] = useState(object);
@@ -67,3 +68,5 @@ export default (object) => {
     const data = [user, validation];
     return [data, handler];
 };
+
+export default useValidation;

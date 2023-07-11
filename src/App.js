@@ -16,6 +16,7 @@ import './css/login.css';
 import './css/signup.css';
 import './css/counter.css';
 import './css/todo/new.css';
+import './css/todo/list.css';
 import './css/todo/home.css';
 import './css/todo/detail.css';
 

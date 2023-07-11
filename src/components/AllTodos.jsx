@@ -87,7 +87,7 @@ function AllTodos(props) {
     }, [getList]);
     return (
         <>
-            {allTodosList.length === 0 ? <p>아무 것도 없습니다.</p> : <MapList list={allTodosList} userId={props.userId} />}
+            {allTodosList.length === 0 ? <div className="nothing"><p className="help-text">아무 것도 없습니다.</p></div> : <MapList list={allTodosList} userId={props.userId} />}
         </>
     );
 }

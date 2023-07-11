@@ -14,7 +14,7 @@ function NotFoundPage(props) {
             navigate(-1);
         };
         return () => clearInterval(timer);
-    }, [count]);
+    }, [count, navigate]);
     return (
         <div>
             <p>잘못된 주소입니다.</p>
