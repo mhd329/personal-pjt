@@ -6,10 +6,10 @@ services:
     build:
       # 빌드 옵션들
       context: . # 도커 파일의 위치
-      dockerfile: Dockerfile.dev # 도커파일 이름
+      dockerfile: Dockerfile # 도커파일 이름
     ports:
       # 포트 옵션
-      - "3000:3000" # 매핑할 포트 이름
+      - "80:80" # 매핑할 포트 이름
     volumes:
       # 볼륨 옵션
       - /usr/src/app/node_modules # node_modules 폴더는 호스트에 없기 떄문에 참조하지 않고 컨테이너에서 npm install 커맨드로 생성한다.
@@ -18,11 +18,3 @@ services:
     # docker run -it 에서
     # -i 의 역할이다.
     stdin_open: true
-  tests:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    volumes:
-      - /usr/src/app/node_modules
-      - ./:/usr/src/app
-    command: [ "npm", "run", "test" ]
