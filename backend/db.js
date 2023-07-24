@@ -1,15 +1,13 @@
 const env = require("dotenv");
 env.config();
 
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const pool = mysql.createPool({
-    connectionLimit: 10,
-    port: 3306,
-    // host: mysql,
-    host: "localhost",
-    user: "root",
-    password: process.env.DB_PASSWORD,
-    database: "myapp"
+    // docker 사용 시 호스트는 docker에서 설정한 컨테이너 이름으로 해야되는 것 같다.
+    host: process.env.HOST,
+    user: process.env.USER,
+    password: process.env.PASSWORD,
+    database: process.env.DATABASE
 });
 
 exports.pool = pool;

@@ -8,7 +8,7 @@ function App() {
   const [value, setValue] = useState("");
   useEffect(() => {
     // db에 있는 값을 가져온다.
-    axios.get(`http://localhost:5000/api/values`)
+    axios.get(`/api/values`)
       .then(response => {
         console.log('response', response.data);
         setLists(response.data);
@@ -21,7 +21,7 @@ function App() {
 
   const submitHandler = (event) => {
     event.preventDefault();
-    axios.post(`http://localhost:5000/api/value`, { value: value })
+    axios.post(`/api/value`, { value: value })
       .then(response => {
         if (response.data.success) {
           console.log("response", response);
@@ -37,7 +37,7 @@ function App() {
   };
 
   const deleteHandler = (event) => {
-    axios.delete(`http://localhost:5000/api/value/${event.currentTarget.id}`)
+    axios.delete(`/api/value/${event.currentTarget.id}`)
       .then(response => {
         if (response.data.success) {
           console.log("response", response);
