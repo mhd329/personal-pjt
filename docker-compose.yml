@@ -1,24 +1,6 @@
 version: "3"
 services:
-  frontend:
-    build:
-      dockerfile: Dockerfile.dev
-      context: ./frontend
-    volumes:
-      - /app/node_modules
-      - ./frontend:/app
-    stdin_open: true
-
-  nginx:
-    restart: always
-    build:
-      dockerfile: Dockerfile
-      context: ./nginx
-    ports:
-      - "3000:80"
-    environment:
-      - WDS_SOCKET_PORT=0
-
+  # AWS RDS 사용하므로 주석처리함
   mysql:
     build: ./mysql
     restart: unless-stopped
@@ -42,4 +24,22 @@ services:
       - ./backend:/app
     depends_on:
       - mysql
-    command: sh -c "dockerize -wait tcp://mysql:3306 -timeout 10s && npm run dev"
+
+  frontend:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./frontend
+    volumes:
+      - /app/node_modules
+      - ./frontend:/app
+    stdin_open: true
+
+  nginx:
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      context: ./nginx
+    ports:
+      - "3000:80"
+    environment:
+      - WDS_SOCKET_PORT=0

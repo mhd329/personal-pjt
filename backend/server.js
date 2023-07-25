@@ -20,15 +20,17 @@ app.use(bodyParser.json());
 // }));
 
 // 테이블 생성하기
+console.log("Connection to MYSQL succeeded.");
 db.pool.query(`CREATE TABLE lists (
     id INTEGER AUTO_INCREMENT,
     value TEXT,
     PRIMARY KEY (id)
 )`, (err, results, fields) => {
     if (err) {
-        console.log("err :", err);
+        console.log(err);
+    } else {
+        console.log("result", results);
     }
-    console.log("result", results);
 });
 
 // db lists 테이블에 있는 모든 데이터를 프론트 서버에 보내주기
