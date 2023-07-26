@@ -1,10 +1,16 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
-  render(<App />);
-  const formElement = screen.getByText(/입력해주세요.../i);
-  expect(formElement).toBeInTheDocument();
-  const buttonElement = screen.getByText(/확인/i);
-  expect(buttonElement).toBeInTheDocument();
-});
+describe("Test react Before pushing image to Docker hub", () => {
+  it('Expect a string: ', () => {
+    render(<App />);
+    const formElement = screen.getByPlaceholderText(/입력해주세요.../i);
+    expect(formElement).toBeInTheDocument();
+  });
+  it('Expect a string', () => {
+    render(<App />);
+    const buttonElement = screen.getByText(/확인/i);
+    expect(buttonElement).toBeInTheDocument();
+  });
+})
+
