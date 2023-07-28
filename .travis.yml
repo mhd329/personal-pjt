@@ -36,3 +36,16 @@ after_success:
   - docker push mhd329/docker-frontend
   - docker push mhd329/docker-backend
   - docker push mhd329/docker-nginx
+
+deploy: # 배포 설정
+  provider: elasticbeanstalk # 외부 서비스 표시(S3, EB, firebase 등)
+  region: "ap-northeast-2" # 서비스의 물리적 장소
+  app: "docker-fullstack-app" # 어플리케이션 이름
+  env: "Docker-fullstack-app-env" # 환경의 이름
+  bucket_name: elasticbeanstalk-ap-northeast-2-544545176142 # 해당 eb를 위한 s3 버킷 이름
+  bucket_path: "docker-fullstack-app" # 버킷 경로 (앱 이름과 동일)
+  on:
+    branch: # 어떤 branch에 push할 때 AWS 배포를 할 것인지 설정
+
+  access_key_id: $AWS_ACCESS_KEY # aws iam의 access key
+  secret_access_key: $AWS_SECRET_ACCESS_KEY # aws iam의 secret access key
