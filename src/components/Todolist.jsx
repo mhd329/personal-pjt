@@ -19,7 +19,7 @@ function MapList(props) {
     }
     const todoList = props.list.map((todo) =>
         <Col className="todo-obj" key={`todo-id-${todo.id}`} id={`todo-id-${todo.id}`}>
-            <Link to={`detail/${todo.id}`} state={{ todoId: todo.id, userId: props.userId }} style={{ textDecoration: "none", color: "black" }}>
+            <Link to={`detail/${todo.id}/`} state={{ todoId: todo.id, userId: props.userId }} style={{ textDecoration: "none", color: "black" }}>
                 <Card>
                     <Card.Body>
                         <Card.Title>{todo.title}</Card.Title>

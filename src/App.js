@@ -26,15 +26,15 @@ function App() {
       <Container>
         <BrowserRouter>
           <Routes>
-            <Route index element={<Navigate to="/account/login" />} />
-            <Route path="/account/login" element={<LoginPage />} />
-            <Route path="/account/signup" element={<SignUpPage />} />
-            <Route exact path="/todo-page/:userId" element={<TodoHomePage />}>
+            <Route index element={<Navigate to="/account/login/" />} />
+            <Route path="/account/login/" element={<LoginPage />} />
+            <Route path="/account/signup/" element={<SignUpPage />} />
+            <Route exact path="/todo-page/:userId/" element={<TodoHomePage />}>
               <Route index element={<TodoListPage />} />
-              <Route path="detail/:todoId" element={<TodoDetailPage />} />
-              <Route path="all-todos" element={<AllTodosPage />} />
-              <Route path="all-todos/detail/:todoId" element={<TodoDetailPage />} />
-              <Route path="new" element={<NewTodoPage />} />
+              <Route path="detail/:todoId/" element={<TodoDetailPage />} />
+              <Route path="all-todos/" element={<AllTodosPage />} />
+              <Route path="all-todos/detail/:todoId/" element={<TodoDetailPage />} />
+              <Route path="new/" element={<NewTodoPage />} />
             </Route>
             <Route path="/*" element={<NotFoundPage />} />
           </Routes>

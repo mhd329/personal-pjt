@@ -11,16 +11,22 @@ import { Cookies } from "react-cookie";
 import Swal from "sweetalert2";
 
 function Login(props) {
+    // 액세스 토큰 가져오기
     const accessToken = useCallback(() => {
         const cookie = new Cookies();
         return cookie.get("access");
     }, []);
+
+    // 유저 state
     const [user, setUser] = useState({
         email: '',
         password: '',
     });
+
+    // 로그인 폼 제출 여부
     const [formSubmitted, setFormSubmitted] = useState(false);
 
+    // 폼 제출 버튼 클릭시 수행할 동작
     const handleSubmit = useCallback(event => {
         setFormSubmitted(true);
         setUser({
@@ -35,7 +41,7 @@ function Login(props) {
     // 로그인 성공시 todo 홈페이지로 간다.
     const navigate = useNavigate();
     const goToMain = useCallback((uid) => {
-        navigate(`/todo-page/${uid}`, {
+        navigate(`/todo-page/${uid}/`, {
             state: {
                 userId: uid,
             },
@@ -43,7 +49,6 @@ function Login(props) {
     }, [navigate]);
 
     // 로그인 요청
-
     const login = useCallback(async () => {
         try {
             const response = await client.post("accounts/login", user);
@@ -62,7 +67,6 @@ function Login(props) {
     }, [goToMain, user]);
 
     // 로그인 페이지 들어왔을 때 토큰 검사
-
     const checkToken = useCallback(async () => {
         try {
             await client.get("accounts/login", accessToken() ?
@@ -81,6 +85,7 @@ function Login(props) {
                 goToMain(error.response.data.user.id);
             } else {
                 alert(error.response.data.message);
+                console.log(error)
             };
         };
     }, [goToMain, accessToken]);
@@ -105,7 +110,7 @@ function Login(props) {
                         아이디
                     </Form.Label>
                     <Form.Control
-                        placeholder="example@example.com"
+                        placeholder="이메일 형식 아이디를 입력해주세요."
                         type="email"
                         autoComplete="off"
                     />
@@ -121,7 +126,7 @@ function Login(props) {
                         로그인
                     </Button>
                     <Button className="login__buttons--signup" variant="primary">
-                        <Link to="/account/signup">
+                        <Link to="/account/signup/">
                             회원가입
                         </Link>
                     </Button>

@@ -9,7 +9,7 @@ function AllTodosPage(props) {
     const { userId } = useOutletContext(); // 유저 아이디는 
     const handle401 = (AxiosResponse) => { // 엑세스 토큰이 만료되면 자동적으로 로그인 창으로 이동한다.
         if (AxiosResponse.response.status === 401) {
-            navigate("/account/login");
+            navigate("/account/login/");
         };
     };
 

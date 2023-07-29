@@ -27,7 +27,7 @@ function SignUp(props) {
     };
     // 로그인 성공시 todo 홈페이지로 간다.
     const goToMain = useCallback((uid) => {
-        navigate(`/todo-page/${uid}`, {
+        navigate(`/todo-page/${uid}/`, {
             state: {
                 userId: uid,
             },

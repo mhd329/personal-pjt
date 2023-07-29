@@ -7,7 +7,7 @@ function NewTodoPage(props) {
     const { userId } = useOutletContext();
     const handle401 = (AxiosResponse) => {
         if (AxiosResponse.response.status === 401) { // 엑세스토큰 만료시 페이지 이동
-            navigate("/account/login");
+            navigate("/account/login/");
         };
     };
     return (

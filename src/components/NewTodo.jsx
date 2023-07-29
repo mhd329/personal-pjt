@@ -40,7 +40,7 @@ function NewTodo(props) {
         navigate(-1); // 취소 버튼 클릭 시 뒤로 가기
     };
     const goToList = useCallback(() => {
-        navigate(`/todo-page/${uid}`, {
+        navigate(`/todo-page/${uid}/`, {
             state: {
                 userId: uid,
             },

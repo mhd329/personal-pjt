@@ -19,7 +19,7 @@ function TokenRefreshButton(props) {
     }, []);
     const navigate = useNavigate();
     const goToLogin = useCallback(() => {
-        navigate("/account/login");
+        navigate("/account/login/");
     }, [navigate]);
     const [rawCount, setRawCount] = useState(0); // 실제 시간
     const [count, setCount] = useState(0); // 실제 시간을 `분:초` 단위로 변환한 시간

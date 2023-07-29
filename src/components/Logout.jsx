@@ -13,7 +13,7 @@ function Logout(props) {
     // 로그아웃시 로그인창으로 가기
     const navigate = useNavigate();
     const goToLogin = useCallback(() => {
-        navigate("/account/login");
+        navigate("/account/login/");
     }, [navigate]);
 
     const handleClick = useCallback(() => {
