@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY ./requirements.txt ./
 
-RUN apt-get update && apt-get install -y libmysqlclient-dev
+RUN apk update && apk add mariadb-connector-c-dev
 RUN pip install -r ./requirements.txt
 
 COPY . .
