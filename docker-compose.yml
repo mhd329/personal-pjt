@@ -10,7 +10,6 @@ services:
       - MYSQL_USER=$MYSQL_USER
       - SECRET_KEY=$SECRET_KEY
       - JWT_SECRET_KEY=$JWT_SECRET_KEY
-    command: sh -c "python manage.py collectstatic --no-input && python manage.py makemigrations && python manage.py migrate && gunicorn -b 0:8080 config.wsgi:application"
     mem_limit: 128m
 
   frontend:
@@ -23,7 +22,7 @@ services:
     image: mhd329/todo-nginx
     ports:
       - "80:80"
-      - "443:443"
+      # - "443:443"
     mem_limit: 128m
     links:
       - frontend
