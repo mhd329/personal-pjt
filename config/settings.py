@@ -42,9 +42,7 @@ if DEBUG:
     ]
 else:
     ALLOWED_HOSTS = [
-        "nginx",
-        "backend",
-        "frontend",
+        "http://docker-fullstack-app-env.eba-bvt3kqsw.ap-northeast-2.elasticbeanstalk.com/",
     ]
     CORS_ALLOW_CREDENTIALS = True
     CORS_ORIGIN_WHITELIST = [
