@@ -1,10 +1,9 @@
-FROM python:alpine3.10
+FROM python:alpine
 
 WORKDIR /app
 
 COPY ./requirements.txt ./
 
-RUN pip install --upgrade pip
 RUN pip install -r ./requirements.txt
 
 COPY . .
