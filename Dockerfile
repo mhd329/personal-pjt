@@ -4,8 +4,7 @@ WORKDIR /app
 
 COPY ./requirements.txt ./
 
-RUN sudo apt-get update
-RUN sudo apt-get install libmysqlclient-dev
+RUN apt-get update && apt-get install -y libmysqlclient-dev
 RUN pip install -r ./requirements.txt
 
 COPY . .
