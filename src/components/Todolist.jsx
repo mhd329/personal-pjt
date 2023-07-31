@@ -18,7 +18,7 @@ function MapList(props) {
         };
     }
     const todoList = props.list.map((todo) =>
-        <Col className="todo-obj" key={`todo-id-${todo.id}`} id={`todo-id-${todo.id}`}>
+        <Col className="todo-obj" key={`todo-key-${todo.id}`} id={`todo-id-${todo.id}`}>
             <Link to={`detail/${todo.id}/`} state={{ todoId: todo.id, userId: props.userId }} style={{ textDecoration: "none", color: "black" }}>
                 <Card>
                     <Card.Body>
@@ -39,9 +39,9 @@ function MapList(props) {
                 const todo = todoList.shift();
                 todos.push(todo);
             };
-            tidyTodoList.push(<Row md={md} className="mx-2 my-4">{todos}</Row>);
+            tidyTodoList.push(<Row key={tidyTodoList.length} md={md} className="mx-2 my-4">{todos}</Row>);
         };
-        tidyTodoList.push(<Row md={md} className="mx-2 my-4">{todoList}</Row>);
+        tidyTodoList.push(<Row key={tidyTodoList.length} md={md} className="mx-2 my-4">{todoList}</Row>);
         return (
             <>
                 {tidyTodoList}
@@ -49,7 +49,7 @@ function MapList(props) {
         );
     } else {
         return (
-            <Row md={md} className="mx-2 my-4">
+            <Row key={todoList.length} md={md} className="mx-2 my-4">
                 {todoList}
             </Row>
         );
