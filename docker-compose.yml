@@ -18,7 +18,6 @@ services:
     mem_limit: 128m
 
   nginx:
-    restart: always
     image: mhd329/todo-nginx
     ports:
       - "80:80"
@@ -26,6 +25,4 @@ services:
     mem_limit: 128m
     links:
       - frontend
-      - backend
-    depends_on:
       - backend
