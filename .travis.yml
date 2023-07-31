@@ -1,0 +1,13 @@
+language: generic
+
+sudo: required
+
+services:
+  - docker
+
+script:
+  - docker build -t mhd329/todo-backend .
+
+after_success:
+  - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_ID" --password-stdin
+  - docker push mhd329/todo-backend
