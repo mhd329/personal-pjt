@@ -1,4 +1,4 @@
-FROM python:alpine
+FROM python:alpine3.18
 
 WORKDIR /app
 
@@ -12,6 +12,7 @@ COPY . .
 CMD python manage.py collectstatic --no-input && \
     python manage.py makemigrations && \
     python manage.py migrate && \
-    gunicorn -b 0:8000 config.wsgi:application
+    python manage.py runserver
+# gunicorn -b 0:8000 config.wsgi:application
 
 EXPOSE 8000
