@@ -6,7 +6,7 @@ services:
   - docker
 
 script:
-  - docker build -t mhd329/todo-nginx
+  - docker build -t mhd329/todo-nginx .
 
 after_success:
   - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_ID" --password-stdin
