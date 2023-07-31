@@ -6,9 +6,9 @@ services:
   - docker
 
 script:
-  - docker build -t mhd329/todo-frontend .
-  - docker build -t mhd329/todo-backend .
-  - docker build -t mhd329/todo-nginx .
+  - docker build -t mhd329/todo-frontend ./frontend
+  - docker build -t mhd329/todo-backend ./backend
+  - docker build -t mhd329/todo-nginx ./nginx
 
 after_success:
   - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_ID" --password-stdin
