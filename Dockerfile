@@ -4,9 +4,9 @@ COPY package.json .
 RUN npm install
 COPY . .
 RUN ls
+RUN ls ./src
+RUN ls ./src/components
 RUN ls ../
-RUN ls /src
-RUN ls /src/components
 RUN npm run build
 
 FROM nginx
