@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY ./requirements.txt ./
 
-RUN apk update && apk add mysql-client mariadb-connector-c-dev
+RUN apk update && apk add mysql-client mariadb-connector-c-dev build-base
 RUN pip install -r ./requirements.txt
 
 COPY . .
