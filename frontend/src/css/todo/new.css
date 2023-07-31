@@ -1,0 +1,18 @@
+.new-todo {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+.new-todo__form {
+  width: 30%;
+}
+
+.new-todo__buttons {
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  align-items: center;
+}
