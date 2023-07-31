@@ -1,6 +1,5 @@
-console.log(__dirname);
 import React from "react";
-import TodoList from "../components/TodoList";
+import TodoList from "../components/TodoList.jsx";
 import { useNavigate, useOutletContext } from "react-router-dom";
 
 function TodoListPage(props) {
