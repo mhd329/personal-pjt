@@ -18,6 +18,7 @@ services:
     mem_limit: 128m
 
   nginx:
+    restart: always
     image: mhd329/todo-nginx
     ports:
       - "80:80"
