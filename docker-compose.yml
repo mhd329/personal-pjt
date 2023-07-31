@@ -27,3 +27,5 @@ services:
     links:
       - frontend
       - backend
+    depends_on:
+      - backend
