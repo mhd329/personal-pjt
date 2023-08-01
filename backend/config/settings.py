@@ -44,10 +44,10 @@ else:
     ALLOWED_HOSTS = [
         "*",
     ]
-    CORS_ALLOW_CREDENTIALS = True
-    CORS_ORIGIN_WHITELIST = [
-        "*",
-    ]
+    # CORS_ALLOW_CREDENTIALS = True
+    # CORS_ORIGIN_WHITELIST = [
+    #     "http://docker-todo-project-env.eba-5cpsn9ph.ap-northeast-2.elasticbeanstalk.com",
+    # ]
 
 
 # Application definition
