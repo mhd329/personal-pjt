@@ -42,11 +42,11 @@ if DEBUG:
     ]
 else:
     ALLOWED_HOSTS = [
-        "docker-todo-project-env.eba-5cpsn9ph.ap-northeast-2.elasticbeanstalk.com",
+        "*",
     ]
     CORS_ALLOW_CREDENTIALS = True
     CORS_ORIGIN_WHITELIST = [
-        "http://docker-todo-project-env.eba-5cpsn9ph.ap-northeast-2.elasticbeanstalk.com",
+        "*",
     ]
 
 
