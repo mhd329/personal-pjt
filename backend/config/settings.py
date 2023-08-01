@@ -42,13 +42,11 @@ if DEBUG:
     ]
 else:
     ALLOWED_HOSTS = [
-        "nginx",
         "backend",
-        "frontend",
     ]
     CORS_ALLOW_CREDENTIALS = True
     CORS_ORIGIN_WHITELIST = [
-        "http://frontend:3000",
+        "http://frontend",
     ]
 
 
