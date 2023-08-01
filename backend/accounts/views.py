@@ -254,8 +254,8 @@ class LoginView(APIView):  # 로그인
                             res.set_cookie(
                                 "access",
                                 access,
-                                # secure=True,
-                                # samesite="none",
+                                secure=True,
+                                samesite="none",
                             )
                             return res
                     except Exception as error:
