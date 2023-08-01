@@ -12,6 +12,6 @@ COPY . .
 CMD python manage.py collectstatic --no-input && \
     python manage.py makemigrations && \
     python manage.py migrate && \
-    gunicorn -b 0:8000 config.wsgi:application
+    gunicorn --bind 0.0.0.0:8000 config.wsgi:application
 
 EXPOSE 8000
