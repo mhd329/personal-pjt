@@ -287,14 +287,14 @@ class LoginView(APIView):  # 로그인
                     res.set_cookie(
                         "access",
                         access,
-                        # secure=True,
+                        secure=True,
                         # samesite="none",
                     )
                     res.set_cookie(
                         "refresh",
                         refresh,
-                        # httponly=True,
-                        # secure=True,
+                        httponly=True,
+                        secure=True,
                         # samesite="none",
                     )
                     return res
