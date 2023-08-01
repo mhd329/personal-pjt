@@ -19,10 +19,10 @@ after_success:
 deploy:
   provider: elasticbeanstalk
   region: "ap-northeast-2"
-  app: "docker-fullstack-app"
-  env: "Docker-fullstack-app-env"
+  app: "Docker-todo-project"
+  env: "Docker-todo-project-env"
   bucket_name: elasticbeanstalk-ap-northeast-2-544545176142 # 해당 eb를 위한 s3 버킷 이름
-  bucket_path: "docker-fullstack-app" # 버킷 경로 (앱 이름과 동일)
+  bucket_path: "Docker-todo-project" # 버킷 경로 (앱 이름과 동일)
   on:
     branch: master # 어떤 branch에 push할 때 AWS 배포를 할 것인지 설정
 
