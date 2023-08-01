@@ -2,7 +2,6 @@ version: "3"
 services:
   backend:
     image: mhd329/todo-backend
-    container_name: app_backend
     environment:
       - MYSQL_PASSWORD=$MYSQL_PASSWORD
       - MYSQL_HOST=$MYSQL_HOST
