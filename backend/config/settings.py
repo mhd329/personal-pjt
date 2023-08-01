@@ -47,7 +47,6 @@ else:
     CORS_ALLOW_CREDENTIALS = True
     CORS_ORIGIN_WHITELIST = [
         "http://frontend",
-        "http://todo-nginx-server",
     ]
 
 

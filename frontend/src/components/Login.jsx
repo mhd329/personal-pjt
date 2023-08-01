@@ -51,7 +51,7 @@ function Login(props) {
     // 로그인 요청
     const login = useCallback(async () => {
         try {
-            const response = await client.post("/api/v1/accounts/login", user);
+            const response = await client.post("accounts/login", user);
             goToMain(response.data.user.id);
         } catch (error) {
             if (/^4\d{2}$/.test(error.response.status.toString())) {
@@ -69,7 +69,7 @@ function Login(props) {
     // 로그인 페이지 들어왔을 때 토큰 검사
     const checkToken = useCallback(async () => {
         try {
-            await client.get("/api/v1/accounts/login", accessToken() ?
+            await client.get("accounts/login", accessToken() ?
                 {
                     headers: {
                         Authorization: `Bearer ${accessToken()}`,
