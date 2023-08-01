@@ -288,14 +288,14 @@ class LoginView(APIView):  # 로그인
                         "access",
                         access,
                         secure=True,
-                        samesite="lax",
+                        samesite="none",
                     )
                     res.set_cookie(
                         "refresh",
                         refresh,
                         httponly=True,
                         secure=True,
-                        samesite="lax",
+                        samesite="none",
                     )
                     return res
                 else:
