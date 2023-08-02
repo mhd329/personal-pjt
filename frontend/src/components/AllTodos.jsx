@@ -8,13 +8,19 @@ import { Cookies } from "react-cookie";
 
 
 function MapList(props) {
+    function importanceColor(importance) {
+        if (importance === "high") {
+            return ({ color: "red" });
+        };
+        return ({ color: "black" });
+    }
     function translate(importance) {
         if (importance === "high") {
-            return "높음"
+            return "높음";
         } else if (importance === "middle") {
-            return "중간"
+            return "중간";
         } else if (importance === "low") {
-            return "낮음"
+            return "낮음";
         };
     }
     const rawTodoList = props.list;
@@ -24,7 +30,7 @@ function MapList(props) {
                 <Card>
                     <Card.Body>
                         <Card.Title>{todo.title}</Card.Title>
-                        <Card.Subtitle className="mb-2">{translate(todo.importance)}</Card.Subtitle>
+                        <Card.Subtitle className="mb-2" style={importanceColor(todo.importance)}>{translate(todo.importance)}</Card.Subtitle>
                     </Card.Body>
                 </Card>
             </Link>
