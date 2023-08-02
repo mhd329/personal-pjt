@@ -2,7 +2,7 @@ import axios from "axios";
 
 // 쿠키값이 변하면, 변한 쿠키값을 header로 가지는 새로운 client 객체를 만들어야 함 => 각 jsx파일에서 구현
 const client = axios.create({
-    baseURL: "http://docker-todo-app-env.eba-pwhy39z3.ap-northeast-2.elasticbeanstalk.com/api/v1/",
+    baseURL: "https://mhd329-todoapp.shop/api/v1/",
     withCredentials: true,
     timeout: 5000,
 });
