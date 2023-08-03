@@ -25,14 +25,9 @@ services:
   nginx:
     restart: always
     image: mhd329/docker-nginx
-    build:
-      dockerfile: Dockerfile
-      context: ./nginx
     ports:
       - "80:80"
     mem_limit: 128m
     links:
       - frontend
       - backend
-
-  

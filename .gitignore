@@ -188,3 +188,7 @@ $RECYCLE.BIN/
 
 mysql_data
 my.cnf
+
+# docker dev
+
+docker-compose-dev.yml
