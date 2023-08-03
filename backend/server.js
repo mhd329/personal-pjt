@@ -52,39 +52,48 @@ db.pool.query(`CREATE TABLE main_comments (
 });
 //////////////////////////////////////////////////////////////////////////// 테이블 생성 끝
 
+// 객체에서 pw만 빼주는 함수
+const commentListWithoutPw = (comments) => {
+    const result = comments.map(comment => {
+        const { pw, ...commentWithoutPw } = comment;
+        return commentWithoutPw;
+    });
+    return result;
+};
+
 // db main_comments 테이블에 있는 모든 데이터를 프론트 서버에 보내주기
 app.get("/api/all-comments", function (req, res) {
     // db에서 모든 정보 가져오기
     db.pool.query("SELECT * FROM main_comments;",
-        (err, results, fields) => {
+        (err, results) => {
             if (err)
                 return res.status(500).send(err);
             else {
-                return res.json(results);
+                return res.json(commentListWithoutPw(results));
             }
         });
 });
 
-// 클라이언트에서 입력한 값을 lists 테이블에 넣어주기
+// 클라이언트에서 입력한 값을 main_comments 테이블에 넣어주기
 app.post("/api/add-main-comment", function (req, res) {
     // db에 값 넣어주기
-    db.pool.query(`INSERT INTO main_comments VALUES("${req.body.user}, ${req.body.pw}, ${req.body.content}")`,
-        (err, results, fields) => {
-            if (err)
+    db.pool.query(`INSERT INTO main_comments VALUES(NULL,"${req.body.user}", "${req.body.pw}", "${req.body.content}")`,
+        (err) => {
+            if (err) {
+                console.log(err)
                 return res.status(500).send(err);
-            else {
-                db.pool.query(`SELECT * FROM lists ORDER BY id DESC LIMIT 1;`,
-                    (err, results, fields) => {
+            } else {
+                db.pool.query(`SELECT * FROM main_comments ORDER BY id DESC LIMIT 1;`,
+                    (err, results) => {
                         if (err)
                             return res.status(500).send(err);
                         else {
-                            const returnedRecord = results[0]
+                            const comment = results[0]
                             return res.json({
                                 success: true,
-                                id: returnedRecord["id"],
-                                user: returnedRecord["user"],
-                                pw: returnedRecord["pw"],
-                                content: returnedRecord["content"]
+                                id: comment["id"],
+                                user: comment["user"],
+                                content: comment["content"]
                             });
                         };
                     });
@@ -94,46 +103,97 @@ app.post("/api/add-main-comment", function (req, res) {
 
 // 댓글 수정
 app.patch(`/api/comment-update/:id`, function (req, res) {
-    db.pool.query(`UPDATE main_comments SET content = ("${req.params.content}") WHERE id=("${req.params.id}")`,
-        (err, results, fields) => {
-            if (err)
+    // db에서 id로 불러온다.
+    db.pool.query(`SELECT * FROM main_comments WHERE id=("${req.params.id}")`,
+        (err, results) => {
+            if (err) {
+                // id로 불러오지 못함
+                console.log("id로 불러오지 못함")
+                console.log(err)
                 return res.status(500).send(err);
-            else {
-                db.pool.query("SELECT * FROM main_comments;",
-                    (err, results, fields) => {
-                        if (err)
-                            return res.status(500).send(err);
-                        else {
-                            db.pool.query("SELECT * FROM main_comments;",
-                                (err, results, fields) => {
-                                    if (err)
-                                        return res.status(500).send(err);
-                                    else {
-                                        return res.json({ success: true, comments: results });
+            } else {
+                // 성공적으로 불러옴
+                const comment = results[0]
+                // 요청으로 받은 암호와 원래의 암호가 같은지 확인
+                if (req.body.pw === comment["pw"]) {
+                    // 암호가 같아서 수정함
+                    db.pool.query(`UPDATE main_comments SET content = ("${req.body.content}") WHERE id=("${req.params.id}")`,
+                        (err) => {
+                            if (err) {
+                                // 수정에 실패함
+                                console.log("수정에 실패함")
+                                console.log(err)
+                                return res.status(500).send(err);
+                            }
+                            else {
+                                // 수정에 성공하여 댓글을 업데이트한 목록을 가져옴
+                                db.pool.query("SELECT * FROM main_comments;",
+                                    (err, results) => {
+                                        if (err)
+                                            // 새 목록 가져오기 실패
+                                            return res.status(500).send(err);
+                                        else {
+                                            // 목록 가져오기 성공
+                                            return res.json({ success: true, comments: commentListWithoutPw(results) });
+                                        }
                                     }
-                                });
+                                );
+                            };
                         }
+                    );
+                } else {
+                    // 암호가 다름
+                    return res.status(400).json({
+                        statusCode: res.statusCode,
+                        message: "올바른 암호를 입력하세요."
                     });
-            };
-        });
+                }
+            }
+        }
+    )
 });
 
 // 댓글 삭제
 app.delete(`/api/comment-delete/:id`, function (req, res) {
-    db.pool.query(`DELETE FROM main_comments WHERE id=("${req.params.id}")`,
-        (err, results, fields) => {
+    // db에서 id로 불러온다.
+    db.pool.query(`SELECT * FROM main_comments WHERE id=("${req.params.id}")`),
+        (err, results) => {
             if (err)
+                // id로 불러오지 못함
                 return res.status(500).send(err);
             else {
-                db.pool.query("SELECT * FROM main_comments;",
-                    (err, results, fields) => {
-                        if (err)
-                            return res.status(500).send(err);
-                        else
-                            return res.json({ success: true, comments: results });
+                // 성공적으로 불러옴
+                const comment = results[0]
+                // 요청으로 받은 암호와 원래의 암호가 같은지 확인
+                if (req.data.pw === comment["pw"]) {
+                    // 암호가 같아서 삭제
+                    db.pool.query(`DELETE FROM main_comments WHERE id=("${req.params.id}")`,
+                        (err) => {
+                            if (err)
+                                // 삭제 실패
+                                return res.status(500).send(err);
+                            else {
+                                // 삭제 성공하여 업데이트한 목록을 가져옴
+                                db.pool.query("SELECT * FROM main_comments;",
+                                    (err, results) => {
+                                        if (err)
+                                            // 가져오기 실패
+                                            return res.status(500).send(err);
+                                        else
+                                            // 성공
+                                            return res.json({ success: true, comments: commentListWithoutPw(results) });
+                                    });
+                            };
+                        });
+                } else {
+                    // 암호가 다름
+                    return res.status(400).json({
+                        statusCode: res.statusCode,
+                        message: "올바른 암호를 입력하세요."
                     });
-            };
-        });
+                }
+            }
+        }
 });
 
 app.listen(PORT, () => {
