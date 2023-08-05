@@ -47,21 +47,41 @@ function App() {
   const submitSpinner = useRef(null);
 
   // 소켓 관련 상태
-  const [receivedMessage, setReceivedMessage] = useState('');
-
-  // 웹소켓 연결
-  const socket = io.connect('http://localhost:3001');
+  const [receivedMessage, setReceivedMessage] = useState("");
+  const [socket, setSocket] = useState(null);
 
   // 소켓으로부터 응답 받을때마다 페이지 갱신
-  useEffect(() => {
-    socket.on("웹 페이지 갱신됨", (data) => {
-      setReceivedMessage(data.message);
-    });
-  }, [socket])
+  // useEffect(() => {
 
-  // 첫 렌더링시 서버에서 댓글들을 불러옴
+  // }, [socket]);
+
+  // 웹소켓
   useEffect(() => {
-    // db에 있는 값을 가져온다.
+    // 웹소켓을 정의한다.
+    const newSocket = io.connect('http://localhost:5001');
+
+    // 웹소켓 이벤트에 대한 리스너를 추가한다.
+    newSocket.on("connect", () => {
+      console.log("웹소켓 연결됨");
+    });
+
+    newSocket.on("fromBack", (data) => {
+      console.log(data)
+      setReceivedMessage(data);
+    });
+
+    setSocket(newSocket);
+
+    // 컴포넌트가 언마운트될 때 웹소켓 연결을 끊고 리스너를 제거한다.
+    return () => {
+      newSocket.off();
+      newSocket.disconnect();
+    };
+  }, [])
+
+  // db
+  useEffect(() => {
+    // 서버에서 db에 있는 댓글들을 가져온다.
     // axios.get(`/api/all-comments`)
     axios.get(`http://localhost:5000/api/all-comments`)
       .then((response) => {
@@ -128,10 +148,20 @@ function App() {
             user: user,
             pw: pw,
             content: content,
-          })
+          });
         submitSpinner.current.style.display = "none"
         submitConfirm.current.style.display = "block"
         if (response.data.success) {
+
+          // 서버에 새로운 데이터가 추가되었다고 소켓에 알림
+          socket.emit("fromFront", {
+            user: user,
+            pw: pw,
+            content: content,
+          });
+
+          console.log(socket);
+
           setMainComments([...mainComments, {
             id: response.data.id,
             user: response.data.user,
@@ -256,7 +286,7 @@ function App() {
     Swal.fire({
       icon: "warning",
       title: "삭제하시려면 비밀번호를 입력하세요.",
-      input: "text",
+      input: "password",
       confirmButtonText: "확인",
       showCancelButton: true,
       cancelButtonText: "취소",
