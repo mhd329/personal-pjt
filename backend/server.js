@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 
 // cors 정책 설정 >>> 개발 환경용
 app.use(cors({
-    origin: ["http://localhost:3000",],
+    origin: ["http://frontend",],
     credentials: true,
     optionsSuccessState: 200,
 }));

@@ -94,7 +94,7 @@ function App() {
   useEffect(() => {
     // 웹소켓을 초기화한다.
     // const newSocket = io.connect('http://localhost:5001'); // nginx 미사용
-    const newSocket = io.connect(`http://websocket`); // nginx 사용
+    const newSocket = io.connect({ path: `/socket.io` }); // nginx 사용
     setSocket(newSocket);
 
     // 웹소켓 이벤트에 대한 리스너를 추가한다.
@@ -138,10 +138,11 @@ function App() {
           submitSpinner.current.style.display = "none"
           submitConfirm.current.style.display = "block"
           if (response.data.success) { // db에 성공적으로 등록했다는 응답이 옴
+            console.log(response.data);
             setMainComments([...mainComments, {
-              id: receivedMessage.id,
-              user: receivedMessage.user,
-              content: receivedMessage.content,
+              id: response.data.id,
+              user: response.data.user,
+              content: response.data.content,
             }]);
             setUser("");
             setPw("");
