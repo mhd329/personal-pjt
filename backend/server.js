@@ -1,6 +1,5 @@
-const express = require("express");
 const cors = require("cors"); // >>> 개발 환경용
-const socketIo = require("socket.io");
+const express = require("express");
 const bodyParser = require("body-parser");
 
 const db = require("./db");
@@ -20,28 +19,9 @@ app.use(cors({
     optionsSuccessState: 200,
 }));
 
-// 서버 설정
-const server = http.createServer(app);
-
-// 웹소켓 설정
-const io = socketIo(server, {
-    cors: {
-        origin: "http://localhost:3001",
-        mathods: [
-            "GET",
-            "POST",
-        ],
-    },
-});
-
 // 서버 열기
-server.listen(PORT, () => {
+app.listen(PORT, () => {
     console.log(`애플리케이션이 ${PORT}번 포트에서 시작되었습니다.`);
-});
-
-// 웹소켓 연결
-io.on("웹소켓 연결", (socket) => {
-    console.log(`유저 연결됨: ${socket.id}`);
 });
 
 //////////////////////////////////////////////////////////////////////////// 테이블 생성하기
@@ -77,7 +57,7 @@ db.pool.query(`CREATE TABLE main_comments (
 });
 //////////////////////////////////////////////////////////////////////////// 테이블 생성 끝
 
-// 객체에서 pw만 빼주는 함수
+// 유틸리티 함수: 객체에서 pw만 빼주는 함수
 const commentListWithoutPw = (comments) => {
     const result = comments.map(comment => {
         const { pw, ...commentWithoutPw } = comment;
@@ -86,8 +66,9 @@ const commentListWithoutPw = (comments) => {
     return result;
 };
 
+// 서버
 // db main_comments 테이블에 있는 모든 데이터를 프론트 서버에 보내주기
-server.get("/api/all-comments", function (req, res) {
+app.get("/api/all-comments", function (req, res) {
     // db에서 모든 정보 가져오기
     db.pool.query("SELECT * FROM main_comments;",
         (err, results) => {
@@ -103,7 +84,7 @@ server.get("/api/all-comments", function (req, res) {
 });
 
 // 클라이언트에서 입력한 값을 main_comments 테이블에 넣어주기
-server.post("/api/add-main-comment", function (req, res) {
+app.post("/api/add-main-comment", function (req, res) {
     // db에 값 넣어주기
     db.pool.query(`INSERT INTO main_comments VALUES(NULL,"${req.body.user}", "${req.body.pw}", "${req.body.content}")`,
         (err) => {
@@ -136,7 +117,7 @@ server.post("/api/add-main-comment", function (req, res) {
 });
 
 // 댓글 수정
-server.patch(`/api/comment-update/:id`, function (req, res) {
+app.patch(`/api/comment-update/:id`, function (req, res) {
     // db에서 id로 불러온다.
     db.pool.query(`SELECT * FROM main_comments WHERE id=("${req.params.id}")`,
         (err, results) => {
@@ -200,7 +181,7 @@ server.patch(`/api/comment-update/:id`, function (req, res) {
 });
 
 // 댓글 삭제
-server.delete(`/api/comment-delete/:id`, function (req, res) {
+app.delete(`/api/comment-delete/:id`, function (req, res) {
     // db에서 id로 불러온다.
     db.pool.query(`SELECT * FROM main_comments WHERE id=("${req.params.id}")`,
         (err, results) => {

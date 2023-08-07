@@ -1,8 +1,19 @@
 version: "3"
+
 services:
+
+  websocket:
+  image: mhd329/docker-websocket
+  volumes:
+    - /app/node_modules
+    - ./websocket:/app
+  environment:
+    - REDIS_HOST=$REDIS_HOST
+    - REDIS_PORT=$REDIS_PORT
+  mem_limit: 128m
+
   backend:
     image: mhd329/docker-backend
-    container_name: app_backend
     volumes:
       - /app/node_modules
       - ./backend:/app
@@ -30,4 +41,5 @@ services:
     mem_limit: 128m
     links:
       - frontend
+      - websocket
       - backend
