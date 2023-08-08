@@ -140,23 +140,23 @@ function App() {
         submitSpinner.current.style.display = "none"
         submitConfirm.current.style.display = "block"
         if (response.data.success) { // db에 성공적으로 등록했다는 응답이 옴
-          function postData(response, commentList, commentFunc, userFunc, pwFunc, contentFunc) {
-            commentFunc([...commentList, {
+          function postData(response) {
+            setMainComments([...mainComments, {
               id: response.data.id,
               user: response.data.user,
               content: response.data.content,
             }]);
-            userFunc("");
-            pwFunc("");
-            contentFunc("");
+            setUser("");
+            setPw("");
+            setContent("");
           }
           if (receivedMessage.broadcast) {
-            postData(response, mainComments, setMainComments, setUser, setPw, setContent);
+            postData(response);
             // 성공 alert
             setCompletedAlertShow(true);
             setFailureAlertShow(false);
           } else {
-            postData(response, mainComments, setMainComments, setUser, setPw, setContent);
+            postData(response);
           }
         }
       } catch (error) { // db에 등록 실패
@@ -464,6 +464,7 @@ function App() {
               width: "100%",
               height: "100%",
               objectFit: "cover",
+              borderRadius: "5rem",
             }} src={lambsface} className="Cute-lamb" alt="cute-lamb" />}
           </div>
           {/* 이미지 구역 끝 */}

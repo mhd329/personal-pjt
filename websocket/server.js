@@ -77,18 +77,18 @@ server.on("connection", (socket) => { // 연결
         } else { // 요청할 수 있는 상태
             await redisClient.SET(uIp, nowRequestTime);
             // socket.emit("fromBack", data); // 브로드캐스팅 수행(발신자 포함)
-            // 브로드캐스팅을 위한 데이터 가공
+            // 브로드캐스팅
             socket.broadcast.emit("fromBack", {
                 broadcast: true,
                 user: user,
                 content: content
-            }); // 브로드캐스팅 수행
-            // 전송한 유저를 위한 데이터 가공
-            server.to(uId).emit("fromBack", {
-                broadcast: false,
-                user: user,
-                content: content
             });
+            // 전송한 유저를 위한 데이터 가공
+            // server.to(uId).emit("fromBack", {
+            //     broadcast: false,
+            //     user: user,
+            //     content: content
+            // });
 
             console.log("Data transmission:",
                 { // 보낸 데이터 확인;
