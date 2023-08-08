@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 
 // cors 정책 설정 >>> 개발 환경용
 app.use(cors({
-    origin: ["http://frontend",],
+    origin: ["http://localhost:3000", "http://frontend",],
     credentials: true,
     optionsSuccessState: 200,
 }));
@@ -25,19 +25,16 @@ app.listen(PORT, () => {
 });
 
 //////////////////////////////////////////////////////////////////////////// 테이블 생성하기
-console.log("DB연결 성공.");
-console.log("테이블 생성: main_comments");
 db.pool.query(`CREATE TABLE main_comments (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user VARCHAR(10) NOT NULL,
     pw VARCHAR(16) NOT NULL,
     content VARCHAR(100) NOT NULL
-)`, (err, results, fields) => {
+)`, (err, results) => {
     if (err) {
         console.log(err);
     } else {
         console.log("main_comments 테이블:", results);
-        console.log("테이블 생성: sub_comments");
         db.pool.query(`CREATE TABLE sub_comments (
             id INT PRIMARY KEY AUTO_INCREMENT,
             user VARCHAR(10) NOT NULL,
@@ -46,11 +43,12 @@ db.pool.query(`CREATE TABLE main_comments (
             main_comments_id INT NOT NULL,
             FOREIGN KEY(main_comments_id)
             REFERENCES main_comments(id) ON DELETE CASCADE
-        )`, (err, results, fields) => {
+        )`, (err, results) => {
             if (err) {
                 console.log(err);
             } else {
                 console.log("sub_comments 테이블:", results);
+                console.log("DB연결 성공.");
             }
         });
     };
@@ -89,7 +87,6 @@ app.post("/api/add-main-comment", function (req, res) {
     db.pool.query(`INSERT INTO main_comments VALUES(NULL,"${req.body.user}", "${req.body.pw}", "${req.body.content}")`,
         (err) => {
             if (err) {
-                console.log(err)
                 return res.status(500).json({
                     statusCode: res.statusCode,
                     message: err,

@@ -6,6 +6,7 @@ import Spinner from 'react-bootstrap/Spinner';
 import 'bootstrap/dist/css/bootstrap.min.css'; // bootstrap css
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
+import lambsface from './lambsface.png'; // 양 그림
 import SimpleBar from 'simplebar-react'; // 커스텀 스크롤 바
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
@@ -34,10 +35,13 @@ const buttonsColLength = 2;
 function App() {
   // 기본 상태
   const [mainComments, setMainComments] = useState([]);
-  const [subComments, setSubComments] = useState([]); // 대댓글: 나중에 구현할 것임
+  // const [subComments, setSubComments] = useState([]); // 대댓글: 나중에 구현할 것임
   const [user, setUser] = useState("");
   const [pw, setPw] = useState("");
   const [content, setContent] = useState("");
+
+  // 이미지 마우스 호버시 변환
+  const [mouseOn, setMouseOn] = useState(false);
 
   // 업데이트 관련 상태
   const [changedContent, setChangedContent] = useState("");
@@ -48,7 +52,7 @@ function App() {
   const windowRef = useRef(window);
 
   // 현재 창 안쪽 높이 관련 상태.
-  const [windowHeight, setWindowHeight] = useState(windowRef.current.innerHeight);
+  const [windowHeight, setWindowHeight] = useState(0);
 
   // 버튼 클릭시 display 속성의 변화을 주기 위한 ref
   const updateButtonBox = useRef({});
@@ -67,19 +71,16 @@ function App() {
   로딩이 완료되면 다시 text로 바뀐다.
   */
 
-  // 윈도우 안쪽 높이가 바뀌면 재설정한다.
+  // 윈도우 안쪽 높이가 바뀌면 재설정하는 함수
   const handleResize = () => {
     setWindowHeight(windowRef.current.innerHeight);
   };
-  // 화면 높이가 바뀔때마다 handleResize를 호출한다.
-  useEffect(() => {
-    // 컴포넌트가 마운트되었을 때와 화면 크기가 변경될 때마다 반영한다.
-    windowRef.current.onresize = handleResize;
 
-    // 컴포넌트 언마운트 시 이벤트를 원래대로 돌려놓는다.
-    return () => {
-      windowRef.current.onresize = null;
-    };
+  useEffect(() => {
+    // 컴포넌트 마운트시 윈도우 사이즈를 등록한다.
+    setWindowHeight(windowRef.current.innerHeight);
+    // 화면 높이가 바뀔때마다 handleResize를 호출한다.
+    windowRef.current.onresize = handleResize;
   }, []);
 
   // 웹소켓 서버 관련 상태
@@ -92,9 +93,8 @@ function App() {
 
   // 웹소켓
   useEffect(() => {
-    // 웹소켓을 초기화한다.
-    // const newSocket = io.connect('http://localhost:5001'); // nginx 미사용
-    const newSocket = io.connect({ path: `/socket.io` }); // nginx 사용
+    // 웹소켓을 초기화한다, nginx 미사용 : nginx 사용
+    const newSocket = process.env.REACT_APP_DEBUG === "true" ? io.connect('http://localhost:5001') : io.connect({ path: `/socket.io` });
     setSocket(newSocket);
 
     // 웹소켓 이벤트에 대한 리스너를 추가한다.
@@ -106,7 +106,14 @@ function App() {
     newSocket.on("fromBack", (data) => {
       // 요청이 정상적이라면 data는 key-value 쌍임
       // 요청이 과다하면 data는 null
-      setReceivedMessage(data);
+      if (data === "Too many requests") {
+        setFailureAlertShow(true);
+        setCompletedAlertShow(false);
+        submitSpinner.current.style.display = "none"
+        submitConfirm.current.style.display = "block"
+      } else if (data !== "Too many requests" && data) {
+        setReceivedMessage(data);
+      }
     });
 
     // 컴포넌트가 언마운트될 때 리스너를 제거하고 웹소켓 연결을 끊는다.
@@ -118,27 +125,22 @@ function App() {
 
   // 웹소켓 서버로부터 데이터를 받으면 조건에 따라 alert가 발생하면서 댓글이 등록되거나 취소됨
   useEffect(() => {
-    if (receivedMessage === "Too many requests") { // 요청이 너무 많아 실패한 경우
-      // 실패 alert
-      setFailureAlertShow(true);
-      setCompletedAlertShow(false);
-      submitSpinner.current.style.display = "none"
-      submitConfirm.current.style.display = "block"
-    } else if (receivedMessage !== "Too many requests" && receivedMessage) { // 성공한 경우
-      // 댓글 등록 로직
-      const req = async () => {
-        try {
-          // const response = await axios.post(`http://localhost:5000/api/add-main-comment`, // nginx 미사용
-          const response = await axios.post(`/api/add-main-comment`, // nginx 사용
+    // 댓글 등록 로직
+    const req = async () => {
+      try {
+        // nginx 미사용 : nginx 사용
+        const response = await axios.post
+          (process.env.REACT_APP_DEBUG === "true" ? `http://localhost:5000/api/add-main-comment` : `/api/add-main-comment`,
             {
               user: user,
               pw: pw,
               content: content,
-            });
-          submitSpinner.current.style.display = "none"
-          submitConfirm.current.style.display = "block"
-          if (response.data.success) { // db에 성공적으로 등록했다는 응답이 옴
-            console.log(response.data);
+            }
+          );
+        submitSpinner.current.style.display = "none"
+        submitConfirm.current.style.display = "block"
+        if (response.data.success) { // db에 성공적으로 등록했다는 응답이 옴
+          function postData(response) {
             setMainComments([...mainComments, {
               id: response.data.id,
               user: response.data.user,
@@ -147,30 +149,38 @@ function App() {
             setUser("");
             setPw("");
             setContent("");
+          }
+          if (receivedMessage.broadcast) {
+            postData(response);
             // 성공 alert
             setCompletedAlertShow(true);
             setFailureAlertShow(false);
+          } else {
+            postData(response);
           }
-        } catch (error) { // db에 등록 실패
-          submitSpinner.current.style.display = "none"
-          submitConfirm.current.style.display = "block"
-          Swal.fire({
-            icon: "error",
-            title: "입력에 실패했습니다.",
-            text: `Error: ${error.response.data.message}`,
-            confirmButtonText: "확인",
-          });
         }
-      };
-      req(); // 댓글 db에 등록요청하는 함수
+      } catch (error) { // db에 등록 실패
+        submitSpinner.current.style.display = "none"
+        submitConfirm.current.style.display = "block"
+        Swal.fire({
+          icon: "error",
+          title: "입력에 실패했습니다.",
+          text: `Error: ${error.response.data.message}`,
+          confirmButtonText: "확인",
+        });
+      }
+    }
+    if (receivedMessage) {
+      req(); // 댓글 db에 등록요청하는 비동기 함수 실행
     }
   }, [receivedMessage])
 
   // db
   useEffect(() => {
     // 서버에서 db에 있는 댓글들을 가져온다.
-    // axios.get(`http://localhost:5000/api/all-comments`) // nginx 미사용
-    axios.get(`/api/all-comments`) // nginx 사용
+    // nginx 미사용 : nginx 사용
+    axios.get
+      (process.env.REACT_APP_DEBUG === "true" ? `http://localhost:5000/api/all-comments` : `/api/all-comments`)
       .then((response) => {
         setMainComments(response.data);
       }).catch((error) => {
@@ -289,12 +299,14 @@ function App() {
     const res = id.replace("complete-", "")
     updateConfirm.current[`${res}`].style.display = "none";
     updateSpinner.current[`${res}`].style.display = "inline";
-    // axios.patch(`http://localhost:5000/api/comment-update/${res}`, // nginx 미사용
-    axios.patch(`/api/comment-update/${res}`, // nginx 사용
-      {
-        content: changedContent,
-        pw: updatePw,
-      }).then((response) => {
+    // nginx 미사용 : nginx 사용
+    axios.patch
+      (process.env.REACT_APP_DEBUG === "true" ? `http://localhost:5000/api/comment-update/${res}` : `/api/comment-update/${res}`,
+        {
+          content: changedContent,
+          pw: updatePw,
+        }
+      ).then((response) => {
         if (response.data.success) {
           setMainComments(response.data.comments);
           pwBox.current[`${res}`].style.display = "none";
@@ -343,13 +355,15 @@ function App() {
       showLoaderOnConfirm: true,
       preConfirm: async function (deletePw) {
         try {
-          // const response = await axios.delete(`http://localhost:5000/api/comment-delete/${res}`, // nginx 미사용
-          const response = await axios.delete(`/api/comment-delete/${res}`, // nginx 사용
-            {
-              data: {
-                pw: deletePw,
+          // nginx 미사용 : nginx 사용
+          const response = await axios.delete
+            (process.env.REACT_APP_DEBUG === "true" ? `http://localhost:5000/api/comment-delete/${res}` : `/api/comment-delete/${res}`,
+              {
+                data: {
+                  pw: deletePw,
+                }
               }
-            });
+            );
           if (response.data.success) {
             setMainComments(response.data.comments);
           }
@@ -430,18 +444,28 @@ function App() {
           {/* alert 구역 끝 */}
 
           {/* 이미지 구역 */}
-          <div style={{
-            width: "400px",
-            aspectRatio: "5 / 5",
-            marginTop: "2rem",
-          }}>
-            <img style={{
+          <div
+            onMouseOver={() => setMouseOn(true)}
+            onMouseOut={() => setMouseOn(false)}
+            style={{
+              width: "400px",
+              aspectRatio: "5 / 5",
+              marginTop: "2rem",
+            }}>
+            {!mouseOn && <img style={{
               display: "block",
               width: "100%",
               height: "100%",
               objectFit: "cover",
               borderRadius: "50%",
-            }} src={lamb} className="Cute-lamb" alt="cute-lamb" />
+            }} src={lamb} className="Cute-lamb" alt="cute-lamb" />}
+            {mouseOn && <img style={{
+              display: "block",
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              borderRadius: "50%",
+            }} src={lambsface} className="Cute-lamb" alt="cute-lamb" />}
           </div>
           {/* 이미지 구역 끝 */}
           {/* 댓글 구역 */}
