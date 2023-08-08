@@ -464,7 +464,6 @@ function App() {
               width: "100%",
               height: "100%",
               objectFit: "cover",
-              borderRadius: "50%",
             }} src={lambsface} className="Cute-lamb" alt="cute-lamb" />}
           </div>
           {/* 이미지 구역 끝 */}
