@@ -407,7 +407,8 @@ function App() {
       <SimpleBar style={{ height: windowHeight }}>
         <header className="App-header">
           <h1 style={{
-            marginTop: "3rem"
+            marginTop: "3rem",
+            zIndex: "2",
           }}>양 게시판</h1>
 
           {/* alert 구역 */}
@@ -415,6 +416,7 @@ function App() {
             position: "fixed",
             top: "32px",
             right: "32px",
+            zIndex: "3",
           }}>
             {completedAlertShow &&
               <Alert className="animate__animated animate__fadeIn" onClose={() => setCompletedAlertShow(false)} variant="success" dismissible style={{
@@ -448,6 +450,7 @@ function App() {
             onMouseOver={() => setMouseOn(true)}
             onMouseOut={() => setMouseOn(false)}
             style={{
+              zIndex: "1",
               width: "400px",
               aspectRatio: "5 / 5",
               marginTop: "2rem",
