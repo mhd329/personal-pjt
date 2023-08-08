@@ -11,7 +11,6 @@ services:
     environment:
       - DEBUG="False"
       - REDIS_HOST=$REDIS_HOST
-      - REDIS_PORT=$REDIS_PORT
     mem_limit: 128m
 
   backend:
