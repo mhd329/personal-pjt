@@ -140,23 +140,23 @@ function App() {
         submitSpinner.current.style.display = "none"
         submitConfirm.current.style.display = "block"
         if (response.data.success) { // db에 성공적으로 등록했다는 응답이 옴
-          function postData(response) {
-            setMainComments([...mainComments, {
+          function postData(response, commentList, commentFunc, userFunc, pwFunc, contentFunc) {
+            commentFunc([...commentList, {
               id: response.data.id,
               user: response.data.user,
               content: response.data.content,
             }]);
-            setUser("");
-            setPw("");
-            setContent("");
+            userFunc("");
+            pwFunc("");
+            contentFunc("");
           }
           if (receivedMessage.broadcast) {
-            postData(response);
+            postData(response, mainComments, setMainComments, setUser, setPw, setContent);
             // 성공 alert
             setCompletedAlertShow(true);
             setFailureAlertShow(false);
           } else {
-            postData(response);
+            postData(response, mainComments, setMainComments, setUser, setPw, setContent);
           }
         }
       } catch (error) { // db에 등록 실패
