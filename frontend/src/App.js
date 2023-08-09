@@ -27,20 +27,20 @@ const userNameMaxLength = 10;
 
 // 너비 조정 상수들
 const headerColLength = 2;
-const contentColLength = 8;
-const buttonsColLength = 2;
+const contentColLength = 9;
+const buttonsColLength = 1;
 
 const headerColLengthMd = 3;
-const contentColLengthMd = 6;
-const buttonsColLengthMd = 3;
+const contentColLengthMd = 7;
+const buttonsColLengthMd = 2;
 
 const headerColLengthSm = 3;
 const contentColLengthSm = 6;
 const buttonsColLengthSm = 3;
 
-const headerColLengthXs = 3;
-const contentColLengthXs = 6;
-const buttonsColLengthXs = 3;
+const headerColLengthXs = 4;
+const contentColLengthXs = 4;
+const buttonsColLengthXs = 4;
 
 /////////////////////////////////////////////////////// 정적인 변수들 끝 ///////////////////////////////////////////////////////
 
@@ -596,7 +596,8 @@ function App() {
             }}>
               <Form className="comment-form" onSubmit={submitHandler}>
                 <Row className="mb-3">
-                  <Form.Group as={Col} lg={headerColLength} md={headerColLengthMd} sm={headerColLengthSm} xs={headerColLengthXs} controlId="inputUserName">
+                  <Form.Group as={Col} lg={2} md={3} sm={3} xs={3}
+                    controlId="inputUserName">
                     <Form.Label>작성자</Form.Label>
                     <Form.Control
                       size="sm"
@@ -607,7 +608,7 @@ function App() {
                       required
                     />
                   </Form.Group>
-                  <Form.Group as={Col} lg={headerColLength} md={headerColLengthMd} sm={headerColLengthSm} xs={headerColLengthXs}
+                  <Form.Group as={Col} lg={2} md={3} sm={3} xs={3}
                     controlId="inputPw">
                     <Form.Label>비밀번호</Form.Label>
                     <Form.Control
@@ -620,7 +621,7 @@ function App() {
                       required
                     />
                   </Form.Group>
-                  <Form.Group as={Col} lg={contentColLength} md={contentColLengthMd} sm={contentColLengthSm} xs={contentColLengthXs}
+                  <Form.Group as={Col} lg={8} md={6} sm={6} xs={6}
                     controlId="inputContent">
                     <Form.Label>내용</Form.Label>
                     <InputGroup size="sm">
