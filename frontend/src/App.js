@@ -30,6 +30,14 @@ const headerColLength = 2;
 const contentColLength = 8;
 const buttonsColLength = 2;
 
+const headerColLengthMd = 3;
+const contentColLengthMd = 7;
+const buttonsColLengthMd = 2;
+
+const headerColLengthSm = 3;
+const contentColLengthSm = 6;
+const buttonsColLengthSm = 3;
+
 /////////////////////////////////////////////////////// 정적인 변수들 끝 ///////////////////////////////////////////////////////
 
 function App() {
@@ -480,7 +488,7 @@ function App() {
 
                   {/* 댓글 작성자 */}
 
-                  <Col lg={headerColLength} md={headerColLength} sm={headerColLength}>
+                  <Col lg={headerColLength} md={headerColLengthMd} sm={headerColLengthSm}>
                     {comment.user}
                   </Col>
 
@@ -488,23 +496,25 @@ function App() {
                   {/* 댓글 내용 */}
 
                   {/* 수정 버튼 클릭 전 */}
-                  <Col lg={contentColLength} md={contentColLength} sm={contentColLength} style={{ display: "inline", }} ref={(element) => contentBox.current[`${comment.id}`] = element}>
+                  <Col lg={contentColLength} md={contentColLengthMd} sm={contentColLengthSm} style={{ display: "inline", }} ref={(element) => contentBox.current[`${comment.id}`] = element}>
                     <div style={{ textAlign: "left", }}>
                       {comment.content}
                     </div>
                   </Col>
                   {/* 수정 버튼 클릭 전 */}
                   {/* 수정 버튼 클릭 후 */}
-                  <Form id={`form-${comment.id}`} as={Col} lg={6} md={6} sm={6} ref={(element) => formBox.current[`${comment.id}`] = element} style={{ display: "none", }}>
+                  <Form id={`form-${comment.id}`} as={Col} lg={6} md={5} sm={3} ref={(element) => formBox.current[`${comment.id}`] = element} style={{ display: "none", }}>
                     <Form.Control
+                      size="sm"
                       maxLength={contentMaxLength}
                       onChange={contentUpdateHandler}
                       defaultValue={comment.content}
                       required
                     />
                   </Form>
-                  <Col lg={2} md={2} sm={2} ref={(element) => pwBox.current[`${comment.id}`] = element} style={{ display: "none", }}>
+                  <Col lg={2} md={2} sm={1} ref={(element) => pwBox.current[`${comment.id}`] = element} style={{ display: "none", }}>
                     <Form.Control
+                      size="sm"
                       placeholder="암호"
                       maxLength={pwMaxLength}
                       onChange={contentUpdatePwHandler}
@@ -518,32 +528,32 @@ function App() {
                   {/* 댓글 버튼들 */}
 
                   {/* 수정 버튼 클릭 전 */}
-                  <Col lg={buttonsColLength} md={buttonsColLength} sm={buttonsColLength} ref={(element) => updateButtonBox.current[`${comment.id}`] = element} style={
+                  <Col lg={buttonsColLength} md={buttonsColLengthMd} sm={buttonsColLengthSm} ref={(element) => updateButtonBox.current[`${comment.id}`] = element} style={
                     {
                       display: "inline",
                       textAlign: "left",
                     }
                   }>
-                    <Button id={`update-${comment.id}`} onClick={updateButton} style={{
+                    <Button size="sm" id={`update-${comment.id}`} onClick={updateButton} style={{
                       marginRight: "0.5rem",
                       verticalAlign: "top",
                     }}>
                       수정
                     </Button>
-                    <Button id={`delete-${comment.id}`} onClick={deleteHandler} style={{ verticalAlign: "top", }}>
+                    <Button size="sm" id={`delete-${comment.id}`} onClick={deleteHandler} style={{ verticalAlign: "top", }}>
                       삭제
                     </Button>
                   </Col>
                   {/* 수정 버튼 클릭 전 */}
                   {/* 수정 버튼 클릭 후 */}
-                  <Col lg={buttonsColLength} md={buttonsColLength} sm={buttonsColLength} ref={(element) => completeButtonBox.current[`${comment.id}`] = element} style={
+                  <Col lg={buttonsColLength} md={buttonsColLengthMd} sm={buttonsColLengthSm} ref={(element) => completeButtonBox.current[`${comment.id}`] = element} style={
                     {
                       display: "none",
                       textAlign: "left",
                       verticalAlign: "top",
                     }
                   }>
-                    <Button id={`complete-${comment.id}`} onClick={completeButton} form={`form-${comment.id}`} type="submit" style={
+                    <Button size="sm" id={`complete-${comment.id}`} onClick={completeButton} form={`form-${comment.id}`} type="submit" style={
                       {
                         marginRight: "0.5rem",
                         verticalAlign: "top",
@@ -558,7 +568,7 @@ function App() {
                         </Spinner>
                       </span>
                     </Button>
-                    <Button id={`cancel-${comment.id}`} onClick={cancelButton} style={{ verticalAlign: "top", }}>
+                    <Button size="sm" id={`cancel-${comment.id}`} onClick={cancelButton} style={{ verticalAlign: "top", }}>
                       취소
                     </Button>
                   </Col>
@@ -579,9 +589,10 @@ function App() {
             }}>
               <Form className="comment-form" onSubmit={submitHandler}>
                 <Row className="mb-3">
-                  <Form.Group as={Col} lg={headerColLength} controlId="inputUserName">
+                  <Form.Group as={Col} lg={headerColLength} md={headerColLengthMd} sm={headerColLengthSm} controlId="inputUserName">
                     <Form.Label>작성자</Form.Label>
                     <Form.Control
+                      size="sm"
                       placeholder={`최대 ${userNameMaxLength}자`}
                       maxLength={userNameMaxLength}
                       onChange={userChangeHandler}
@@ -589,9 +600,10 @@ function App() {
                       required
                     />
                   </Form.Group>
-                  <Form.Group as={Col} lg={headerColLength} controlId="inputPw">
+                  <Form.Group as={Col} lg={headerColLength} md={headerColLengthMd} sm={headerColLengthSm} controlId="inputPw">
                     <Form.Label>비밀번호</Form.Label>
                     <Form.Control
+                      size="sm"
                       type="password"
                       placeholder={`최대 ${pwMaxLength}자`}
                       maxLength={pwMaxLength}
@@ -600,17 +612,18 @@ function App() {
                       required
                     />
                   </Form.Group>
-                  <Form.Group as={Col} lg={contentColLength} controlId="inputContent">
+                  <Form.Group as={Col} lg={contentColLength} md={contentColLengthMd} sm={contentColLengthSm} controlId="inputContent">
                     <Form.Label>내용</Form.Label>
-                    <InputGroup>
+                    <InputGroup size="sm">
                       <Form.Control
+                        size="sm"
                         placeholder={`최대 ${contentMaxLength}자`}
                         maxLength={contentMaxLength}
                         onChange={contentChangeHandler}
                         value={content}
                         required
                       />
-                      <Button type="submit">
+                      <Button size="sm" type="submit">
                         <span ref={submitConfirm} style={{ display: "block" }}>
                           확인
                         </span>
