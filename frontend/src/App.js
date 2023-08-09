@@ -27,19 +27,19 @@ const userNameMaxLength = 10;
 
 // 너비 조정 상수들
 const headerColLength = 2;
-const contentColLength = 9;
-const buttonsColLength = 1;
+const contentColLength = 8;
+const buttonsColLength = 2;
 
-const headerColLengthMd = 3;
-const contentColLengthMd = 7;
+const headerColLengthMd = 2;
+const contentColLengthMd = 8;
 const buttonsColLengthMd = 2;
 
-const headerColLengthSm = 3;
-const contentColLengthSm = 6;
+const headerColLengthSm = 2;
+const contentColLengthSm = 7;
 const buttonsColLengthSm = 3;
 
-const headerColLengthXs = 4;
-const contentColLengthXs = 4;
+const headerColLengthXs = 2;
+const contentColLengthXs = 7;
 const buttonsColLengthXs = 4;
 
 /////////////////////////////////////////////////////// 정적인 변수들 끝 ///////////////////////////////////////////////////////
@@ -502,13 +502,13 @@ function App() {
                   {/* 수정 버튼 클릭 전 */}
                   <Col lg={contentColLength} md={contentColLengthMd} sm={contentColLengthSm} xs={contentColLengthXs}
                     style={{ display: "inline", }} ref={(element) => contentBox.current[`${comment.id}`] = element}>
-                    <div style={{ textAlign: "left", }}>
+                    <div style={{ textAlign: "center", }}>
                       {comment.content}
                     </div>
                   </Col>
                   {/* 수정 버튼 클릭 전 */}
                   {/* 수정 버튼 클릭 후 */}
-                  <Form id={`form-${comment.id}`} as={Col} lg={6} md={4} sm={4} xs={4} ref={(element) => formBox.current[`${comment.id}`] = element} style={{ display: "none", }}>
+                  <Form id={`form-${comment.id}`} as={Col} lg={6} md={6} sm={5} xs={5} ref={(element) => formBox.current[`${comment.id}`] = element} style={{ display: "none", }}>
                     <Form.Control
                       size="sm"
                       maxLength={contentMaxLength}
@@ -537,7 +537,7 @@ function App() {
                     ref={(element) => updateButtonBox.current[`${comment.id}`] = element} style={
                       {
                         display: "inline",
-                        textAlign: "left",
+                        textAlign: "center",
                       }
                     }>
                     <Button size="sm" id={`update-${comment.id}`} onClick={updateButton} style={{
@@ -556,7 +556,7 @@ function App() {
                     ref={(element) => completeButtonBox.current[`${comment.id}`] = element} style={
                       {
                         display: "none",
-                        textAlign: "left",
+                        textAlign: "center",
                         verticalAlign: "top",
                       }
                     }>
