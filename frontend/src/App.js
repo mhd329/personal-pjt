@@ -132,9 +132,9 @@ function App() {
         const response = await axios.post
           (process.env.REACT_APP_DEBUG === "true" ? `http://localhost:5000/api/add-main-comment` : `/api/add-main-comment`,
             {
-              user: user,
-              pw: pw,
-              content: content,
+              user: receivedMessage.user,
+              pw: receivedMessage.pw,
+              content: receivedMessage.content,
             }
           );
         submitSpinner.current.style.display = "none"
@@ -240,6 +240,7 @@ function App() {
     // 서버에 새로운 데이터가 추가될 예정이라고 소켓에 알림
     socket.emit("fromFront", {
       user: user,
+      pw: pw,
       content: content,
     });
   };
@@ -479,7 +480,7 @@ function App() {
 
                   {/* 댓글 작성자 */}
 
-                  <Col lg={headerColLength}>
+                  <Col lg={headerColLength} md={headerColLength} sm={headerColLength}>
                     {comment.user}
                   </Col>
 
@@ -487,14 +488,14 @@ function App() {
                   {/* 댓글 내용 */}
 
                   {/* 수정 버튼 클릭 전 */}
-                  <Col lg={contentColLength} style={{ display: "inline", }} ref={(element) => contentBox.current[`${comment.id}`] = element}>
+                  <Col lg={contentColLength} md={contentColLength} sm={contentColLength} style={{ display: "inline", }} ref={(element) => contentBox.current[`${comment.id}`] = element}>
                     <div style={{ textAlign: "left", }}>
                       {comment.content}
                     </div>
                   </Col>
                   {/* 수정 버튼 클릭 전 */}
                   {/* 수정 버튼 클릭 후 */}
-                  <Form id={`form-${comment.id}`} as={Col} lg={6} ref={(element) => formBox.current[`${comment.id}`] = element} style={{ display: "none", }}>
+                  <Form id={`form-${comment.id}`} as={Col} lg={6} md={6} sm={6} ref={(element) => formBox.current[`${comment.id}`] = element} style={{ display: "none", }}>
                     <Form.Control
                       maxLength={contentMaxLength}
                       onChange={contentUpdateHandler}
@@ -502,7 +503,7 @@ function App() {
                       required
                     />
                   </Form>
-                  <Col lg={2} ref={(element) => pwBox.current[`${comment.id}`] = element} style={{ display: "none", }}>
+                  <Col lg={2} md={2} sm={2} ref={(element) => pwBox.current[`${comment.id}`] = element} style={{ display: "none", }}>
                     <Form.Control
                       placeholder="암호"
                       maxLength={pwMaxLength}
@@ -517,7 +518,7 @@ function App() {
                   {/* 댓글 버튼들 */}
 
                   {/* 수정 버튼 클릭 전 */}
-                  <Col lg={buttonsColLength} ref={(element) => updateButtonBox.current[`${comment.id}`] = element} style={
+                  <Col lg={buttonsColLength} md={buttonsColLength} sm={buttonsColLength} ref={(element) => updateButtonBox.current[`${comment.id}`] = element} style={
                     {
                       display: "inline",
                       textAlign: "left",
@@ -535,7 +536,7 @@ function App() {
                   </Col>
                   {/* 수정 버튼 클릭 전 */}
                   {/* 수정 버튼 클릭 후 */}
-                  <Col lg={buttonsColLength} ref={(element) => completeButtonBox.current[`${comment.id}`] = element} style={
+                  <Col lg={buttonsColLength} md={buttonsColLength} sm={buttonsColLength} ref={(element) => completeButtonBox.current[`${comment.id}`] = element} style={
                     {
                       display: "none",
                       textAlign: "left",

@@ -55,6 +55,7 @@ server.on("connection", (socket) => { // 연결
         // 데이터를 수신한 순간 해시화하고 대기열에 넣는다.
         await redisClient.HSET(`user:${socketId}`, {
             user: data.user,
+            pw: data.pw,
             content: data.content,
             socketId: socketId,
             userIP: userIP
@@ -63,11 +64,12 @@ server.on("connection", (socket) => { // 연결
         // 대기열에서 하나씩 꺼내오며 순차적으로 실행하여 요청에 대한 응답 순서를 보장한다.
         const userKey = await redisClient.LPOP(`workflow`);
 
-        console.log("LPOP result:", userKey);
+        // console.log("LPOP result:", userKey);
 
         const uIp = await redisClient.HGET(userKey, `userIP`); // 유저 실제 아이피
         const uId = await redisClient.HGET(userKey, `socketId`); // 유저 소켓 아이디
-        const user = await redisClient.HGET(userKey, `user`); // 유저가 보낸 데이타
+        const user = await redisClient.HGET(userKey, `user`); // 유저
+        const pw = await redisClient.HGET(userKey, `pw`); // 비밀번호
         const content = await redisClient.HGET(userKey, `content`); // 유저가 보낸 데이타
         const PrevRequestTime = await redisClient.GET(uIp) || 0; // 클라이언트가 기존에 요청했던 시간
         const nowRequestTime = Date.now(); // 클라이언트가 보낸 시간
@@ -76,28 +78,24 @@ server.on("connection", (socket) => { // 연결
             socket.emit("fromBack", "Too many requests"); // 요청이 너무 많기 때문에 null을 반환한다.
         } else { // 요청할 수 있는 상태
             await redisClient.SET(uIp, nowRequestTime);
-            // socket.emit("fromBack", data); // 브로드캐스팅 수행(발신자 포함)
             // 브로드캐스팅
-            // socket.broadcast.emit("fromBack", {
-            //     broadcast: true,
-            //     user: user,
-            //     content: content
-            // });
-            // 전송한 유저를 위한 데이터 가공
-            // server.to(uId).emit("fromBack", {
-            //     broadcast: false,
-            //     user: user,
-            //     content: content
-            // });
-            socket.emit("fromBack", {
+            socket.broadcast.emit("fromBack", {
                 broadcast: true,
                 user: user,
+                pw: pw,
+                content: content
+            });
+            socket.emit("fromBack", {
+                broadcast: false,
+                user: user,
+                pw: pw,
                 content: content
             });
 
             console.log("Data transmission:",
                 { // 보낸 데이터 확인;
                     user: user,
+                    pw: pw,
                     content: content
                 });
 
