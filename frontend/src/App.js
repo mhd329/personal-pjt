@@ -87,7 +87,7 @@ function App() {
   // 윈도우 안쪽 높이가 바뀌면 재설정하는 함수
   const handleResize = () => {
     setWindowHeight(windowRef.current.innerHeight);
-  };
+  }
 
   useEffect(() => {
     // 컴포넌트 마운트시 윈도우 사이즈를 등록한다.
@@ -117,11 +117,11 @@ function App() {
 
     newSocket.on("increase", (n) => { // 증가 이벤트
       setUserCount(n);
-    })
+    });
 
     newSocket.on("decrease", (n) => { // 감소 이벤트
       setUserCount(n);
-    })
+    });
 
     // 웹소켓 서버로부터 데이터를 받음
     newSocket.on("fromBack", (data) => {
@@ -143,6 +143,11 @@ function App() {
       newSocket.disconnect();
     };
   }, []);
+
+  // 접속자 수가 바뀔 때마다 렌더링된다.
+  useEffect(() => {
+
+  }, [userCount]);
 
   // 웹소켓 서버로부터 데이터를 받으면 조건에 따라 alert가 발생하면서 댓글이 등록되거나 취소됨
   useEffect(() => {
@@ -189,7 +194,7 @@ function App() {
     if (receivedMessage) {
       req(); // 댓글 db에 등록요청하는 비동기 함수 실행
     }
-  }, [receivedMessage])
+  }, [receivedMessage]);
 
   // db
   useEffect(() => {
@@ -220,7 +225,7 @@ function App() {
     } else {
       setContent(event.currentTarget.value);
     }
-  };
+  }
 
   // 작성자 입력시 상태 변경
   const userChangeHandler = (event) => {
@@ -233,7 +238,7 @@ function App() {
     } else {
       setUser(event.currentTarget.value);
     }
-  };
+  }
 
   // 비밀번호 입력시 상태 변경
   const pwChangeHandler = (event) => {
@@ -246,7 +251,7 @@ function App() {
     } else {
       setPw(event.currentTarget.value);
     }
-  };
+  }
 
   // 제출 버튼 클릭시 동작하는 함수
   const submitHandler = (event) => {
@@ -259,7 +264,7 @@ function App() {
       pw: pw,
       content: content,
     });
-  };
+  }
 
   // 댓글 수정 버튼
   const updateButton = (event) => {
@@ -270,7 +275,7 @@ function App() {
     contentBox.current[`${res}`].style.display = "none";
     updateButtonBox.current[`${res}`].style.display = "none";
     completeButtonBox.current[`${res}`].style.display = "inline";
-  };
+  }
 
   // 수정 취소 버튼
   const cancelButton = (event) => {
@@ -281,11 +286,17 @@ function App() {
     contentBox.current[`${res}`].style.display = "inline";
     updateButtonBox.current[`${res}`].style.display = "inline";
     completeButtonBox.current[`${res}`].style.display = "none";
-  };
+  }
 
   // 댓글 수정 내용 입력
   const contentUpdateHandler = (event) => {
-    if (event.currentTarget.value.length > contentMaxLength) {
+    if (event.currentTarget.value.length === 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "내용을 입력해주세요.",
+        confirmButtonText: "확인",
+      });
+    } else if (event.currentTarget.value.length > contentMaxLength) {
       Swal.fire({
         icon: "warning",
         title: "내용이 너무 깁니다.",
@@ -294,20 +305,12 @@ function App() {
     } else {
       setChangedContent(event.currentTarget.value);
     }
-  };
+  }
 
   // 댓글 수정 비밀번호 입력
   const contentUpdatePwHandler = (event) => {
-    if (event.currentTarget.value.length > pwMaxLength) {
-      Swal.fire({
-        icon: "warning",
-        title: "비밀번호가 너무 깁니다.",
-        confirmButtonText: "확인",
-      });
-    } else {
-      setUpdatePw(event.currentTarget.value);
-    }
-  };
+    setUpdatePw(event.currentTarget.value);
+  }
 
   // 수정 완료 버튼
   const completeButton = (event) => {
@@ -355,7 +358,7 @@ function App() {
           });
         }
       });
-  };
+  }
 
   // 댓글 삭제 버튼
   const deleteHandler = (event) => {
@@ -407,7 +410,7 @@ function App() {
         });
       }
     });
-  };
+  }
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -50,7 +50,8 @@ server.on("connection", async (socket) => { // 연결
     await redisClient.SADD(`session`, `user:<${userIP}>`);
   }
   const joined = await redisClient.SCARD(`session`); // 현재 세션에 참가중인 유저 수
-  socket.emit("increase", joined); // 프론트로 유저 수를 보낸다.
+  socket.broadcast.emit("increase", joined); // 프론트로 유저 수를 보낸다.
+  socket.emit("increase", joined);
   socket.on("fromFront", async (data) => { // 데이터 받아오기
 
     console.log("Received data:", data); // 받은 데이터 확인
@@ -127,7 +128,8 @@ server.on("connection", async (socket) => { // 연결
       await redisClient.SREM(`session`, `user:<${userIP}>`); // 세션에서 유저 제거
       await redisClient.json.DEL(`user:<${userIP}>`, `$`); // 유저 객체 제거시 존재하지 않는 키는 무시된다.
       const left = await redisClient.SCARD(`session`);
-      socket.emit("decrease", left); // 유저가 세션을 나감
+      socket.broadcast.emit("decrease", left); // 유저가 세션을 나감
+      socket.emit("decrease", left);
 
       console.log(`Disconnected user: ${socketID}`); // 연결 해제
 
