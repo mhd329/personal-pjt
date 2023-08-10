@@ -139,8 +139,8 @@ function App() {
 
     // 컴포넌트가 언마운트될 때 리스너를 제거하고 웹소켓 연결을 끊는다.
     return () => {
-      newSocket.off();
       newSocket.disconnect();
+      newSocket.off();
     };
   }, []);
 
