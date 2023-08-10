@@ -48,7 +48,8 @@ server.on("connection", async (socket) => { // 연결
     유저 나감 -> SREM: 집합에서 제거
     */
     await redisClient.SADD(`session`, `user:<${userIP}>`);
-    socket.broadcast.emit("increase");
+    const cnt = await redisClient.SCARD(`session`);
+    socket.emit("increase", cnt); // 증가 이벤트 실행
   }
   socket.on("fromFront", async (data) => { // 데이터 받아오기
 
@@ -124,7 +125,8 @@ server.on("connection", async (socket) => { // 연결
     socket.on("disconnect", async () => {
       await redisClient.SREM(`session`, `user:<${userIP}>`); // 세션에서 유저 제거
       await redisClient.DEL(`user:<${userIP}>`); // 유저 객체 제거시 존재하지 않는 키는 무시된다.
-      socket.broadcast.emit("decrease");
+      const cnt = await redisClient.SCARD(`session`);
+      socket.emit("decrease", cnt); // 감소 이벤트 실행
 
       console.log(`Disconnected user: ${socketID}`); // 연결 해제
 

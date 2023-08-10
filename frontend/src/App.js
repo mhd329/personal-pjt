@@ -115,8 +115,12 @@ function App() {
       // console.log("웹소켓 연결됨");
     });
 
-    newSocket.on("increase", () => {
-      setCnt(cnt => cnt + 1);
+    newSocket.on("increase", (cnt) => { // 증가 이벤트
+      setCnt(cnt);
+    })
+
+    newSocket.on("increase", (cnt) => { // 감소 이벤트
+      setCnt(cnt);
     })
 
     // 웹소켓 서버로부터 데이터를 받음
@@ -428,10 +432,10 @@ function App() {
     <div className="App">
       <SimpleBar style={{ height: windowHeight }}>
         <header className="App-header">
-          <h6 style={{
+          <h3 style={{
             margin: "1rem 0",
             zIndex: "2",
-          }}>&#128064;: {cnt}</h6>
+          }}>&#128064;: {cnt}</h3>
           <h1 style={{
             marginTop: "3rem",
             zIndex: "2",
