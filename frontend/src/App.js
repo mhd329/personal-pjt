@@ -148,20 +148,23 @@ function App() {
   useEffect(() => {
     // 댓글 등록 로직
     const req = async () => {
-      try {
-        // nginx 미사용 : nginx 사용
-        const response = await axios.post
-          (process.env.REACT_APP_DEBUG === "true" ? `http://localhost:5000/api/add-main-comment` : `/api/add-main-comment`,
-            {
-              user: receivedMessage.user,
-              pw: receivedMessage.pw,
-              content: receivedMessage.content,
-            }
-          );
-        submitSpinner.current.style.display = "none"
-        submitConfirm.current.style.display = "block"
-        if (response.data.success) { // db에 성공적으로 등록했다는 응답이 옴
-          function postData(response) {
+      if (receivedMessage.broadcast) {
+        setCompletedAlertShow(true);
+        setFailureAlertShow(false);
+      } else {
+        try {
+          // nginx 미사용 : nginx 사용
+          const response = await axios.post
+            (process.env.REACT_APP_DEBUG === "true" ? `http://localhost:5000/api/add-main-comment` : `/api/add-main-comment`,
+              {
+                user: receivedMessage.user,
+                pw: receivedMessage.pw,
+                content: receivedMessage.content,
+              }
+            );
+          submitSpinner.current.style.display = "none"
+          submitConfirm.current.style.display = "block"
+          if (response.data.success) { // db에 성공적으로 등록했다는 응답이 옴
             setMainComments([...mainComments, {
               id: response.data.id,
               user: response.data.user,
@@ -171,24 +174,16 @@ function App() {
             setPw("");
             setContent("");
           }
-          if (receivedMessage.broadcast) {
-            postData(response);
-            // 성공 alert
-            setCompletedAlertShow(true);
-            setFailureAlertShow(false);
-          } else {
-            postData(response);
-          }
+        } catch (error) { // db에 등록 실패
+          submitSpinner.current.style.display = "none"
+          submitConfirm.current.style.display = "block"
+          Swal.fire({
+            icon: "error",
+            title: "입력에 실패했습니다.",
+            text: `Error: ${error.response.data.message}`,
+            confirmButtonText: "확인",
+          });
         }
-      } catch (error) { // db에 등록 실패
-        submitSpinner.current.style.display = "none"
-        submitConfirm.current.style.display = "block"
-        Swal.fire({
-          icon: "error",
-          title: "입력에 실패했습니다.",
-          text: `Error: ${error.response.data.message}`,
-          confirmButtonText: "확인",
-        });
       }
     }
     if (receivedMessage) {
