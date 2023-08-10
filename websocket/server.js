@@ -124,16 +124,15 @@ server.on("connection", async (socket) => { // 연결
       }
     }
     redisResponse();
-    socket.on("disconnect", async () => {
-      await redisClient.SREM(`session`, `user:<${userIP}>`); // 세션에서 유저 제거
-      await redisClient.json.DEL(`user:<${userIP}>`, `$`); // 유저 객체 제거시 존재하지 않는 키는 무시된다.
-      const left = await redisClient.SCARD(`session`);
-      socket.broadcast.emit("decrease", left); // 유저가 세션을 나감
-      socket.emit("decrease", left);
+  });
+  socket.on("disconnect", async () => {
+    await redisClient.SREM(`session`, `user:<${userIP}>`); // 세션에서 유저 제거
+    await redisClient.json.DEL(`user:<${userIP}>`, `$`); // 유저 객체 제거시 존재하지 않는 키는 무시된다.
+    const left = await redisClient.SCARD(`session`);
+    socket.broadcast.emit("decrease", left); // 유저가 세션을 나감
 
-      console.log(`Disconnected user: ${socketID}`); // 연결 해제
+    console.log(`Disconnected user: ${socketID}`); // 연결 해제
 
-    });
   });
 });
 
