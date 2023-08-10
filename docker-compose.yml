@@ -14,22 +14,6 @@ services:
       - REDIS_HOST=$REDIS_HOST
     mem_limit: 128m
 
-  admin:
-    image: mhd329/docker-admin
-    container_name: app_admin
-    restart: unless-stopped
-    volumes:
-      - /app/node_modules
-      - ./backend:/app
-    environment:
-      - MYSQL_HOST=$MYSQL_HOST
-      - MYSQL_USER=$MYSQL_USER
-      - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
-      - MYSQL_DATABASE=$MYSQL_DATABASE
-      - MYSQL_PORT=$MYSQL_PORT
-      - REDIS_HOST=$REDIS_HOST
-    mem_limit: 128m
-
   backend:
     image: mhd329/docker-backend
     container_name: app_backend
