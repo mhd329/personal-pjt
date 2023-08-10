@@ -14,6 +14,22 @@ services:
       - REDIS_HOST=$REDIS_HOST
     mem_limit: 128m
 
+  admin:
+    image: mhd329/docker-admin
+    container_name: app_admin
+    restart: unless-stopped
+    volumes:
+      - /app/node_modules
+      - ./backend:/app
+    environment:
+      - MYSQL_HOST=$MYSQL_HOST
+      - MYSQL_USER=$MYSQL_USER
+      - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
+      - MYSQL_DATABASE=$MYSQL_DATABASE
+      - MYSQL_PORT=$MYSQL_PORT
+      - REDIS_HOST=$REDIS_HOST
+    mem_limit: 128m
+
   backend:
     image: mhd329/docker-backend
     container_name: app_backend
@@ -37,11 +53,11 @@ services:
       - /app/node_modules
       - ./frontend:/app
     stdin_open: true
-    mem_limit: 128m
     environment:
       # cra에서 기본 포트를 3000포트로 설정해서 ws와 충돌하기 때문에 아래와 같이 설정해야한다.
       - WDS_SOCKET_PORT=0
       - REACT_APP_DEBUG="False"
+    mem_limit: 128m
 
   nginx:
     image: mhd329/docker-nginx

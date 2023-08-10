@@ -51,6 +51,7 @@ function App() {
   const [user, setUser] = useState("");
   const [pw, setPw] = useState("");
   const [content, setContent] = useState("");
+  const [cnt, setCnt] = useState(0); // 동접자 관련 state
 
   // 이미지 마우스 호버시 변환
   const [mouseOn, setMouseOn] = useState(false);
@@ -114,6 +115,10 @@ function App() {
       // console.log("웹소켓 연결됨");
     });
 
+    newSocket.on("increase", () => {
+      setCnt(cnt => cnt + 1);
+    })
+
     // 웹소켓 서버로부터 데이터를 받음
     newSocket.on("fromBack", (data) => {
       // 요청이 정상적이라면 data는 key-value 쌍임
@@ -127,6 +132,10 @@ function App() {
         setReceivedMessage(data);
       }
     });
+
+    newSocket.on("decrease", () => {
+      setCnt(cnt => cnt - 1);
+    })
 
     // 컴포넌트가 언마운트될 때 리스너를 제거하고 웹소켓 연결을 끊는다.
     return () => {
@@ -419,6 +428,10 @@ function App() {
     <div className="App">
       <SimpleBar style={{ height: windowHeight }}>
         <header className="App-header">
+          <h6 style={{
+            margin: "1rem 0",
+            zIndex: "2",
+          }}>&#128064;: {cnt}</h6>
           <h1 style={{
             marginTop: "3rem",
             zIndex: "2",
