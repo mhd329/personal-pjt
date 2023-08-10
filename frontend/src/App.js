@@ -30,16 +30,16 @@ const headerColLength = 2;
 const contentColLength = 8;
 const buttonsColLength = 2;
 
-const headerColLengthMd = 2;
-const contentColLengthMd = 8;
-const buttonsColLengthMd = 2;
+const headerColLengthMd = 3;
+const contentColLengthMd = 6;
+const buttonsColLengthMd = 3;
 
-const headerColLengthSm = 2;
-const contentColLengthSm = 7;
+const headerColLengthSm = 3;
+const contentColLengthSm = 6;
 const buttonsColLengthSm = 3;
 
-const headerColLengthXs = 2;
-const contentColLengthXs = 7;
+const headerColLengthXs = 4;
+const contentColLengthXs = 4;
 const buttonsColLengthXs = 4;
 
 /////////////////////////////////////////////////////// 정적인 변수들 끝 ///////////////////////////////////////////////////////
@@ -435,7 +435,9 @@ function App() {
           <h3 style={{
             margin: "1rem 0",
             zIndex: "2",
-          }}>&#128064;: {cnt}</h3>
+            verticalAlign: "top",
+          }}>{cnt}&#128064; 0
+          </h3>
           <h1 style={{
             marginTop: "3rem",
             zIndex: "2",
@@ -554,7 +556,7 @@ function App() {
                     ref={(element) => updateButtonBox.current[`${comment.id}`] = element} style={
                       {
                         display: "inline",
-                        textAlign: "center",
+                        textAlign: "end",
                       }
                     }>
                     <Button size="sm" id={`update-${comment.id}`} onClick={updateButton} style={{
@@ -573,8 +575,7 @@ function App() {
                     ref={(element) => completeButtonBox.current[`${comment.id}`] = element} style={
                       {
                         display: "none",
-                        textAlign: "center",
-                        verticalAlign: "top",
+                        textAlign: "end",
                       }
                     }>
                     <Button size="sm" id={`complete-${comment.id}`} onClick={completeButton} form={`form-${comment.id}`} type="submit" style={
