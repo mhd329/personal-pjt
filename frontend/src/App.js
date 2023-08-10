@@ -115,12 +115,12 @@ function App() {
       // console.log("웹소켓 연결됨");
     });
 
-    newSocket.on("increase", (cnt) => { // 증가 이벤트
-      setCnt(cnt);
+    newSocket.on("increase", (n) => { // 증가 이벤트
+      setCnt(n);
     })
 
-    newSocket.on("increase", (cnt) => { // 감소 이벤트
-      setCnt(cnt);
+    newSocket.on("decrease", (n) => { // 감소 이벤트
+      setCnt(n);
     })
 
     // 웹소켓 서버로부터 데이터를 받음
@@ -136,10 +136,6 @@ function App() {
         setReceivedMessage(data);
       }
     });
-
-    newSocket.on("decrease", () => {
-      setCnt(cnt => cnt - 1);
-    })
 
     // 컴포넌트가 언마운트될 때 리스너를 제거하고 웹소켓 연결을 끊는다.
     return () => {
@@ -435,9 +431,7 @@ function App() {
           <h3 style={{
             margin: "1rem 0",
             zIndex: "2",
-            verticalAlign: "top",
-          }}>{cnt}&#128064; 0
-          </h3>
+          }}>현재 접속자 수: {cnt}</h3>
           <h1 style={{
             marginTop: "3rem",
             zIndex: "2",
@@ -521,7 +515,7 @@ function App() {
                   {/* 수정 버튼 클릭 전 */}
                   <Col lg={contentColLength} md={contentColLengthMd} sm={contentColLengthSm} xs={contentColLengthXs}
                     style={{ display: "inline", }} ref={(element) => contentBox.current[`${comment.id}`] = element}>
-                    <div style={{ textAlign: "center", }}>
+                    <div style={{ textAlign: "start", }}>
                       {comment.content}
                     </div>
                   </Col>

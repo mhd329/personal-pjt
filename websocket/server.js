@@ -48,8 +48,8 @@ server.on("connection", async (socket) => { // 연결
     유저 나감 -> SREM: 집합에서 제거
     */
     await redisClient.SADD(`session`, `user:<${userIP}>`);
-    const cnt = await redisClient.SCARD(`session`);
-    socket.emit("increase", cnt); // 증가 이벤트 실행
+    const joined = await redisClient.SCARD(`session`);
+    socket.emit("increase", joined); // 증가 이벤트 실행
   }
   socket.on("fromFront", async (data) => { // 데이터 받아오기
 
@@ -58,8 +58,10 @@ server.on("connection", async (socket) => { // 연결
     // 데이터를 수신한 순간 기존 유저 객체가 존재하는지 검사한다.
     const PrevUserObj = await redisClient.json.GET(`user:<${userIP}>`, `$`) || 0;
     if (PrevUserObj) { // 존재한다면 덮어쓰고 새로 저장한다.
+      console.log(PrevUserObj);
+      console.log(PrevUserObj[0]);
       const updatedUserObj = {
-        ...PrevUserObj,
+        ...PrevUserObj[0],
         user: data.user,
         pw: data.pw,
         content: data.content,
@@ -125,8 +127,8 @@ server.on("connection", async (socket) => { // 연결
     socket.on("disconnect", async () => {
       await redisClient.SREM(`session`, `user:<${userIP}>`); // 세션에서 유저 제거
       await redisClient.DEL(`user:<${userIP}>`); // 유저 객체 제거시 존재하지 않는 키는 무시된다.
-      const cnt = await redisClient.SCARD(`session`);
-      socket.emit("decrease", cnt); // 감소 이벤트 실행
+      const left = await redisClient.SCARD(`session`);
+      socket.emit("decrease", left); // 감소 이벤트 실행
 
       console.log(`Disconnected user: ${socketID}`); // 연결 해제
 
