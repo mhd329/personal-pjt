@@ -56,7 +56,7 @@ server.on("connection", async (socket) => { // 연결
     console.log("Received data:", data); // 받은 데이터 확인
 
     // 데이터를 수신한 순간 기존 유저 객체가 존재하는지 검사한다.
-    const PrevUserObj = await redisClient.GET(`user:<${userIP}>`) || 0;
+    const PrevUserObj = await redisClient.json.GET(`user:<${userIP}>`) || 0;
     if (PrevUserObj) { // 존재한다면 덮어쓰고 새로 저장한다.
       const updatedUserObj = {
         ...PrevUserObj,
@@ -65,7 +65,7 @@ server.on("connection", async (socket) => { // 연결
         content: data.content,
         socketID: socketID,
       };
-      await redisClient.SET(`user:<${userIP}>`, updatedUserObj);
+      await redisClient.json.SET(`user:<${userIP}>`, updatedUserObj);
     } else { // 유저가 없다면 유저 ip로 구분되는 유저 객체를 새로 만들고 db에 넣는다.
       const userObj = {
         user: data.user,
@@ -74,7 +74,7 @@ server.on("connection", async (socket) => { // 연결
         socketID: socketID,
         userIP: userIP,
       }
-      await redisClient.SET(`user:<${userIP}>`, userObj);
+      await redisClient.json.SET(`user:<${userIP}>`, userObj);
     }
     await redisClient.RPUSH(`queue`, `user:<${userIP}>`); // 대기열에 추가
     async function redisResponse() { // 대기열에서 하나씩 꺼내오며 순차적으로 실행하여 요청에 대한 응답 순서를 보장하는 함수
