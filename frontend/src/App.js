@@ -51,7 +51,7 @@ function App() {
   const [user, setUser] = useState("");
   const [pw, setPw] = useState("");
   const [content, setContent] = useState("");
-  const [cnt, setCnt] = useState(0); // 동접자 관련 state
+  const [userCount, setUserCount] = useState(0); // 동접자 관련 state
 
   // 이미지 마우스 호버시 변환
   const [mouseOn, setMouseOn] = useState(false);
@@ -116,11 +116,11 @@ function App() {
     });
 
     newSocket.on("increase", (n) => { // 증가 이벤트
-      setCnt(n);
+      setUserCount(n);
     })
 
     newSocket.on("decrease", (n) => { // 감소 이벤트
-      setCnt(n);
+      setUserCount(n);
     })
 
     // 웹소켓 서버로부터 데이터를 받음
@@ -431,7 +431,7 @@ function App() {
           <h3 style={{
             margin: "1rem 0",
             zIndex: "2",
-          }}>현재 접속자 수: {cnt}</h3>
+          }}>현재 접속자 수: {userCount}</h3>
           <h1 style={{
             marginTop: "3rem",
             zIndex: "2",

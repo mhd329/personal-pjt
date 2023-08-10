@@ -57,11 +57,10 @@ server.on("connection", async (socket) => { // 연결
 
     // 데이터를 수신한 순간 기존 유저 객체가 존재하는지 검사한다.
     const PrevUserObj = await redisClient.json.GET(`user:<${userIP}>`, `$`) || 0;
-    if (PrevUserObj) { // 존재한다면 덮어쓰고 새로 저장한다.
-      console.log(PrevUserObj);
-      console.log(PrevUserObj[0]);
+    if (PrevUserObj) { // 존재한다면 지우고 새로 저장한다.
+      await redisClient.json.DEL(`user:<${userIP}>`, `$`);
       const updatedUserObj = {
-        ...PrevUserObj[0],
+        ...PrevUserObj,
         user: data.user,
         pw: data.pw,
         content: data.content,
@@ -80,15 +79,16 @@ server.on("connection", async (socket) => { // 연결
     }
     await redisClient.RPUSH(`queue`, `user:<${userIP}>`); // 대기열에 추가
     async function redisResponse() { // 대기열에서 하나씩 꺼내오며 순차적으로 실행하여 요청에 대한 응답 순서를 보장하는 함수
-      const userObj = await redisClient.LPOP(`queue`);
+      const userKey = await redisClient.LPOP(`queue`);
 
       // console.log("LPOP result:", userKey);
 
+      const userObj = await redisClient.json.GET(userKey, `$`);
       const ip = userObj.userIP; // 유저 실제 아이피
       const user = userObj.user; // 유저
       const pw = userObj.pw; // 비밀번호
       const content = userObj.content; // 유저가 보낸 데이타
-      const PrevRequestTime = await redisClient.GET(`user:<${userIP}>:lastRequestTime`) || 0; // 클라이언트가 기존에 요청했던 시간
+      const PrevRequestTime = await redisClient.GET(`user:<${ip}>:lastRequestTime`) || 0; // 클라이언트가 기존에 요청했던 시간
       const nowRequestTime = Date.now(); // 클라이언트가 요청을 보낸 시간
 
       if (nowRequestTime - PrevRequestTime < requestLimitInterval) { // 시간 내에 요청이 너무 많은 상태
@@ -126,7 +126,7 @@ server.on("connection", async (socket) => { // 연결
     redisResponse();
     socket.on("disconnect", async () => {
       await redisClient.SREM(`session`, `user:<${userIP}>`); // 세션에서 유저 제거
-      await redisClient.DEL(`user:<${userIP}>`); // 유저 객체 제거시 존재하지 않는 키는 무시된다.
+      await redisClient.json.DEL(`user:<${userIP}>`, `$`); // 유저 객체 제거시 존재하지 않는 키는 무시된다.
       const left = await redisClient.SCARD(`session`);
       socket.emit("decrease", left); // 감소 이벤트 실행
 
