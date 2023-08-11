@@ -13,9 +13,9 @@ import Swal from 'sweetalert2'
 // 엑세스토큰 재발급 컴포넌트
 
 function TokenRefreshButton(props) {
-    const accessToken = useCallback(() => {
+    const accessToken = useCallback(() => { // 액세스 토큰 추출하는 함수
         const cookie = new Cookies();
-        return cookie.get("access");
+        return cookie.get("access"); // 토큰값이 있다면 함수는 토큰값을 리턴함
     }, []);
     const navigate = useNavigate();
     const goToLogin = useCallback(() => {

@@ -286,6 +286,7 @@ function TodoDetail(props) {
                 title.current.disabled = true;
                 description.current.disabled = true;
                 importance.current.disabled = true;
+                buttonGroup1.current.hidden = false;
                 buttonGroup2.current.hidden = true;
                 changeButton.current.hidden = false;
             };
