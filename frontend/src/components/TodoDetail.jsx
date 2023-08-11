@@ -224,12 +224,11 @@ function TodoDetail(props) {
     // 수정하기 버튼
 
     const handleChangeButton = (event) => {
-        console.log(buttonGroup1);
         title.current.disabled = false;
         description.current.disabled = false;
         importance.current.disabled = false;
-        buttonGroup1.current.hidden = true;
-        buttonGroup2.current.hidden = false;
+        buttonGroup1.current.hidden = true; // 수정하기
+        buttonGroup2.current.hidden = false; // 수정완료
     };
 
     // 취소 버튼
@@ -256,7 +255,6 @@ function TodoDetail(props) {
         importance.current.disabled = true;
         buttonGroup1.current.hidden = false;
         buttonGroup2.current.hidden = true;
-        changeButton.current.hidden = false;
     }, [todoDetail, todoDetailTemp]);
 
     // 비교 함수
@@ -282,13 +280,14 @@ function TodoDetail(props) {
                 },
             });
             if (response.status === 202) {
+                console.log(response.data);
+                console.log(response.status);
                 setData([setTodoDetail, setTodoDetailTemp], response);
                 title.current.disabled = true;
                 description.current.disabled = true;
                 importance.current.disabled = true;
                 buttonGroup1.current.hidden = false;
                 buttonGroup2.current.hidden = true;
-                changeButton.current.hidden = false;
             };
         } catch (error) {
             alert(error.response.data.message);
