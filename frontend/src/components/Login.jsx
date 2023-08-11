@@ -76,7 +76,6 @@ function Login(props) {
                     },
                 } : null);
         } catch (error) {
-            console.log(error)
             if (error.response.status === 400 && error.response.data.user.id) {
                 Swal.fire({
                     icon: "warning",
@@ -86,7 +85,6 @@ function Login(props) {
                 goToMain(error.response.data.user.id);
             } else {
                 alert(error.response.data.message);
-                console.log(error)
             };
         };
     }, [goToMain, accessToken]);

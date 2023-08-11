@@ -162,7 +162,6 @@ function TodoDetail(props) {
                 changeButton.current.hidden = true;
             };
         } catch (error) {
-            console.log(error)
             alert(error.response.data.message);
             props.handler(error);
         };
@@ -209,7 +208,6 @@ function TodoDetail(props) {
                 })
             };
         } catch (error) {
-            console.log(error)
             alert(error.response.data.message);
             props.handler(error);
         };
@@ -280,8 +278,6 @@ function TodoDetail(props) {
                 },
             });
             if (response.status === 202) {
-                console.log(response.data);
-                console.log(response.status);
                 setData([setTodoDetail, setTodoDetailTemp], response);
                 title.current.disabled = true;
                 description.current.disabled = true;
