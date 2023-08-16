@@ -2,6 +2,9 @@ version: "3"
 services:
   backend:
     image: mhd329/todo-backend
+    volumes:
+      - shared-data:/app/staticfiles
+      - shared-data:/app/mediafiles
     environment:
       - MYSQL_PASSWORD=$MYSQL_PASSWORD
       - MYSQL_HOST=$MYSQL_HOST
@@ -20,10 +23,15 @@ services:
   nginx:
     restart: always
     image: mhd329/todo-nginx
+    volumes:
+      - shared-data:/data/static
+      - shared-data:/data/media
     ports:
       - "80:80"
-      - "443:443"
     mem_limit: 128m
     links:
       - frontend
       - backend
+
+volumes:
+  shared-data:
