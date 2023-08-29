@@ -49,8 +49,10 @@ function App() {
   const [mainComments, setMainComments] = useState([]);
   // const [subComments, setSubComments] = useState([]); // 대댓글: 나중에 구현할 것임
   const [user, setUser] = useState("");
+  const [broadCastUser, setBroadCastUser] = useState("");
   const [pw, setPw] = useState("");
   const [content, setContent] = useState("");
+  const [broadCastContent, setBroadCastContent] = useState("");
   const [userCount, setUserCount] = useState(0); // 동접자 관련 state
 
   // 이미지 마우스 호버시 변환
@@ -155,6 +157,8 @@ function App() {
     // 댓글 등록 로직
     const req = async () => {
       if (receivedMessage.broadcast) {
+        setBroadCastUser(receivedMessage.user)
+        setBroadCastContent(receivedMessage.content)
         setCompletedAlertShow(true);
         setFailureAlertShow(false);
       } else {
@@ -465,9 +469,9 @@ function App() {
                   댓글창이 갱신되었습니다.
                 </Alert.Heading>
                 <p>
-                  작성자: {receivedMessage.user}
+                  작성자: {broadCastUser}
                   <br />
-                  내용: {receivedMessage.content}
+                  내용: {broadCastContent}
                 </p>
               </Alert>}
             {failureAlertShow &&
