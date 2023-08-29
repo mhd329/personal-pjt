@@ -57,8 +57,10 @@ function App() {
   const [mouseOn, setMouseOn] = useState(false);
 
   // 업데이트 관련 상태
+  const [changed, setChanged] = useState(false);
   const [changedContent, setChangedContent] = useState("");
   const [updatePw, setUpdatePw] = useState("");
+  const [updatePwTarget, setUpdatePwTarget] = useState("");
   const contentBox = useRef({});
 
   // window 객체를 참조
@@ -107,7 +109,7 @@ function App() {
   // 웹소켓
   useEffect(() => {
     // 웹소켓을 초기화한다, nginx 미사용 : nginx 사용
-    const newSocket = process.env.REACT_APP_DEBUG === "true" ? io.connect('http://localhost:5001') : io.connect({ path: `/socket.io` });
+    const newSocket = io.connect({ path: `/socket.io` });
     setSocket(newSocket);
 
     // 웹소켓 이벤트에 대한 리스너를 추가한다.
@@ -157,15 +159,14 @@ function App() {
         setFailureAlertShow(false);
       } else {
         try {
-          // nginx 미사용 : nginx 사용
-          const response = await axios.post
-            (process.env.REACT_APP_DEBUG === "true" ? `http://localhost:5000/api/add-main-comment` : `/api/add-main-comment`,
-              {
-                user: receivedMessage.user,
-                pw: receivedMessage.pw,
-                content: receivedMessage.content,
-              }
-            );
+
+          const response = await axios.post(`/api/add-main-comment`,
+            {
+              user: receivedMessage.user,
+              pw: receivedMessage.pw,
+              content: receivedMessage.content,
+            }
+          );
           submitSpinner.current.style.display = "none"
           submitConfirm.current.style.display = "block"
           if (response.data.success) { // db에 성공적으로 등록했다는 응답이 옴
@@ -198,9 +199,8 @@ function App() {
   // db
   useEffect(() => {
     // 서버에서 db에 있는 댓글들을 가져온다.
-    // nginx 미사용 : nginx 사용
-    axios.get
-      (process.env.REACT_APP_DEBUG === "true" ? `http://localhost:5000/api/all-comments` : `/api/all-comments`)
+
+    axios.get(`/api/all-comments`)
       .then((response) => {
         setMainComments(response.data);
       }).catch((error) => {
@@ -285,29 +285,21 @@ function App() {
     contentBox.current[`${res}`].style.display = "inline";
     updateButtonBox.current[`${res}`].style.display = "inline";
     completeButtonBox.current[`${res}`].style.display = "none";
+    setChanged(false);
+    setChangedContent("");
+    setUpdatePw("");
+    setUpdatePwTarget("");
   }
 
   // 댓글 수정 내용 입력
   const contentUpdateHandler = (event) => {
-    if (event.currentTarget.value.length === 0) {
-      Swal.fire({
-        icon: "warning",
-        title: "내용을 입력해주세요.",
-        confirmButtonText: "확인",
-      });
-    } else if (event.currentTarget.value.length > contentMaxLength) {
-      Swal.fire({
-        icon: "warning",
-        title: "내용이 너무 깁니다.",
-        confirmButtonText: "확인",
-      });
-    } else {
-      setChangedContent(event.currentTarget.value);
-    }
+    setChanged(true);
+    setChangedContent(event.currentTarget.value);
   }
 
   // 댓글 수정 비밀번호 입력
   const contentUpdatePwHandler = (event) => {
+    setUpdatePwTarget(event.currentTarget.id);
     setUpdatePw(event.currentTarget.value);
   }
 
@@ -316,47 +308,72 @@ function App() {
     event.preventDefault();
     const id = event.currentTarget.id;
     const res = id.replace("complete-", "")
-    updateConfirm.current[`${res}`].style.display = "none";
-    updateSpinner.current[`${res}`].style.display = "inline";
-    // nginx 미사용 : nginx 사용
-    axios.patch
-      (process.env.REACT_APP_DEBUG === "true" ? `http://localhost:5000/api/comment-update/${res}` : `/api/comment-update/${res}`,
-        {
-          content: changedContent,
-          pw: updatePw,
-        }
-      ).then((response) => {
-        if (response.data.success) {
-          setMainComments(response.data.comments);
-          pwBox.current[`${res}`].style.display = "none";
-          formBox.current[`${res}`].style.display = "none";
-          contentBox.current[`${res}`].style.display = "inline";
+    if (changed) {
+      if (changedContent.length === 0) {
+        Swal.fire({
+          icon: "warning",
+          title: "내용을 입력해주세요.",
+          confirmButtonText: "확인",
+        });
+      } else if (changedContent.length > contentMaxLength) {
+        Swal.fire({
+          icon: "warning",
+          title: "내용이 너무 깁니다.",
+          confirmButtonText: "확인",
+        });
+      } else {
+        updateConfirm.current[`${res}`].style.display = "none";
+        updateSpinner.current[`${res}`].style.display = "inline";
+
+        axios.patch(`/api/comment-update/${res}`,
+          {
+            content: changedContent,
+            pw: updatePw,
+          }
+        ).then((response) => {
+          if (response.data.success) {
+            setMainComments(response.data.comments);
+            pwBox.current[`${res}`].style.display = "none";
+            formBox.current[`${res}`].style.display = "none";
+            contentBox.current[`${res}`].style.display = "inline";
+            updateSpinner.current[`${res}`].style.display = "none";
+            updateConfirm.current[`${res}`].style.display = "inline";
+            updateButtonBox.current[`${res}`].style.display = "inline";
+            completeButtonBox.current[`${res}`].style.display = "none";
+            setChanged(false);
+            setChangedContent("");
+            setUpdatePw("");
+            setUpdatePwTarget("");
+          }
+        }).catch((error) => {
           updateSpinner.current[`${res}`].style.display = "none";
           updateConfirm.current[`${res}`].style.display = "inline";
-          updateButtonBox.current[`${res}`].style.display = "inline";
-          completeButtonBox.current[`${res}`].style.display = "none";
-          setChangedContent("");
-          setUpdatePw("");
-        }
-      }).catch((error) => {
-        updateSpinner.current[`${res}`].style.display = "none";
-        updateConfirm.current[`${res}`].style.display = "inline";
-        if (error.response.data.statusCode === 400) {
-          // alert("올바른 암호를 입력하세요.");
-          Swal.fire({
-            icon: "warning",
-            title: error.response.data.message,
-            confirmButtonText: "확인",
-          });
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "수정에 실패했습니다.",
-            text: `Error: ${error}`,
-            confirmButtonText: "확인",
-          });
-        }
-      });
+          if (error.response.data.statusCode === 400) {
+            // alert("올바른 암호를 입력하세요.");
+            Swal.fire({
+              icon: "warning",
+              title: error.response.data.message,
+              confirmButtonText: "확인",
+            });
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "수정에 실패했습니다.",
+              text: `Error: ${error}`,
+              confirmButtonText: "확인",
+            });
+          }
+        });
+      }
+    } else {
+      pwBox.current[`${res}`].style.display = "none";
+      formBox.current[`${res}`].style.display = "none";
+      contentBox.current[`${res}`].style.display = "inline";
+      updateButtonBox.current[`${res}`].style.display = "inline";
+      completeButtonBox.current[`${res}`].style.display = "none";
+      setUpdatePw("");
+      setUpdatePwTarget("");
+    }
   }
 
   // 댓글 삭제 버튼
@@ -374,15 +391,14 @@ function App() {
       showLoaderOnConfirm: true,
       preConfirm: async function (deletePw) {
         try {
-          // nginx 미사용 : nginx 사용
-          const response = await axios.delete
-            (process.env.REACT_APP_DEBUG === "true" ? `http://localhost:5000/api/comment-delete/${res}` : `/api/comment-delete/${res}`,
-              {
-                data: {
-                  pw: deletePw,
-                }
+
+          const response = await axios.delete(`/api/comment-delete/${res}`,
+            {
+              data: {
+                pw: deletePw,
               }
-            );
+            }
+          );
           if (response.data.success) {
             setMainComments(response.data.comments);
           }
@@ -518,7 +534,7 @@ function App() {
                   </Col>
                   {/* 수정 버튼 클릭 전 */}
                   {/* 수정 버튼 클릭 후 */}
-                  <Form id={`form-${comment.id}`} as={Col} lg={6} md={6} sm={5} xs={5} ref={(element) => formBox.current[`${comment.id}`] = element} style={{ display: "none", }}>
+                  <Form id={`form-${comment.id}`} as={Col} lg={6} md={4} sm={4} xs={3} ref={(element) => formBox.current[`${comment.id}`] = element} style={{ display: "none", }}>
                     <Form.Control
                       size="sm"
                       maxLength={contentMaxLength}
@@ -527,16 +543,18 @@ function App() {
                       required
                     />
                   </Form>
-                  <Col lg={2} md={2} sm={2} xs={2} ref={(element) => pwBox.current[`${comment.id}`] = element} style={{ display: "none", }}>
+                  <Form as={Col} lg={2} md={2} sm={2} xs={1} ref={(element) => pwBox.current[`${comment.id}`] = element} style={{ display: "none", }}>
                     <Form.Control
+                      id={`pw-${comment.id}`}
                       size="sm"
+                      type="password"
                       placeholder="암호"
                       maxLength={pwMaxLength}
                       onChange={contentUpdatePwHandler}
-                      value={updatePw}
+                      value={`pw-${comment.id}` === updatePwTarget ? updatePw : ""} // 아무런 동작도 하지 않음
                       required
                     />
-                  </Col>
+                  </Form>
                   {/* 수정 버튼 클릭 후 */}
 
                   {/* 댓글 내용 끝 */}

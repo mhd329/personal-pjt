@@ -4,15 +4,15 @@ import { Server } from "socket.io";
 import env from "dotenv";
 env.config();
 
+await redisClient.connect(); // 레디스 연결하기
+
 redisClient.on("connect", () => { // 레디스 연결시 이벤트 처리
   console.log("Redis connected");
 });
 
 redisClient.on("error", (error) => { // 레디스 오류시 처리
-  console.error("Redis Error:", error);
+  console.error("Redis Error:\n", error);
 });
-
-await redisClient.connect(); // 레디스 연결하기
 
 const httpServer = createServer(); // 웹소켓 서버 설정
 const server = new Server(httpServer, {
