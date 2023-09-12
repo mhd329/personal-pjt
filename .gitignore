@@ -1,22 +1,17 @@
-# Created by https://www.toptal.com/developers/gitignore/api/django,python,windows,venv,dotenv
-# Edit at https://www.toptal.com/developers/gitignore?templates=django,python,windows,venv,dotenv
+# Created by https://www.toptal.com/developers/gitignore/api/flask,windows,python,dotenv
+# Edit at https://www.toptal.com/developers/gitignore?templates=flask,windows,python,dotenv
 
-### Django ###
-*.log
-*.pot
-*.pyc
-__pycache__/
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-media
+### dotenv ###
+.env
 
-# If your build process includes running collectstatic, then you probably don't need or want to include staticfiles/
-# in your Git repository. Update and uncomment the following line accordingly.
-# <django-project-name>/staticfiles/
+### Flask ###
+instance/*
+!instance/.gitignore
+.webassets-cache
 
-### Django.Python Stack ###
+### Flask.Python Stack ###
 # Byte-compiled / optimized / DLL files
+__pycache__/
 *.py[cod]
 *$py.class
 
@@ -70,12 +65,16 @@ cover/
 
 # Translations
 *.mo
+*.pot
 
 # Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
 
 # Flask stuff:
 instance/
-.webassets-cache
 
 # Scrapy stuff:
 .scrapy
@@ -132,7 +131,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
 .venv
 env/
 venv/
@@ -170,8 +168,6 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
-
-### dotenv ###
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
@@ -265,18 +261,6 @@ poetry.toml
 # LSP config files
 pyrightconfig.json
 
-### venv ###
-# Virtualenv
-# http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
-[Bb]in
-[Ii]nclude
-[Ll]ib
-[Ll]ib64
-[Ll]ocal
-[Ss]cripts
-pyvenv.cfg
-pip-selfcheck.json
-
 ### Windows ###
 # Windows thumbnail cache files
 Thumbs.db
@@ -303,10 +287,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/django,python,windows,venv,dotenv
-
-# ssl 인증서
-*.crt
-*.csr
-*.key
-*.ext
+# End of https://www.toptal.com/developers/gitignore/api/flask,windows,python,dotenv
