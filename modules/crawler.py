@@ -36,9 +36,9 @@ class CompuzoneCrawler:
     Author: HyeonDong Moon
     """
 
-    def __init__(self, page_no: int = None):
+    def __init__(self, page_no: int = 1):
         try:
-            if page_no and is_valid(page_no):
+            if is_valid(page_no):
                 self._page_no = page_no
                 self._results = []
         except TypeError as error:
@@ -46,25 +46,28 @@ class CompuzoneCrawler:
         except ValueError as error:
             raise ValueError(str(error))
 
-    # product_list_ul > li:nth-child(1) > div.prdbx > div.prd_info > div.prd_subTxt > a
+    # Basic exploring
+    # Explore to the first page only.
+    # 간단히 첫 페이지만 탐색한다.
+    def _explore_simple(self):
+        self._results.append(self._get_response(self._page_no))
 
-    # Method to get exploration results
-    # 결과를 받아오는 메서드
-    def get_results(self):
-        if self._page_no:
-            self._explore_wide_range(self._page_no)
-        else:
-            self._explore_one_page()
-        return self._results
+    # Wide exploring
+    # Explore a wide range to that page.
+    # 해당 번호까지의 전체 범위를 탐색한다.
+    def _explore_wide_range(self, page_no):
+        for i in range(1, page_no + 1):
+            self._results.append(self._get_response(i))
 
     # Basic request method
     # 기본 요청 메서드
-    def _get_response(self, page_no=1):
+    def _get_response(self, page_no):
         url = f"https://www.compuzone.co.kr/product/productB_new_list.htm?actype=getPaging&SelectProductNo=&orderlayerx=&orderlayery=&BigDivNo=1&PageCount=20&StartNum={(page_no - 1) * 20}&PageNum={page_no}&PreOrder=recommand&lvm=L&ps_po=P&DetailBack=&CompareProductNoList=&CompareProductDivNo=&IsProductGroupView=&ScrollPage=3&ProductType=biglist&setPricechk=&SchMinPrice=&SchMaxPrice=&sel_mediumdiv=%C1%DF%BA%D0%B7%F9&sel_div=%BC%D2%BA%D0%B7%F9&select_page_cnt=60"
         response = requests.get(url)
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, "html.parser")
             result = soup  # 분류 작업 해야함
+            # product_list_ul > li:nth-child(1) > div.prdbx > div.prd_info > div.prd_subTxt > a
             self._result = result
         else:
             self._result = {
@@ -75,15 +78,11 @@ class CompuzoneCrawler:
             }
         return self._result
 
-    # Basic exploring
-    # Explore to the first page only.
-    # 첫 페이지만 탐색한다.
-    def _explore_one_page(self):
-        self._results.append(self._get_response())
-
-    # Wide exploring
-    # Explore a wide range to that page.
-    # 해당 번호까지의 전체 범위를 탐색한다.
-    def _explore_wide_range(self, page_no):
-        for i in range(1, page_no + 1):
-            self._results.append(self._get_response(i))
+    # Method to get exploration results
+    # 결과를 받아오는 메서드
+    def get_results(self):
+        if self._page_no:
+            self._explore_wide_range(self._page_no)
+        else:
+            self._explore_simple()
+        return self._results

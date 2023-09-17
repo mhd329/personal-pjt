@@ -7,17 +7,14 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Pricezone</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
   </head>
   <body>
     <div class="container">
       <div>
-        컴퓨존의 컴퓨터 가격 검색 서비스 입니다.
+        컴퓨존에서 판매중인 컴퓨터의 가격 검색 서비스 입니다.
       </div>
       <div>
-        <button type="button" class="btn btn-primary">바로 탐색하기</button>
+        <button id="simpleExploringButton" type="button" class="btn btn-primary">바로 탐색하기</button>
       </div>
       <div>
         <p class="d-inline-flex gap-1">
@@ -25,11 +22,12 @@
             탐색 범위 설정
           </button>
         </p>
-        <form class="" action="">
+        <form id="exploringForm" class="" action="">
           <div class="collapse" id="setExploringCollapse">
             <div class="card card-body">
-              <label for="exploringRange" class="form-label">탐색 범위 설정</label>
-              <input type="range" class="form-range" min="1" max="200" step="1" id="exploringRange">
+              <label for="exploringRangeBar" class="form-label">탐색 범위 설정</label>
+              <input type="range" class="form-range" min="1" max="200" step="1" value="1" id="exploringRangeBar">
+              <p id="expRangeIndicator"></p>
               <div>
                 <button type="submit" class="btn btn-primary mb-3">탐색 시작</button>
               </div>
@@ -38,5 +36,13 @@
         </form>
       </div>
     </div>
+    <div id="exploringResults">
+      <p id="" class="exploring-results">탐색 결과</p>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- 탐색 범위 설정값 변동 표시 스크립트 -->
+    <script src="../static/js/exploringRangeIndicator.js"></script>
+    <script src="../static/js/exploring.js.js"></script>
   </body>
 </html>
