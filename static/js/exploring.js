@@ -2,11 +2,12 @@
 const simpleExploringButton = document.querySelector("#simpleExploringButton");
 simpleExploringButton.addEventListener("click", (event) => {
   event.preventDefault();
-  axios({
+  fetch(`/basic-explore/`, {
     method: "GET",
-    url: `/basic-explore/`
-  }).then({
-
+  }).then((result) => {
+    console.log(result);
+  }).catch((error) => {
+    console.log(error);
   });
 });
 
@@ -15,10 +16,11 @@ const expForm = document.querySelector("#exploringForm");
 expForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const expRange = Number(expRangeIndicator.innerText);
-  axios({
+  fetch(`/wide-explore/${expRange}/`, {
     method: "GET",
-    url: `/wide-explore/${expRange}/`,
-  }).then({
-
-  })
+  }).then((result) => {
+    console.log(result);
+  }).catch((error) => {
+    console.log(error);
+  });
 });
