@@ -1,4 +1,5 @@
 import os
+import json
 from dotenv import load_dotenv
 from modules.crawler import CompuzoneCrawler
 from flask import Flask, render_template, Response, jsonify
@@ -18,16 +19,7 @@ def index():
 def simple_explore():
     crawler = CompuzoneCrawler()
     # 크롤링 결과를 직렬화
-    result = jsonify(crawler.get_results())
-    data = {
-        "message": "success",
-        "result": result,
-    }
-    return Response(
-        data,
-        status=200,
-        content_type="application/json",
-    )
+    return crawler.get_results()
 
 
 # 전체 검색 (1페이지 ~ 10페이지)
