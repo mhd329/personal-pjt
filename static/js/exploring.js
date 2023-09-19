@@ -4,8 +4,9 @@ simpleExploringButton.addEventListener("click", (event) => {
   event.preventDefault();
   fetch(`/basic-explore/`, {
     method: "GET",
-  }).then((result) => {
-    console.log(result);
+  }).then((response) => {
+    console.log(response.body);
+    console.log(response.text());
   }).catch((error) => {
     console.log(error);
   });
