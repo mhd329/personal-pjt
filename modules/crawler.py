@@ -1,4 +1,3 @@
-from bs4 import BeautifulSoup
 from selenium import webdriver
 from modules.validation import is_valid
 from selenium.webdriver.common.by import By
@@ -44,26 +43,19 @@ def find_subtext_in_page(driver, target_page_no):
 
 class CompuzoneCrawler:
     """
-    Basic usage:
-    기본 사용법:
+    컴퓨존 크롤러 클래스.
     --------------------------------------------------------------------------------
 
-    1. When you initialize this class, you can assign any number like this.
-    클래스를 초기화할 때 아래와 같이 번호를 지정할 수 있습니다.
+    기본 사용법:
 
+    1. 클래스를 초기화할 때 아래와 같이 번호를 지정할 수 있습니다.
     => crawler = CompuzoneCrawler(10)
 
-    2. This means exploring from the first page to the page with that number(10).
-    이렇게 하면 첫 페이지에서 해당 페이지 까지를 탐색합니다.
-
-    3. If you do not specify a number, by default, class will only be explored one page.
-    만약 숫자를 지정하지 않으면, 기본적으로 맨 처음 페이지만 탐색합니다.
-
+    2. 이렇게 하면 첫 페이지에서 해당 페이지 까지를 탐색합니다.
+    3. 만약 숫자를 지정하지 않으면, 기본적으로 맨 처음 페이지만 탐색합니다.
     => crawler = CompuzoneCrawler()
 
-    4. You can get the results like this.
-    결과는 이렇게 가져올 수 있습니다.
-
+    4. 결과는 이렇게 가져올 수 있습니다.
     => print(crawler.get_results())
 
     * 결과 받기(get_results) => 먼저 서브텍스트를 찾아야 함(find_subtext_in_page)

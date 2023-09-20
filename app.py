@@ -1,5 +1,4 @@
 import os
-import json
 from dotenv import load_dotenv
 from modules.crawler import CompuzoneCrawler
 from flask import Flask, render_template, Response, jsonify
