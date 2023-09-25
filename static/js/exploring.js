@@ -5,8 +5,7 @@ simpleExploringButton.addEventListener("click", (event) => {
   fetch(`/basic-explore/`, {
     method: "GET",
   }).then((response) => {
-    console.log(response.body);
-    console.log(response.text());
+    console.log(response.json());
   }).catch((error) => {
     console.log(error);
   });
@@ -19,8 +18,8 @@ expForm.addEventListener("submit", (event) => {
   const expRange = Number(expRangeIndicator.innerText);
   fetch(`/wide-explore/${expRange}/`, {
     method: "GET",
-  }).then((result) => {
-    console.log(result);
+  }).then((response) => {
+    console.log(response.json());
   }).catch((error) => {
     console.log(error);
   });
