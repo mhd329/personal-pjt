@@ -18,7 +18,9 @@ def index():
 def simple_explore():
     crawler = CompuzoneCrawler()
     # 크롤링 결과를 직렬화
-    return crawler.get_results()
+    result = jsonify(crawler.get_results())
+
+    return result
 
 
 # 전체 검색 (1페이지 ~ 10페이지)

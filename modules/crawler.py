@@ -1,3 +1,4 @@
+import time
 from selenium import webdriver
 from modules.validation import is_valid
 from selenium.webdriver.common.by import By
@@ -5,6 +6,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 
 
 # 동적 요소 포함한 페이지 완성시키기
@@ -13,31 +15,50 @@ def make_dynamic_element_in_static_page(driver, static_page_no):
     driver.get(url)
 
 
+def analyze_subtext(parts: list[str]):
+    main_board_pattern = ["인텔", "intel", "amd"]
+    cpu_pattern = ["i3", "i5", "i7", "i9", "라이젠", "ryzen", "인텔", "intel"]
+    vga_pattern = ["지포스", "geforce", "라데온", "radeon", "내장"]
+    ram_pattern = ["ram", "ddr"]
+    storage_pattern = ["ssd", "hdd"]
+    power_supply_pattern = ["정격"]
+
+
 # 서브텍스트 찾기
 def find_subtext_in_page(driver, target_page_no):
+    start_time = time.time()
+    print("시작")
     subtext_list = []
+    won_elements = None
     subtext_elements = None
     make_dynamic_element_in_static_page(driver, target_page_no)
     # 위의 함수가 성공적으로 실행 => 현재 대상 페이지가 켜져있는 상태임
     try:
         # product_list_ul의 길이가 달라질 때까지 스크롤 내리기
         i = 0
-        # page down 횟수는 최대 10회
+        # page down 횟수는 최대 10회로 설정
         while i < 10:
             # 동적 요소가 렌더링된 대상 페이지에서 product_list_ul을 찾는다.
             product_list = driver.find_element(By.ID, "product_list_ul")
             # 해당 리스트 하위의 서브텍스트가 몇 개인지 모두 찾는다.
             subtext_elements = product_list.find_elements(By.CLASS_NAME, "prd_subTxt")
-            # 컴퓨존은 한 페이지당 스무개의 상품이 있음
+            # 해당하는 가격들도 모두 찾는다.
+            won_elements = product_list.find_elements(By.CLASS_NAME, "prc_guide_ly")
+            # 컴퓨존은 한 페이지당 기본적으로 스무개의 상품과 그에 대한 subTxt가 있음
+            # 스무개가 다 나올때까지 page down
             if len(subtext_elements) == 20:
                 break
             driver.find_element(By.TAG_NAME, "body").send_keys(Keys.PAGE_DOWN)
             i += 1
     finally:
         if subtext_elements:
-            for ele in subtext_elements:
-                subtext_list.append(ele.text)
+            subtxt_len = len(subtext_elements)
+            for i in range(subtxt_len):
+                # parts = subtext_elements[i].text.split("/")
+                subtext_list.append((subtext_elements[i].text, won_elements[i].text))
         driver.quit()
+        end_time = time.time()
+        print(f"결과: {end_time - start_time}")
     return subtext_list
 
 
