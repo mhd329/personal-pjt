@@ -3,6 +3,7 @@ from selenium import webdriver
 from modules.validation import is_valid
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from concurrent.futures import ThreadPoolExecutor
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
@@ -15,6 +16,17 @@ def make_dynamic_element_in_static_page(driver, static_page_no):
 
 
 class ProductModel:
+    """
+    제품 모델 클래스.
+    => spec 객체를 만들기 위한 모델입니다.
+    => setter는 두 개의 원소가 들어가는 tuple(또는 list) 형태의 값을 받습니다.
+    => 0번째 원소가 key, 1번째 원소가 value로 설정됩니다.
+
+    Date: 2023. 09. 26
+    Class: Analyzing Class
+    Author: HyeonDong Moon
+    """
+
     def __init__(self):
         # 중복되는 정보를 append를 통해 최대한 넣기 위해 value를 리스트 형식으로 지정했다.
         self.__spec = {
@@ -24,7 +36,7 @@ class ProductModel:
             "ram": [],
             "storage": [],
             "powersupply": [],
-            "price": "",
+            "price": 0,
             "link": "",
         }
 
@@ -34,15 +46,29 @@ class ProductModel:
 
     @spec.setter
     def spec(self, value):
-        self.__spec[value[0]] = value[1]
+        if value[0] == "link" or value[0] == "price":
+            self.__spec[value[0]] = value[1]
+        else:
+            self.__spec[value[0]].append(value[1])
 
 
 class SubtextAnalyzing:
+    """
+    서브텍스트 분석 클래스.
+    => 셀레니움 원소 형태의 subtext를 분해해서 부품 정보를 찾고,
+    그것으로 spec 객체를 만드는 클래스입니다.
+
+    Date: 2023. 09. 26
+    Class: Analyzing Class
+    Author: HyeonDong Moon
+    """
+
     def __init__(self, subtext_element):
         self.__subtext_element = subtext_element
 
     # 분해된 텍스트로부터 부품정보 추출
-    def __analyze_text(self, subtext: str):
+    @staticmethod
+    def analyze_text(subtext: str):
         maping_list = {
             0: "mainboard",
             1: "cpu",
@@ -107,7 +133,7 @@ class SubtextAnalyzing:
     def __analyze_subtext(self):
         prd_model = ProductModel()
         for text in self.__split_subtext():
-            result = self.__analyze_text(text)
+            result = self.analyze_text(text)
             # result는 튜플이다.
             # 0번째 원소는 문자열로 된 키(부품 종류)
             # 1번째 원소는 문자열로 된 값(부품 이름)
@@ -118,55 +144,6 @@ class SubtextAnalyzing:
 
     def run(self):
         return self.__analyze_subtext()
-
-
-# 서브텍스트를 찾고 그것으로 spec객체 만들기
-def find_subtext_in_page(driver, target_page_no):
-    start_time = time.time()
-    prd_list = []
-    subtext_elements = None
-    make_dynamic_element_in_static_page(driver, target_page_no)
-    # 위의 함수가 성공적으로 실행 => 현재 대상 페이지가 켜져있는 상태임
-    try:
-        # 동적 요소가 렌더링된 대상 페이지에서 product_list_ul을 찾는다.
-        product_list = driver.find_element(By.ID, "product_list_ul")
-        # product_list_ul의 길이가 달라질 때까지 스크롤 내리기
-        i = 0
-        # page down 횟수는 최대 10회로 설정
-        while i < 10:
-            # 해당 리스트 하위의 서브텍스트가 몇 개인지 모두 찾는다.
-            subtext_elements = product_list.find_elements(By.CLASS_NAME, "prd_subTxt")
-            # 컴퓨존은 한 페이지당 기본적으로 스무개의 상품과 그에 대한 subTxt가 있음
-            # 스무개가 다 나올때까지 page down
-            if len(subtext_elements) == 20:
-                break
-            driver.find_element(By.TAG_NAME, "body").send_keys(Keys.PAGE_DOWN)
-            i += 1
-        # 반복문이 종료되면 찾아진 subtext들에 대해 부품정보 추출 실행
-        if subtext_elements:
-            # 해당하는 가격들도 모두 찾는다.
-            price_elements = product_list.find_elements(By.CLASS_NAME, "prc_guide_ly")
-            subtext_len = len(subtext_elements)
-            # 반복하며 분석한다.
-            for i in range(subtext_len):
-                # 제품의 링크
-                prd_a_tag = subtext_elements[i].find_element(By.TAG_NAME, "a")
-                prd_link = prd_a_tag.get_attribute("href")
-                # 제품의 가격 정수화
-                price_element = price_elements[i]
-                prd_price = int(price_element.text.replace(",", "").replace("원", ""))
-                # 분석된 객체 생성
-                analyzing = SubtextAnalyzing(subtext_elements[i])
-                analyzing_result = analyzing.run()
-                analyzing_result.spec = "link", prd_link
-                analyzing_result.spec = "price", prd_price
-                prd_list.append(analyzing_result)
-    finally:
-        driver.quit()
-        # 시간 측정용
-        end_time = time.time()
-        print(f"결과: {end_time - start_time}")
-    return prd_list
 
 
 class CompuzoneCrawler:
@@ -202,14 +179,15 @@ class CompuzoneCrawler:
             if is_valid(page_no):
                 self.__page_no = page_no
                 self.__results = {}
-                self.__make_driver()
+                self._driver = self.__make_driver()
         except TypeError as error:
             raise TypeError(str(error))
         except ValueError as error:
             raise ValueError(str(error))
 
     # 드라이버 만들기
-    def __make_driver(self):
+    @staticmethod
+    def __make_driver():
         options = Options()
         options.add_argument("--headless")
         options.add_argument("--disable-gpu")
@@ -217,14 +195,90 @@ class CompuzoneCrawler:
             "user-agent=Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
         )
         driver = webdriver.Chrome(
-            service=Service(ChromeDriverManager().install()),
+            # service=Service(executable_path=ChromeDriverManager().install()),
+            # (아래와 같이)경로를 명시적으로 설정해주지 않으면 실행시 각종 에러가 난다.
+            service=Service(executable_path="C:/Users/mhd32/.wdm/drivers/chromedriver/win64/117.0.5938.89/chromedriver-win32/chromedriver.exe"),
             options=options,
         )
-        self._driver = driver
+        return driver
+
+    # 서브텍스트를 찾고 그것으로 spec객체 만들기
+    def __find_subtext_in_page(self, target_page_no):
+        start_time = time.time()
+        prd_list = []
+        subtext_elements = None
+        make_dynamic_element_in_static_page(self._driver, target_page_no)
+        # 위의 함수가 성공적으로 실행 => 현재 대상 페이지가 켜져있는 상태임
+        try:
+            # 동적 요소가 렌더링된 대상 페이지에서 product_list_ul을 찾는다.
+            product_list = self._driver.find_element(By.ID, "product_list_ul")
+            # product_list_ul의 길이가 달라질 때까지 스크롤 내리기
+            i = 0
+            # page down 횟수는 최대 10회로 설정
+            while i < 10:
+                # 해당 리스트 하위의 서브텍스트가 몇 개인지 모두 찾는다.
+                subtext_elements = product_list.find_elements(
+                    By.CLASS_NAME, "prd_subTxt"
+                )
+                # 컴퓨존은 한 페이지당 기본적으로 스무개의 상품과 그에 대한 subTxt가 있음
+                # 스무개가 다 나올때까지 page down
+                if len(subtext_elements) == 20:
+                    break
+                self._driver.find_element(By.TAG_NAME, "body").send_keys(Keys.PAGE_DOWN)
+                i += 1
+            # 반복문이 종료되면 찾아진 subtext들에 대해 부품정보 추출 실행
+            if subtext_elements:
+                # 해당하는 가격들도 모두 찾는다.
+                price_elements = product_list.find_elements(
+                    By.CLASS_NAME, "prc_guide_ly"
+                )
+                subtext_len = len(subtext_elements)
+                # 반복하며 분석한다.
+                for i in range(subtext_len):
+                    # 제품의 링크
+                    prd_a_tag = subtext_elements[i].find_element(By.TAG_NAME, "a")
+                    prd_link = prd_a_tag.get_attribute("href")
+                    # 제품의 가격 정수화
+                    price_element = price_elements[i]
+                    prd_price = int(
+                        price_element.text.replace(",", "").replace("원", "")
+                    )
+                    # 분석된 객체 생성
+                    analyzing = SubtextAnalyzing(subtext_elements[i])
+                    analyzing_result = analyzing.run()
+                    analyzing_result.spec = "link", prd_link
+                    analyzing_result.spec = "price", prd_price
+                    prd_list.append(analyzing_result.spec)
+        # 모든 예외 발생시 드라이버를 종료해줘야 한다.
+        except:
+            self._driver.quit()
+        finally:
+            # 시간 측정용
+            end_time = time.time()
+            # 5초 내외로 나옴
+            print(f"소요 시간: {end_time - start_time}")
+        # 페이지 번호와 그에 해당하는 제품 리스트를 반환
+        return target_page_no, prd_list
 
     # 결과를 받아오는 메서드
     def get_results(self):
+        # 결과를 받기 전 반드시 종료해주어야 한다.
+        self._driver.quit()
+        return self.__results
+
+    def crawl_with_for(self):
         # 해당 번호까지의 전체 범위를 탐색한다.
         for i in range(1, self.__page_no + 1):
-            self.__results[i] = find_subtext_in_page(self._driver, i)
-        return self.__results
+            self.__results[i] = self.__find_subtext_in_page(i)
+
+    def crawl_with_multithreading(self):
+        with ThreadPoolExecutor(max_workers=12) as excutor:
+            results = excutor.map(
+                self.__find_subtext_in_page, [*range(1, self.__page_no + 1)]
+            )
+        for page_no, prd_list in [*results]:
+            self.__results[page_no] = prd_list
+
+    def crawl_with_multiprocessing(self):
+        result = self.__find_subtext_in_page(self.__page_no)
+        self.__results[result[0]] = result[1]
