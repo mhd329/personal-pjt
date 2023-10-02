@@ -11,8 +11,18 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 # 동적 요소 포함한 페이지 완성시키기
 def make_dynamic_element_in_static_page(driver, static_page_no):
-    url = f"https://www.compuzone.co.kr/product/productB_new_list.htm?actype=getPaging&SelectProductNo=&orderlayerx=&orderlayery=&BigDivNo=1&PageCount=20&StartNum={(static_page_no - 1) * 20}&PageNum={static_page_no}&PreOrder=recommand&lvm=L&ps_po=P&DetailBack=&CompareProductNoList=&CompareProductDivNo=&IsProductGroupView=&ScrollPage=3&ProductType=biglist&setPricechk=&SchMinPrice=&SchMaxPrice=&sel_mediumdiv=%C1%DF%BA%D0%B7%F9&sel_div=%BC%D2%BA%D0%B7%F9&select_page_cnt=60"
-    driver.get(url)
+    base_url = "https://www.compuzone.co.kr/product/"
+    qs1 = "productB_new_list.htm?actype=getPaging"
+    qs2 = "&SelectProductNo=&orderlayerx=&orderlayery=&BigDivNo=1"
+    page_count = "&PageCount=20"
+    start_num = f"&StartNum={(static_page_no - 1) * 20}"
+    page_num = f"&PageNum={static_page_no}"
+    qs3 = "&PreOrder=recommand&lvm=L&ps_po=P&DetailBack=&CompareProductNoList="
+    qs4 = "&CompareProductDivNo=&IsProductGroupView=&ScrollPage=3&ProductType=biglist&setPricechk=&SchMinPrice="
+    qs5 = "&SchMaxPrice=&sel_mediumdiv=%C1%DF%BA%D0%B7%F9&sel_div=%BC%D2%BA%D0%B7%F9&select_page_cnt=60"
+    full_url = base_url + qs1 + qs2 + page_count + start_num + page_num + qs3 + qs4 + qs5
+    # 드라이버 실행
+    driver.get(full_url)
 
 
 class ProductModel:
@@ -23,7 +33,7 @@ class ProductModel:
     => 0번째 원소가 key, 1번째 원소가 value로 설정됩니다.
 
     Date: 2023. 09. 26
-    Class: Analyzing Class
+    Class: Product Model Class
     Author: HyeonDong Moon
     """
 
@@ -59,7 +69,7 @@ class SubtextAnalyzing:
     그것으로 spec 객체를 만드는 클래스입니다.
 
     Date: 2023. 09. 26
-    Class: Analyzing Class
+    Class: Subtext Analyzing Class
     Author: HyeonDong Moon
     """
 
@@ -157,6 +167,7 @@ class CompuzoneCrawler:
     => crawler = CompuzoneCrawler(10)
 
     2. 이렇게 하면 첫 페이지에서 해당 페이지 까지를 탐색합니다.
+    (__find_subtext_in_page 메서드가 여러번 실행되면서 탐색합니다.)
     3. 만약 숫자를 지정하지 않으면, 기본적으로 맨 처음 페이지만 탐색합니다.
     => crawler = CompuzoneCrawler()
 
@@ -266,18 +277,18 @@ class CompuzoneCrawler:
         self._driver.quit()
         return self.__results
 
-    def crawl_with_for(self):
-        # 해당 번호까지의 전체 범위를 탐색한다.
-        for i in range(1, self.__page_no + 1):
-            self.__results[i] = self.__find_subtext_in_page(i)
+    # def crawl_with_for(self):
+    #     # 해당 번호까지의 전체 범위를 탐색한다.
+    #     for i in range(1, self.__page_no + 1):
+    #         self.__results[i] = self.__find_subtext_in_page(i)
 
-    def crawl_with_multithreading(self):
-        with ThreadPoolExecutor(max_workers=12) as excutor:
-            results = excutor.map(
-                self.__find_subtext_in_page, [*range(1, self.__page_no + 1)]
-            )
-        for page_no, prd_list in [*results]:
-            self.__results[page_no] = prd_list
+    # def crawl_with_multithreading(self):
+    #     with ThreadPoolExecutor(max_workers=12) as excutor:
+    #         results = excutor.map(
+    #             self.__find_subtext_in_page, [*range(1, self.__page_no + 1)]
+    #         )
+    #     for page_no, prd_list in [*results]:
+    #         self.__results[page_no] = prd_list
 
     def crawl_with_multiprocessing(self):
         result = self.__find_subtext_in_page(self.__page_no)

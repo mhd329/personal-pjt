@@ -8,7 +8,7 @@ from flask import Flask, render_template, Response, jsonify
 
 
 load_dotenv()
-app = Flask(__name__)
+app = Flask(__name__, static_url_path="../static")
 
 
 # 크롤러를 멀티프로세싱 하기 위해 필요한 함수
