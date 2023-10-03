@@ -1,14 +1,20 @@
 import os
 import time
-import pickle
 from dotenv import load_dotenv
+from flask_caching import Cache
 from modules.crawler import CompuzoneCrawler
 from concurrent.futures import ProcessPoolExecutor
 from flask import Flask, render_template, Response, jsonify
 
 
+# 스케줄된 작업을 처리하는 별도의 서버를 구성할지, 본 서버에서 멀티프로세싱을 할지 고민
+# 선택에 따라 redis 캐시스토어를 어떻게 구성할지가 달라진다.
+
+
 load_dotenv()
-app = Flask(__name__, static_url_path="../static")
+app = Flask(__name__, static_url_path="/static/")
+# django secret key generator 사용함
+app.secret_key = os.getenv("SECRET_KEY")
 
 
 # 크롤러를 멀티프로세싱 하기 위해 필요한 함수

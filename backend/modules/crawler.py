@@ -1,12 +1,10 @@
 import time
 from selenium import webdriver
-from modules.validation import is_valid
+from .validation import is_valid
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from concurrent.futures import ThreadPoolExecutor
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
 
 
 # 동적 요소 포함한 페이지 완성시키기
