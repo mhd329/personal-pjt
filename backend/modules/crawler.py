@@ -5,6 +5,38 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+
+
+# 아래 코드는 드라이버를 설치하고 경로를 반환해준다.
+def install_driver():
+    try:
+        return ChromeDriverManager().install()
+    except Exception:
+        raise Exception("드라이버를 설치할 수 없습니다.")
+
+
+# 드라이버 만들기
+def make_driver():
+    options = Options()
+    options.add_argument("--headless")
+    options.add_argument("--disable-gpu")
+    options.add_argument(
+        "user-agent=Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
+    )
+    try:
+        driver_path = install_driver()
+    except Exception as error:
+        # 인스톨 과정에서 오류가 생긴 경우 포함
+        raise Exception(error)
+    finally:
+        driver = webdriver.Chrome(
+            # service=Service(executable_path=ChromeDriverManager().install()),
+            # (아래와 같이)경로를 명시적으로 설정해주지 않으면 실행시 각종 에러가 난다.
+            service=Service(executable_path="C:/Users/mhd32/.wdm/drivers/chromedriver/win64/117.0.5938.89/chromedriver-win32/chromedriver.exe"),
+            options=options,
+        )
+    return driver
 
 
 # 동적 요소 포함한 페이지 완성시키기
@@ -188,39 +220,22 @@ class CompuzoneCrawler:
             if is_valid(page_no):
                 self.__page_no = page_no
                 self.__results = {}
-                self._driver = self.__make_driver()
+                self.driver = make_driver()
         except TypeError as error:
             raise TypeError(str(error))
         except ValueError as error:
             raise ValueError(str(error))
-
-    # 드라이버 만들기
-    @staticmethod
-    def __make_driver():
-        options = Options()
-        options.add_argument("--headless")
-        options.add_argument("--disable-gpu")
-        options.add_argument(
-            "user-agent=Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
-        )
-        driver = webdriver.Chrome(
-            # service=Service(executable_path=ChromeDriverManager().install()),
-            # (아래와 같이)경로를 명시적으로 설정해주지 않으면 실행시 각종 에러가 난다.
-            service=Service(executable_path="C:/Users/mhd32/.wdm/drivers/chromedriver/win64/117.0.5938.89/chromedriver-win32/chromedriver.exe"),
-            options=options,
-        )
-        return driver
 
     # 서브텍스트를 찾고 그것으로 spec객체 만들기
     def __find_subtext_in_page(self, target_page_no):
         start_time = time.time()
         prd_list = []
         subtext_elements = None
-        make_dynamic_element_in_static_page(self._driver, target_page_no)
+        make_dynamic_element_in_static_page(self.driver, target_page_no)
         # 위의 함수가 성공적으로 실행 => 현재 대상 페이지가 켜져있는 상태임
         try:
             # 동적 요소가 렌더링된 대상 페이지에서 product_list_ul을 찾는다.
-            product_list = self._driver.find_element(By.ID, "product_list_ul")
+            product_list = self.driver.find_element(By.ID, "product_list_ul")
             # product_list_ul의 길이가 달라질 때까지 스크롤 내리기
             i = 0
             # page down 횟수는 최대 10회로 설정
@@ -233,7 +248,7 @@ class CompuzoneCrawler:
                 # 스무개가 다 나올때까지 page down
                 if len(subtext_elements) == 20:
                     break
-                self._driver.find_element(By.TAG_NAME, "body").send_keys(Keys.PAGE_DOWN)
+                self.driver.find_element(By.TAG_NAME, "body").send_keys(Keys.PAGE_DOWN)
                 i += 1
             # 반복문이 종료되면 찾아진 subtext들에 대해 부품정보 추출 실행
             if subtext_elements:
@@ -260,7 +275,7 @@ class CompuzoneCrawler:
                     prd_list.append(analyzing_result.spec)
         # 모든 예외 발생시 드라이버를 종료해줘야 한다.
         except:
-            self._driver.quit()
+            self.driver.quit()
         finally:
             # 시간 측정용
             end_time = time.time()
@@ -272,7 +287,7 @@ class CompuzoneCrawler:
     # 결과를 받아오는 메서드
     def get_results(self):
         # 결과를 받기 전 반드시 종료해주어야 한다.
-        self._driver.quit()
+        self.driver.quit()
         return self.__results
 
     # def crawl_with_for(self):
