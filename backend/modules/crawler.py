@@ -5,15 +5,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
-
-
-# 아래 코드는 드라이버를 설치하고 경로를 반환해준다.
-def install_driver():
-    try:
-        return ChromeDriverManager().install()
-    except Exception:
-        raise Exception("드라이버를 설치할 수 없습니다.")
+# from webdriver_manager.chrome import ChromeDriverManager
+from .driver import CustomChromeDriverManager
 
 
 # 드라이버 만들기
@@ -24,18 +17,15 @@ def make_driver():
     options.add_argument(
         "user-agent=Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
     )
-    try:
-        driver_path = install_driver()
-    except Exception as error:
-        # 인스톨 과정에서 오류가 생긴 경우 포함
-        raise Exception(error)
-    finally:
-        driver = webdriver.Chrome(
-            # service=Service(executable_path=ChromeDriverManager().install()),
-            # (아래와 같이)경로를 명시적으로 설정해주지 않으면 실행시 각종 에러가 난다.
-            service=Service(executable_path="C:/Users/mhd32/.wdm/drivers/chromedriver/win64/117.0.5938.89/chromedriver-win32/chromedriver.exe"),
-            options=options,
-        )
+    custom_manager = CustomChromeDriverManager()
+    chrome_driver_path = custom_manager.install()
+    driver = webdriver.Chrome(
+        # (아래와 같이)경로를 명시적으로 설정해주지 않으면 실행시 각종 에러가 난다.
+        # service=Service(executable_path="C:/Users/mhd32/.wdm/drivers/chromedriver/win64/117.0.5938.89/chromedriver-win32/chromedriver.exe"),
+        service=Service(chrome_driver_path),
+        # 위와 같이 하니까 아주 잘 되는데 도저히 이류를 모르겠다.
+        options=options,
+    )
     return driver
 
 

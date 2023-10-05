@@ -20,7 +20,6 @@ server.secret_key = os.getenv("SECRET_KEY")
 # 크롤러를 멀티프로세싱 하기 위해 필요한 함수
 # 각 프로세서는 크롤러 객체를 만들고 멀티프로세싱 후 결과를 반환한다.
 def crawl_wide(exp_range):
-    # 완성된 드라이버를 전달해야됨.
     crawler = CompuzoneCrawler(exp_range)
     crawler.crawl_with_multiprocessing()
     res = crawler.get_results()
@@ -61,7 +60,7 @@ def wide_explore(exp_range):
     # results = crawler.get_results()
 
     # 멀티프로세싱
-    with ProcessPoolExecutor(max_workers=20) as excutor:
+    with ProcessPoolExecutor(max_workers=24) as excutor:
         results = excutor.map(crawl_wide, [*range(1, exp_range + 1)])
 
     # 크롤링 결과를 직렬화
