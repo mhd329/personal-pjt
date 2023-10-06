@@ -17,13 +17,18 @@ def make_driver():
     options.add_argument(
         "user-agent=Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
     )
-    custom_manager = CustomChromeDriverManager()
-    chrome_driver_path = custom_manager.install()
+    # custom_manager = CustomChromeDriverManager()
+    # chrome_driver_path = custom_manager.install()
     driver = webdriver.Chrome(
         # (아래와 같이)경로를 명시적으로 설정해주지 않으면 실행시 각종 에러가 난다.
         # service=Service(executable_path="C:/Users/mhd32/.wdm/drivers/chromedriver/win64/117.0.5938.89/chromedriver-win32/chromedriver.exe"),
-        service=Service(chrome_driver_path),
-        # 위와 같이 하니까 아주 잘 되는데 도저히 이류를 모르겠다.
+        # service=Service(chrome_driver_path),
+        # 위와 같이 하니까 아주 잘 되는데 도저히 이유를 모르겠다...
+        # service=Service(None),
+        # 혹시나 해서 위와 같이 작성하니까 역시 잘 작동하고 있었다.
+        # 심지어 아예 서비스를 빼도 잘 되고 있었다.
+        # 이에 대한 답변:
+        # https://stackoverflow.com/questions/76749878/i-cant-install-chromedrivermanager-with-chromedrivermanager-install
         options=options,
     )
     return driver
