@@ -1,184 +1,25 @@
 import time
-from selenium import webdriver
-from .validation import is_valid
+from backend.modules.driver import Driver
 from selenium.webdriver.common.by import By
+from backend.modules.validation import is_valid
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
-from .driver import CustomChromeDriverManager
-
-
-# 드라이버 만들기
-def make_driver():
-    options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--disable-gpu")
-    options.add_argument(
-        "user-agent=Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
-    )
-    # custom_manager = CustomChromeDriverManager()
-    # chrome_driver_path = custom_manager.install()
-    driver = webdriver.Chrome(
-        # (아래와 같이)경로를 명시적으로 설정해주지 않으면 실행시 각종 에러가 난다.
-        # service=Service(executable_path="C:/Users/mhd32/.wdm/drivers/chromedriver/win64/117.0.5938.89/chromedriver-win32/chromedriver.exe"),
-        # service=Service(chrome_driver_path),
-        # 위와 같이 하니까 아주 잘 되는데 도저히 이유를 모르겠다...
-        # service=Service(None),
-        # 혹시나 해서 위와 같이 작성하니까 역시 잘 작동하고 있었다.
-        # 심지어 아예 서비스를 빼도 잘 되고 있었다.
-        # 이에 대한 답변:
-        # https://stackoverflow.com/questions/76749878/i-cant-install-chromedrivermanager-with-chromedrivermanager-install
-        options=options,
-    )
-    return driver
+from backend.modules.subtext_analyzer import SubtextAnalyzing
 
 
 # 동적 요소 포함한 페이지 완성시키기
 def make_dynamic_element_in_static_page(driver, static_page_no):
     base_url = "https://www.compuzone.co.kr/product/"
-    qs1 = "productB_new_list.htm?actype=getPaging"
-    qs2 = "&SelectProductNo=&orderlayerx=&orderlayery=&BigDivNo=1"
+    uri1 = "productB_new_list.htm?actype=getPaging"
+    uri2 = "&SelectProductNo=&orderlayerx=&orderlayery=&BigDivNo=1"
     page_count = "&PageCount=20"
     start_num = f"&StartNum={(static_page_no - 1) * 20}"
     page_num = f"&PageNum={static_page_no}"
-    qs3 = "&PreOrder=recommand&lvm=L&ps_po=P&DetailBack=&CompareProductNoList="
-    qs4 = "&CompareProductDivNo=&IsProductGroupView=&ScrollPage=3&ProductType=biglist&setPricechk=&SchMinPrice="
-    qs5 = "&SchMaxPrice=&sel_mediumdiv=%C1%DF%BA%D0%B7%F9&sel_div=%BC%D2%BA%D0%B7%F9&select_page_cnt=60"
-    full_url = base_url + qs1 + qs2 + page_count + start_num + page_num + qs3 + qs4 + qs5
+    uri3 = "&PreOrder=recommand&lvm=L&ps_po=P&DetailBack=&CompareProductNoList="
+    uri4 = "&CompareProductDivNo=&IsProductGroupView=&ScrollPage=3&ProductType=biglist&setPricechk=&SchMinPrice="
+    uri5 = "&SchMaxPrice=&sel_mediumdiv=%C1%DF%BA%D0%B7%F9&sel_div=%BC%D2%BA%D0%B7%F9&select_page_cnt=60"
+    full_url = base_url + uri1 + uri2 + page_count + start_num + page_num + uri3 + uri4 + uri5
     # 드라이버 실행
     driver.get(full_url)
-
-
-class ProductModel:
-    """
-    제품 모델 클래스.
-    => spec 객체를 만들기 위한 모델입니다.
-    => setter는 두 개의 원소가 들어가는 tuple(또는 list) 형태의 값을 받습니다.
-    => 0번째 원소가 key, 1번째 원소가 value로 설정됩니다.
-
-    Date: 2023. 09. 26
-    Class: Product Model Class
-    Author: HyeonDong Moon
-    """
-
-    def __init__(self):
-        # 중복되는 정보를 append를 통해 최대한 넣기 위해 value를 리스트 형식으로 지정했다.
-        self.__spec = {
-            "mainboard": [],
-            "cpu": [],
-            "vga": [],
-            "ram": [],
-            "storage": [],
-            "powersupply": [],
-            "price": 0,
-            "link": "",
-        }
-
-    @property
-    def spec(self):
-        return self.__spec
-
-    @spec.setter
-    def spec(self, value):
-        if value[0] == "link" or value[0] == "price":
-            self.__spec[value[0]] = value[1]
-        else:
-            self.__spec[value[0]].append(value[1])
-
-
-class SubtextAnalyzing:
-    """
-    서브텍스트 분석 클래스.
-    => 셀레니움 원소 형태의 subtext를 분해해서 부품 정보를 찾고,
-    그것으로 spec 객체를 만드는 클래스입니다.
-
-    Date: 2023. 09. 26
-    Class: Subtext Analyzing Class
-    Author: HyeonDong Moon
-    """
-
-    def __init__(self, subtext_element):
-        self.__subtext_element = subtext_element
-
-    # 분해된 텍스트로부터 부품정보 추출
-    @staticmethod
-    def analyze_text(subtext: str):
-        maping_list = {
-            0: "mainboard",
-            1: "cpu",
-            2: "vga",
-            3: "ram",
-            4: "storage",
-            5: "powersupply",
-        }
-        # 아래는 확실하게 구분할 수 있는 키워드들
-        checklist = {
-            0: ["amd"],
-            1: [
-                "라이젠",
-                "ryzen",
-                "i3",
-                "i5",
-                "i7",
-                "i9",
-                "애슬론",
-                "athlon",
-                "펜티엄",
-                "pentium",
-                "셀러론",
-                "celeron",
-            ],
-            2: ["지포스", "geforce", "라데온", "radeon", "내장"],
-            3: ["ram", "ddr"],
-            4: ["ssd", "hdd"],
-            5: ["정격"],
-        }
-        # 만약 인텔 관련 키워드가 나오는 경우,
-        # 메인보드와 cpu 둘 다 '인텔'로 쓰는 경향이 있기 때문에 구분해야 한다.
-        if ("인텔" or "intel") in subtext:
-            intel_cpu = ["코어", "세대", "i"]
-            for cpu_word in intel_cpu:
-                # 안에 '코어', '세대', (i3부터 i9사이를 나타내는)'i'가 나온다면 그것은 인텔 cpu로 본다.
-                if cpu_word in subtext:
-                    return maping_list[1], subtext.strip()
-            # 그렇지 않으면 인텔 메인보드로 본다.
-            return maping_list[0], subtext.strip()
-
-        # 나머지는 확실하게 구분할 수 있으므로 for문으로 하나씩 찾으면 된다.
-        for i in range(6):
-            for checktext in checklist[i]:
-                # 만약 텍스트가 체크리스트와 일치하는 것이 있다면,
-                if checktext in subtext:
-                    # 튜플로 반환한다.
-                    return maping_list[i], subtext.strip()
-
-        # 아무것도 일치하지 않으면 반환값은 없다.
-        return None
-
-    # 셀레니움 원소 형태의 subtext를 분해
-    def __split_subtext(self):
-        # 실제 subtext
-        subtext = self.__subtext_element.text.lower()
-        # subtext 분해
-        texts = subtext.split("/")
-        return texts
-
-    # 분해된 subtext를 분석
-    def __analyze_subtext(self):
-        prd_model = ProductModel()
-        for text in self.__split_subtext():
-            result = self.analyze_text(text)
-            # result는 튜플이다.
-            # 0번째 원소는 문자열로 된 키(부품 종류)
-            # 1번째 원소는 문자열로 된 값(부품 이름)
-            if result:
-                # spec객체 생성
-                prd_model.spec = result
-        return prd_model
-
-    def run(self):
-        return self.__analyze_subtext()
 
 
 class CompuzoneCrawler:
@@ -215,7 +56,7 @@ class CompuzoneCrawler:
             if is_valid(page_no):
                 self.__page_no = page_no
                 self.__results = {}
-                self.driver = make_driver()
+                self.driver = Driver("--headless", "--disable-gpu").make_driver()
         except TypeError as error:
             raise TypeError(str(error))
         except ValueError as error:
@@ -224,6 +65,7 @@ class CompuzoneCrawler:
     # 서브텍스트를 찾고 그것으로 spec객체 만들기
     def __find_subtext_in_page(self, target_page_no):
         start_time = time.time()
+        # 순서가 중요하지 않으므로 리스트에 담음
         prd_list = []
         subtext_elements = None
         make_dynamic_element_in_static_page(self.driver, target_page_no)

@@ -48,7 +48,7 @@ def simple_explore():
 @server.route("/wide-explore/<int:exp_range>/")
 def wide_explore(exp_range):
     start = time.time()
-
+    response = {}
     # crawler = CompuzoneCrawler(exp_range)
     
     # for문으로 크롤링
@@ -61,10 +61,19 @@ def wide_explore(exp_range):
 
     # 멀티프로세싱
     with ProcessPoolExecutor(max_workers=24) as excutor:
+        # results는 generator object
+        # 한 번 풀어야 함
         results = excutor.map(crawl_wide, [*range(1, exp_range + 1)])
 
+    for dict_obj in results:
+        # k = list(dict_obj.keys())
+        # v = list(dict_obj.values())
+        # response[k[0]] = v[0]
+        for k, v in dict_obj.items():
+            response[k] = v
+
     # 크롤링 결과를 직렬화
-    response = jsonify([*results])
+    response = jsonify(response)
     end = time.time()
 
     print(f"wide_explore: 전체 {end - start}초 소요됨")
