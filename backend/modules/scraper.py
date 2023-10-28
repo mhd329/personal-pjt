@@ -18,13 +18,13 @@ class DanawaScraper:
     """
 
     url_base: str = "https://prod.danawa.com/"
-    urls = {
-        "cpu" : url_base + "list/?cate=112747",
-        "mainboard" : url_base + "list/?cate=112747",
-    }
 
-    def select_url(cls, component_name):
-        
+    @classmethod
+    def __select_url(cls, component_name):
+        urls = {
+            "cpu" : cls.url_base + "list/?cate=112747",
+            "mainboard" : cls.url_base + "list/?cate=112747",
+        }
         return urls[component_name]
 
     def __init__(self, driver: webdriver.Chrome, component_name: str):
@@ -34,7 +34,7 @@ class DanawaScraper:
         self.crawling_time_total: int = 0
         self.__results: dict = {}
         self.driver: webdriver.Chrome = driver
-        self.url: str = self.select_url(component_name)
+        self.url: str = self.__select_url(component_name)
 
     # 1단계 : 동적 요소 포함한 페이지 불러오기
     def __call_page(self, url: str) -> None:
