@@ -58,6 +58,13 @@ class DanawaScraper:
         checkbox: WebElement = checkbox_label.find_element(By.XPATH, './label/input')
         checkbox.click()
 
+    # 4단계 : 클릭된 체크박스당 pagenation 개수 파악
+    def __find_pagenation_num(self):
+        number_box: WebElement = self.driver.find_element(By.XPATH, '//*[@id="productListArea"]/div[4]/div/div')
+        number_list: WebElement = number_box.find_elements(By.TAG_NAME, "a")
+        for i in range(2, len(number_list)):
+            
+
     # 4단계 : 리스트에서 정보 수집
     def __grap_list(self):
         pass
