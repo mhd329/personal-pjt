@@ -49,7 +49,6 @@ def run():
     # print(f"scraping: 전체 {time_end - time_start}초 소요됨")
     # return response
 
-
 # 개발 환경에서는 자동으로 DEBUG=True로 작동함
 if __name__ == "__main__":
     # 맥은 airplay라는 것에서 5000번 포트를 사용하므로 다른 포트를 사용해야 함.

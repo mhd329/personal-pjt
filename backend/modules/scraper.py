@@ -11,9 +11,6 @@ from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from selenium import webdriver
 from selenium.webdriver.remote.webelement import WebElement
 
-# test
-import modules
-
 class Component(Enum):
     CPU = 5
     MAINBOARD = 2
@@ -63,57 +60,73 @@ class DanawaScraper:
     def __find_pagenation_num(self) -> tuple[list[WebElement]]:
         # page_box: WebElement = self.driver.find_element(By.XPATH, f'//*[@id="productListArea"]/div[{self.component_type}]/div')
         num_nav_wrap: WebElement = self.driver.find_element(By.CLASS_NAME, "num_nav_wrap")
-        try:
-            buttons: list[WebElement] = num_nav_wrap.find_elements(By.TAG_NAME, "a")
-        except:
-            print("error")
-            buttons = []
         number_wrap: WebElement = num_nav_wrap.find_element(By.TAG_NAME, "div")
-        page_numbers: list[WebElement] = number_wrap.find_elements(By.TAG_NAME, "a")
+        try:
+            buttons: list[WebElement] = num_nav_wrap.find_elements(By.XPATH, "./a")
+        except:
+            print("Buttons not found.")
+            buttons = []
+        page_numbers: list[WebElement] = number_wrap.find_elements(By.XPATH, "./a")
         return (page_numbers, buttons)
 
-    # 5단계 : pagenation 번호마다 클릭
-    def __click_pagenation(self, page_number: WebElement) -> None:
-        page_number.click()
-
-    # 6단계 : 단일 페이지 내에서 상품 리스트 찾기
+    # 5단계 : 단일 페이지 내에서 상품 리스트 찾기
     def __find_products(self) -> list[WebElement]:
-        product_box: WebElement = self.driver.find_element(By.XPATH, '//*[@id="productListArea"]/div[3]/ul')
-        product_list: list[WebElement] = product_box.find_elements(By.TAG_NAME, "li")
-        return product_list
+        product_area: WebElement = self.driver.find_element(By.ID, "productListArea")
+        product_list_div: WebElement = product_area.find_element(By.CLASS_NAME, "main_prodlist")
+        product_list_ul: WebElement = product_list_div.find_element(By.TAG_NAME, "ul")
+        products: list[WebElement] = product_list_ul.find_elements(By.TAG_NAME, "li")
+        return products
     
-    # 7단계 : 상품 리스트에 있는 단일 상품들 스펙 분석
-    def __find_specs(self, product_info: WebElement) -> WebElement:
-        spec_list_box: WebElement = product_info.find_element(By.XPATH, '//./div/div[2]/dl/dd/div')
-        spec_list: list[WebElement] = spec_list_box.find_elements(By.XPATH, "./*")
-        return spec_list
+    # 6단계 : 단일 상품의 스펙을 정제하여 반환
+    def __find_specs(self, product: WebElement) -> dict:
+        product_info_box: WebElement = product.find_element(By.CLASS_NAME, "prod_main_info")
+        if len(product_info_box) != 4:
+            # 수동으로 위치 찾아줘야 함
 
-    def __sub2(self, product_info: WebElement) -> list[WebElement | None]:
-        p = compile(r"productItem\d+")
-        product_id = product_info.get_attribute("id")
-        results_sub2 = []
-        if p.match(product_id): # 상품이 맞는 경우
-            results_sub2 = DanawaScraper.__find_specs(product_info)
-        return results_sub2
+        # 상품 이미지
+        # product_image: WebElement = product_info_box.find_element(By.XPATH, "./div[1]/a[1]")
+        
+        # 상품 순위
+        product_rank: WebElement = product_info_box.find_element(By.XPATH, "./div[2]/p/strong")
+        product_rank_text: str = product_rank.text
+        print(product_rank_text)
 
-    def __sub1(self, page_number: WebElement) -> list[WebElement]:
-        self.__click_pagenation(page_number)
-        product_list: list[WebElement] = self.__find_products()
-        results_sub1 = []
-        # workers: int = len(product_list)
-        # with ThreadPoolExecutor(max_workers=workers) as excutor:
-        with ThreadPoolExecutor(max_workers=30) as excutor:
-            results_sub1 = [result for result in excutor.map(self.__sub2, product_list)]
-        return results_sub1
+        # 상품 이름
+        product_name: WebElement = product_info_box.find_element(By.XPATH, "./div[2]/p/a")
+        product_name_text: str = product_name.text
+        print(product_name_text)
+
+        # 상품 스펙
+        product_spec: WebElement = product_info_box.find_element(By.XPATH, "./div[2]/dl/dd/div/*")
+        product_spec_text: str = product_spec.text
+        print(product_spec_text)
+
+        # 상품 날짜
+        product_date: WebElement = product_info_box.find_element(By.XPATH, "./div[2]/div[2]/div/dl[1]/dd")
+        product_date_text: str = product_date.text
+        print(product_date_text)
+
+        # 상품 가격
+        product_price: WebElement = product_info_box.find_element(By.XPATH, "./div[3]/ul/li/p[2]/a/strong")
+        product_price_text: str = product_price.text
+        print(product_price_text)
+
+        product: dict = {
+            "rank" : product_rank_text,
+            "name" : product_name_text,
+            "spec" : product_spec_text,
+            "date" : product_date_text,
+            "price" : product_price_text,
+        }
+        return product
 
     # 모든 절차 순서대로 수행
     def main(self) -> list[list[WebElement] | None]:
-
-        results_main: list = []
+        result: list = []
         self.scraping_time_start = time.time() # 시간 측정용
+        p = compile(r"productItem\d+") # 상품 확인용 정규 표현식
         # cpu, 메인보드 url에 대하여 탐색 수행
         # 여기부터는 페이지가 켜져있는 상태임
-
         try:
             self.__call_page(self.url) # 1
             checkbox_list: list[WebElement] = self.__get_checkbox_list() # 2
@@ -132,17 +145,18 @@ class DanawaScraper:
                     numbers: list[WebElement] = pagenation_set[0]
                     buttons: list[WebElement] | list = pagenation_set[1]
 
-                    workers = min(10, len(numbers))
-                    # with ProcessPoolExecutor(max_workers=workers) as excutor:
-                    with ThreadPoolExecutor(max_workers=workers) as excutor:
-                        print(__name__)
+                    for number in numbers: # 5
                         """
                         각 페이지 클릭 후 페이지별 상품 목록에서 spec 확인
                         """
-                        results_sub1: list[list[WebElement] | None] = list(excutor.map(self.__sub1, numbers)) # 5
-                        results_main = results_sub1
-                    for i in results_sub1:
-                        results_main.append(i)
+                        number.click()
+                        product_list: list[WebElement] = self.__find_products()
+                        result_specs = []
+                        for product in product_list: # 6
+                            product_id = product.get_attribute("id")
+                            if p.match(product_id): # 상품이 맞는 경우
+                                result_specs.append(self.__find_specs(product))
+                        result.append(result_specs)
 
                     # 만약 '다음 페이지' 버튼 있으면 포함해서 클릭
                     for button in buttons:
@@ -155,7 +169,6 @@ class DanawaScraper:
 
         # 모든 예외 발생시 드라이버를 종료해줘야 한다.
         except Exception as e:
-            print(__name__)
             print(e)
             print(type(e))
             self.driver.quit()
@@ -165,7 +178,7 @@ class DanawaScraper:
             self.scraping_time_total = self.scraping_time_end - self.scraping_time_start
             print(f"소요 시간: {self.scraping_time_total}")
         # 페이지 번호와 그에 해당하는 제품 리스트를 반환
-        return results_main
+        return result
 
     # def run(self) -> list[list[WebElement] | None]:
     #     results_main: list[list[WebElement] | None] = self.main()

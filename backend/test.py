@@ -5,7 +5,9 @@ from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 
 # 다나와 기본 URL
 
-components: list[str] = ["CPU", "MAINBOARD"] # CPU, Mainboard 멀티프로세싱 -> page 멀티쓰레딩
+# components: list[str] = ["CPU", "MAINBOARD"] # CPU, Mainboard 멀티프로세싱 -> page 멀티쓰레딩
+components: list[str] = ["CPU"]
+# components: list[str] = ["MAINBOARD"]
 
 # 스크래퍼를 멀티프로세싱 하기 위해 필요한 함수.
 # 크롬의 작동방식은 멀티프로세싱 방식이므로,
@@ -17,7 +19,6 @@ def make_scraper(components):
     # driver = Driver("--headless", "--disable-gpu").make_driver()
     driver = Driver().make_driver()
     scraper = DanawaScraper(driver, components)
-    print(f"test : {__name__}")
     results_main = scraper.main()
     scraper.driver.quit()
     return results_main
