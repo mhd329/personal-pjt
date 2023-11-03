@@ -86,7 +86,7 @@ class DanawaScraper:
         
         product_info: WebElement = product_info_box.find_element(By.XPATH, "./div[2]")
         if len(product_info) != 4: # 수동으로 위치 찾아줘야 함
-            product_name_rank: WebElement = product_info_box.find_element(By.CLASS_NAME, "prod_name")
+            product_name_rank: WebElement = product_info.find_element(By.CLASS_NAME, "prod_name")
 
             # 상품 순위
             product_rank: WebElement = product_name_rank.find_element(By.CLASS_NAME, "pop_rank")
@@ -94,17 +94,18 @@ class DanawaScraper:
             print(product_rank_text)
 
             # 상품 이름
-            product_name: WebElement = product_info_box.find_element(By.TAG_NAME, "a")
+            product_name: WebElement = product_name_rank.find_element(By.TAG_NAME, "a")
             product_name_text: str = product_name.text
             print(product_name_text)
+
+            # 상품 스펙
+            product_spec_set: WebElement = product_info.find_element(By.CLASS_NAME, "prod_spec_set")
+            product_spec: WebElement = product_spec_set.find_element(By.XPATH, "./dd/div/*")
+            product_spec_text: str = product_spec.text
+            print(product_spec_text)
             
-            product_rank: WebElement = product_info_box.find_element(By.CLASS_NAME, "prod_name")
-
-
-            product_spec: WebElement = product_info_box.find_element(By.CLASS_NAME, "prod_spec_set")
-            
-
-            product_date: WebElement = product_info_box.find_element(By.CLASS_NAME, "meta_item mt_date")
+            # 상품 날짜
+            product_date: WebElement = product_info.find_element(By.CLASS_NAME, "meta_item mt_date")
             product_date_text: str = product_date.text
             print(product_date_text)
 
