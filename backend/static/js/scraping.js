@@ -1,8 +1,8 @@
 // 간단히 탐색하기 버튼 클릭시 작동 로직
-const simpleExploringButton = document.querySelector("#listRefreshButton");
-simpleExploringButton.addEventListener("click", (event) => {
+const scrapingStartButton = document.querySelector("#scrapingStartButton");
+scrapingStartButton.addEventListener("click", (event) => {
   event.preventDefault();
-  fetch(`/basic-explore/`, {
+  fetch(`/run-scraping/`, {
     method: "GET",
   }).then((response) => {
     // Promise는 결과값은 아니지만, 그렇게 취급할 수 있다.
