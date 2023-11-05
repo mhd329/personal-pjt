@@ -112,13 +112,6 @@ class DanawaScraper:
             product_date_text: str = product_date.text
             print(product_date_text)
 
-            # 상품 가격 ##############
-            product_price_list: list[WebElement] = product_info_box.find_elements(By.XPATH, "./div[3]/ul/li")
-            for item in product_price_list:
-                product_price: WebElement = item.find_element(By.XPATH, "./p[2]/a/strong")
-                price_list.append(product_price.text)
-                print(product_price.text)
-
         else:
             # 상품 순위
             product_rank: WebElement = product_info_box.find_element(By.XPATH, "./div[2]/p/strong")
@@ -134,16 +127,24 @@ class DanawaScraper:
             product_specs: list[WebElement] = product_info_box.find_elements(By.XPATH, "./div[2]/dl/dd/div/*")
             product_spec_text: str = product_spec.text
             print(product_spec_text)
+            
 
             # 상품 날짜
             product_date: WebElement = product_info_box.find_element(By.XPATH, "./div[2]/div[2]/div/dl[1]/dd")
             product_date_text: str = product_date.text
             print(product_date_text)
 
-            # 상품 가격 ##############
-            product_price_list: list[WebElement] = product_info_box.find_elements(By.XPATH, "./div[3]/ul/li")
-            product_price_text: str = product_price.text
-            print(product_price_text)
+        # 상품 가격 ##############
+        product_price_list: list[WebElement] = product_info_box.find_elements(By.XPATH, "./div[3]/ul/li")
+        product_price_text: str = product_price.text
+        print(product_price_text)
+        
+        # 상품 가격 ##############
+        product_price_list: list[WebElement] = product_info_box.find_elements(By.XPATH, "./div[3]/ul/li")
+        for item in product_price_list:
+            product_price: WebElement = item.find_element(By.XPATH, "./p[2]/a/strong")
+            price_list.append(product_price.text)
+            print(product_price.text)
 
         product: dict = {
             "rank" : product_rank_text,
