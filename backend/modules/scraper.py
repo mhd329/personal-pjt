@@ -136,11 +136,6 @@ class DanawaScraper:
 
         # 상품 가격 ##############
         product_price_list: list[WebElement] = product_info_box.find_elements(By.XPATH, "./div[3]/ul/li")
-        product_price_text: str = product_price.text
-        print(product_price_text)
-        
-        # 상품 가격 ##############
-        product_price_list: list[WebElement] = product_info_box.find_elements(By.XPATH, "./div[3]/ul/li")
         for item in product_price_list:
             product_price: WebElement = item.find_element(By.XPATH, "./p[2]/a/strong")
             price_list.append(product_price.text)
