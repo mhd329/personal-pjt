@@ -114,23 +114,22 @@ class DanawaScraper:
 
         else:
             # 상품 순위
-            product_rank: WebElement = product_info_box.find_element(By.XPATH, "./div[2]/p/strong")
+            product_rank: WebElement = product_info.find_element(By.XPATH, "./p/strong")
             product_rank_text: str = product_rank.text
             print(product_rank_text)
 
             # 상품 이름
-            product_name: WebElement = product_info_box.find_element(By.XPATH, "./div[2]/p/a")
+            product_name: WebElement = product_info.find_element(By.XPATH, "./p/a")
             product_name_text: str = product_name.text
             print(product_name_text)
 
             # 상품 스펙 ###################
-            product_specs: list[WebElement] = product_info_box.find_elements(By.XPATH, "./div[2]/dl/dd/div/*")
+            product_specs: list[WebElement] = product_info.find_elements(By.XPATH, "./dl/dd/div/*")
             product_spec_text: str = product_spec.text
             print(product_spec_text)
-            
 
             # 상품 날짜
-            product_date: WebElement = product_info_box.find_element(By.XPATH, "./div[2]/div[2]/div/dl[1]/dd")
+            product_date: WebElement = product_info.find_element(By.XPATH, "./div[2]/div/dl[1]/dd")
             product_date_text: str = product_date.text
             print(product_date_text)
 
