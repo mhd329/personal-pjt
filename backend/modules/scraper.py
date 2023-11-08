@@ -80,58 +80,38 @@ class DanawaScraper:
     # 6단계 : 단일 상품의 스펙을 정제하여 반환
     def __find_specs(self, product: WebElement) -> dict:
         product_info_box: WebElement = product.find_element(By.CLASS_NAME, "prod_main_info")
+        
         spec_list = []
         price_list = []
+
         # 상품 이미지
         # product_image: WebElement = product_info_box.find_element(By.XPATH, "./div[1]/a[1]")
         
         product_info: WebElement = product_info_box.find_element(By.XPATH, "./div[2]")
-        if len(product_info) != 4: # 수동으로 위치 찾아줘야 함
-            product_name_rank: WebElement = product_info.find_element(By.CLASS_NAME, "prod_name")
+        product_name_rank: WebElement = product_info.find_element(By.CLASS_NAME, "prod_name")
 
-            # 상품 순위
-            product_rank: WebElement = product_name_rank.find_element(By.CLASS_NAME, "pop_rank")
-            product_rank_text: str = product_rank.text
-            print(product_rank_text)
+        # 상품 순위
+        product_rank: WebElement = product_name_rank.find_element(By.CLASS_NAME, "pop_rank")
+        product_rank_text: str = product_rank.text
+        print(product_rank_text)
 
-            # 상품 이름
-            product_name: WebElement = product_name_rank.find_element(By.TAG_NAME, "a")
-            product_name_text: str = product_name.text
-            print(product_name_text)
+        # 상품 이름
+        product_name: WebElement = product_name_rank.find_element(By.TAG_NAME, "a")
+        product_name_text: str = product_name.text
+        print(product_name_text)
 
-            # 상품 스펙 #############################
-            product_spec_set: WebElement = product_info.find_element(By.CLASS_NAME, "prod_spec_set")
-            product_specs: list[WebElement] = product_spec_set.find_elements(By.XPATH, "./dd/div/*")
-            for product_spec in product_specs:
-                spec_list.append(product_spec.text)
-                print(product_spec.text)
-            
-            # 상품 날짜 
-            product_date_set: WebElement = product_info.find_element(By.CLASS_NAME, "meta_item mt_date")
-            product_date: WebElement = product_date_set.find_element(By.TAG_NAME, "dd")
-            product_date_text: str = product_date.text
-            print(product_date_text)
-
-        else:
-            # 상품 순위
-            product_rank: WebElement = product_info.find_element(By.XPATH, "./p/strong")
-            product_rank_text: str = product_rank.text
-            print(product_rank_text)
-
-            # 상품 이름
-            product_name: WebElement = product_info.find_element(By.XPATH, "./p/a")
-            product_name_text: str = product_name.text
-            print(product_name_text)
-
-            # 상품 스펙 ###################
-            product_specs: list[WebElement] = product_info.find_elements(By.XPATH, "./dl/dd/div/*")
-            product_spec_text: str = product_spec.text
-            print(product_spec_text)
-
-            # 상품 날짜
-            product_date: WebElement = product_info.find_element(By.XPATH, "./div[2]/div/dl[1]/dd")
-            product_date_text: str = product_date.text
-            print(product_date_text)
+        # 상품 스펙 #############################
+        product_spec_set: WebElement = product_info.find_element(By.CLASS_NAME, "prod_spec_set")
+        product_specs: list[WebElement] = product_spec_set.find_elements(By.XPATH, "./dd/div/*")
+        for product_spec in product_specs:
+            spec_list.append(product_spec.text)
+            print(product_spec.text)
+        
+        # 상품 날짜 
+        product_date_set: WebElement = product_info.find_element(By.CLASS_NAME, "meta_item mt_date")
+        product_date: WebElement = product_date_set.find_element(By.TAG_NAME, "dd")
+        product_date_text: str = product_date.text
+        print(product_date_text)
 
         # 상품 가격 ##############
         product_price_list: list[WebElement] = product_info_box.find_elements(By.XPATH, "./div[3]/ul/li")
