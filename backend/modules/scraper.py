@@ -80,7 +80,7 @@ class DanawaScraper:
     # 6단계 : 단일 상품의 스펙을 정제하여 반환
     def __find_specs(self, product: WebElement) -> dict:
         product_info_box: WebElement = product.find_element(By.CLASS_NAME, "prod_main_info")
-        
+
         spec_list = []
         price_list = []
 
@@ -108,8 +108,8 @@ class DanawaScraper:
             print(product_spec.text)
         
         # 상품 날짜 
-        product_date_set: WebElement = product_info.find_element(By.CLASS_NAME, "meta_item mt_date")
-        product_date: WebElement = product_date_set.find_element(By.TAG_NAME, "dd")
+        product_sub_info: WebElement = product_info.find_element(By.CLASS_NAME, "prod_sub_info")
+        product_date: WebElement = product_sub_info.find_element(By.XPATH, "./div/dl[1]/dd")
         product_date_text: str = product_date.text
         print(product_date_text)
 
