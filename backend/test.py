@@ -30,9 +30,9 @@ def make_scraper(components):
 
 # 검색
 def run_test():
-    # components: list[str] = ["CPU", "MAINBOARD"]
+    components: list[str] = ["CPU", "MAINBOARD"]
     # components: list[str] = ["MAINBOARD"]
-    components: list[str] = ["CPU"]
+    # components: list[str] = ["CPU"]
     time_start = time.time()
 
     json_dir = f"F:/Github/projects/python-scraping/test"
@@ -44,9 +44,6 @@ def run_test():
         result = excutor.map(make_scraper, components)
     time_end = time.time()
     print(f"scraping: 전체 {time_end - time_start}초 소요됨")
-    # 만약 아래의 코드 조각을 멀티프로세스 with 문 안으로 넣으면?
-    with open("F:/Github/projects/python-scraping/test/result_total.json", 'w', encoding="utf-8") as file:
-        json.dump(result, file, ensure_ascii=False, indent="\t")
 
 if __name__ == "__main__":
     run_test()
