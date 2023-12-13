@@ -1,13 +1,12 @@
 import time
-from backend.modules.driver import Driver
+from modules.driver import Driver
 from selenium.webdriver.common.by import By
-from backend.modules.validation import is_valid
+from modules.validation import is_valid
 from selenium.webdriver.common.keys import Keys
-from backend.modules.subtext_analyzer import SubtextAnalyzing
 
 
 # 동적 요소 포함한 페이지 완성시키기
-def make_dynamic_element_in_static_page(driver, static_page_no):
+def call_page(driver, static_page_no):
     base_url = "https://www.compuzone.co.kr/product/"
     uri1 = "productB_new_list.htm?actype=getPaging"
     uri2 = "&SelectProductNo=&orderlayerx=&orderlayery=&BigDivNo=1"
@@ -22,35 +21,7 @@ def make_dynamic_element_in_static_page(driver, static_page_no):
     driver.get(full_url)
 
 
-class CompuzoneCrawler:
-    """
-    컴퓨존 크롤러 클래스.
-    --------------------------------------------------------------------------------
-
-    기본 사용법:
-
-    1. 클래스를 초기화할 때 아래와 같이 번호를 지정할 수 있습니다.
-    => crawler = CompuzoneCrawler(10)
-
-    2. 이렇게 하면 첫 페이지에서 해당 페이지 까지를 탐색합니다.
-    (__find_subtext_in_page 메서드가 여러번 실행되면서 탐색합니다.)
-    3. 만약 숫자를 지정하지 않으면, 기본적으로 맨 처음 페이지만 탐색합니다.
-    => crawler = CompuzoneCrawler()
-
-    4. 결과는 이렇게 가져올 수 있습니다.
-    => print(crawler.get_results())
-
-    * 결과 받기(get_results) => 먼저 서브텍스트를 찾아야 함(find_subtext_in_page)
-        1. 드라이버를 만들고(_make_driver),
-        2. 페이지에 동적 요소를 렌더링하고(make_dynamic_element_in_static_page),
-        3. 완성된 페이지를 탐색해야 함(find_subtext_in_page > try, finally).
-
-    --------------------------------------------------------------------------------
-    Date: 2023. 09. 14
-    Class: Crawler Class
-    Author: HyeonDong Moon
-    """
-
+class DanawaCrawler:
     def __init__(self, page_no: int = 1):
         try:
             if is_valid(page_no):
@@ -68,10 +39,9 @@ class CompuzoneCrawler:
         # 순서가 중요하지 않으므로 리스트에 담음
         prd_list = []
         subtext_elements = None
-        make_dynamic_element_in_static_page(self.driver, target_page_no)
+        call_page(self.driver, target_page_no)
         # 위의 함수가 성공적으로 실행 => 현재 대상 페이지가 켜져있는 상태임
         try:
-            # 동적 요소가 렌더링된 대상 페이지에서 product_list_ul을 찾는다.
             product_list = self.driver.find_element(By.ID, "product_list_ul")
             # product_list_ul의 길이가 달라질 때까지 스크롤 내리기
             i = 0
@@ -104,12 +74,6 @@ class CompuzoneCrawler:
                     prd_price = int(
                         price_element.text.replace(",", "").replace("원", "")
                     )
-                    # 분석된 객체 생성
-                    analyzing = SubtextAnalyzing(subtext_elements[i])
-                    analyzing_result = analyzing.run()
-                    analyzing_result.spec = "link", prd_link
-                    analyzing_result.spec = "price", prd_price
-                    prd_list.append(analyzing_result.spec)
         # 모든 예외 발생시 드라이버를 종료해줘야 한다.
         except:
             self.driver.quit()
