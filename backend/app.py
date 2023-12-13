@@ -2,7 +2,7 @@ import os
 import time
 from dotenv import load_dotenv
 from flask_caching import Cache
-from modules.crawler import CompuzoneCrawler
+from modules.crawler import DanawaCrawler
 from concurrent.futures import ProcessPoolExecutor
 from flask import Flask, render_template, Response, jsonify
 
@@ -20,7 +20,7 @@ server.secret_key = os.getenv("SECRET_KEY")
 # 크롤러를 멀티프로세싱 하기 위해 필요한 함수
 # 각 프로세서는 크롤러 객체를 만들고 멀티프로세싱 후 결과를 반환한다.
 def crawl_wide(exp_range):
-    crawler = CompuzoneCrawler(exp_range)
+    crawler = DanawaCrawler(exp_range)
     crawler.crawl_with_multiprocessing()
     res = crawler.get_results()
     return res
@@ -35,7 +35,7 @@ def index():
 @server.route("/basic-explore/")
 def simple_explore():
     start = time.time()
-    crawler = CompuzoneCrawler()
+    crawler = DanawaCrawler()
     # 크롤링 결과를 직렬화
     response = jsonify(crawler.get_results())
     end = time.time()
@@ -49,7 +49,7 @@ def simple_explore():
 def wide_explore(exp_range):
     start = time.time()
     response = {}
-    # crawler = CompuzoneCrawler(exp_range)
+    # crawler = DanawaCrawler(exp_range)
     
     # for문으로 크롤링
     # crawler.crawl_with_for()
