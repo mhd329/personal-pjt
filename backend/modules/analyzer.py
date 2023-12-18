@@ -4,12 +4,8 @@ from db.model import ProductModel
 class SubtextAnalyzing:
     """
     서브텍스트 분석 클래스.
-    => 셀레니움 원소 형태의 subtext를 분해해서 부품 정보를 찾고,
-    그것으로 spec 객체를 만드는 클래스입니다.
-
-    Date: 2023. 09. 26
-    Class: Subtext Analyzing Class
-    Author: HyeonDong Moon
+    셀레니움 원소 형태의 subtext를 분해해서 부품 정보를 찾고,
+    그것으로 spec 객체를 만드는 클래스.
     """
 
     def __init__(self, subtext_element):
@@ -21,12 +17,7 @@ class SubtextAnalyzing:
         maping_list = {
             0: "mainboard",
             1: "cpu",
-            2: "vga",
-            3: "ram",
-            4: "storage",
-            5: "powersupply",
         }
-        # 아래는 확실하게 구분할 수 있는 키워드들
         checklist = {
             0: ["amd"],
             1: [
@@ -43,23 +34,15 @@ class SubtextAnalyzing:
                 "셀러론",
                 "celeron",
             ],
-            2: ["지포스", "geforce", "라데온", "radeon", "내장"],
-            3: ["ram", "ddr"],
-            4: ["ssd", "hdd"],
-            5: ["정격"],
         }
-        # 만약 인텔 관련 키워드가 나오는 경우,
-        # 메인보드와 cpu 둘 다 '인텔'로 쓰는 경향이 있기 때문에 구분해야 한다.
         if ("인텔" or "intel") in subtext:
             intel_cpu = ["코어", "세대", "i"]
             for cpu_word in intel_cpu:
-                # 안에 '코어', '세대', (i3부터 i9사이를 나타내는)'i'가 나온다면 그것은 인텔 cpu로 본다.
+                # 'i'가 나온다면 그것은 인텔 cpu로 본다.
                 if cpu_word in subtext:
                     return maping_list[1], subtext.strip()
-            # 그렇지 않으면 인텔 메인보드로 본다.
             return maping_list[0], subtext.strip()
 
-        # 나머지는 확실하게 구분할 수 있으므로 for문으로 하나씩 찾으면 된다.
         for i in range(6):
             for checktext in checklist[i]:
                 # 만약 텍스트가 체크리스트와 일치하는 것이 있다면,
