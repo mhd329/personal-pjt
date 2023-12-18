@@ -3,6 +3,7 @@ from modules.driver import Driver
 from selenium.webdriver.common.by import By
 from modules.validation import is_valid
 from selenium.webdriver.common.keys import Keys
+from modules.subtext_analyzer import SubtextAnalyzing
 
 
 # 동적 요소 포함한 페이지 완성시키기
