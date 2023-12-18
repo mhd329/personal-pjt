@@ -1,9 +1,9 @@
 import time
-from backend.modules.driver import Driver
+from modules.driver import Driver
 from selenium.webdriver.common.by import By
-from backend.modules.validation import is_valid
+from modules.validation import is_valid
 from selenium.webdriver.common.keys import Keys
-from backend.modules.subtext_analyzer import SubtextAnalyzing
+from modules.subtext_analyzer import SubtextAnalyzing
 
 
 # 동적 요소 포함한 페이지 완성시키기

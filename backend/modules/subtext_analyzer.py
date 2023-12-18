@@ -1,4 +1,4 @@
-from backend.db.model import ProductModel
+from db.model import ProductModel
 
 
 class SubtextAnalyzing:
