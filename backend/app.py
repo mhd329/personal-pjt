@@ -19,8 +19,8 @@ server.secret_key = os.getenv("SECRET_KEY")
 
 # 크롤러를 멀티프로세싱 하기 위해 필요한 함수
 # 각 프로세서는 크롤러 객체를 만들고 멀티프로세싱 후 결과를 반환한다.
-def crawl_wide(exp_range):
-    crawler = DanawaCrawler(exp_range)
+def crawl_wide():
+    crawler = DanawaCrawler()
     crawler.crawl_with_multiprocessing()
     res = crawler.get_results()
     return res
@@ -34,52 +34,53 @@ def index():
 # 간이 검색 (1페이지)
 @server.route("/basic-explore/")
 def simple_explore():
-    start = time.time()
+    time_start = time.time()
     crawler = DanawaCrawler()
     # 크롤링 결과를 직렬화
     response = jsonify(crawler.get_results())
-    end = time.time()
+    time_end = time.time()
     # 약 8.5초 이상
-    print(f"simple_explore: 전체 {end - start}초 소요됨")
+    print(f"simple_explore: 전체 {time_end - time_start}초 소요됨")
     return response
 
 
-# 전체 검색 (1페이지 ~ 10페이지)
-@server.route("/wide-explore/<int:exp_range>/")
-def wide_explore(exp_range):
-    start = time.time()
-    response = {}
-    # crawler = DanawaCrawler(exp_range)
+# # 전체 검색 (1페이지 ~ 10페이지)
+# @server.route("/wide-explore/<int:exp_range>/")
+# def wide_explore():
+#     start = time.time()
+#     response = {}
+#     # crawler = DanawaCrawler(exp_range)
     
-    # for문으로 크롤링
-    # crawler.crawl_with_for()
-    # results = crawler.get_results()
+#     # for문으로 크롤링
+#     # crawler.crawl_with_for()
+#     # results = crawler.get_results()
 
-    # 멀티쓰레딩
-    # crawler.crawl_with_multithreading()
-    # results = crawler.get_results()
+#     # 멀티쓰레딩
+#     # crawler.crawl_with_multithreading()
+#     # results = crawler.get_results()
 
-    # 멀티프로세싱
-    with ProcessPoolExecutor(max_workers=24) as excutor:
-        # results는 generator object
-        # 한 번 풀어야 함
-        results = excutor.map(crawl_wide, [*range(1, exp_range + 1)])
+#     # 멀티프로세싱
+#     with ProcessPoolExecutor(max_workers=24) as excutor:
+#         # results는 generator object
+#         # 한 번 풀어야 함
+#         results = excutor.map(crawl_wide, [*range(1, exp_range + 1)])
 
-    for dict_obj in results:
-        # k = list(dict_obj.keys())
-        # v = list(dict_obj.values())
-        # response[k[0]] = v[0]
-        for k, v in dict_obj.items():
-            response[k] = v
+#     for dict_obj in results:
+#         # k = list(dict_obj.keys())
+#         # v = list(dict_obj.values())
+#         # response[k[0]] = v[0]
+#         for k, v in dict_obj.items():
+#             response[k] = v
 
-    # 크롤링 결과를 직렬화
-    response = jsonify(response)
-    end = time.time()
+#     # 크롤링 결과를 직렬화
+#     response = jsonify(response)
+#     end = time.time()
 
-    print(f"wide_explore: 전체 {end - start}초 소요됨")
-    return response
+#     print(f"wide_explore: 전체 {end - start}초 소요됨")
+#     return response
 
 
 # 개발 환경에서는 자동으로 DEBUG=True로 작동함
 if __name__ == "__main__":
-    server.run(port=5000, debug=os.getenv("DEBUG") == "True")
+    # 맥은 airplay라는 것에서 5000번 포트를 사용하므로 다른 포트를 사용해야 함.
+    server.run(port=5001, debug=os.getenv("DEBUG") == "True")

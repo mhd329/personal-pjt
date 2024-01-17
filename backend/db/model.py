@@ -1,13 +1,9 @@
 class ProductModel:
     """
     제품 모델 클래스.
-    => spec 객체를 만들기 위한 모델입니다.
-    => setter는 두 개의 원소가 들어가는 tuple(또는 list) 형태의 값을 받습니다.
-    => 0번째 원소가 key, 1번째 원소가 value로 설정됩니다.
-
-    Date: 2023. 09. 26
-    Class: Product Model Class
-    Author: HyeonDong Moon
+    spec 객체를 만들기 위한 모델.
+    setter는 두 개의 원소가 들어가는 tuple(또는 list) 형태의 값을 받음.
+    0번째 원소가 key, 1번째 원소가 value로 설정됨.
     """
 
     def __init__(self):

@@ -1,11 +1,9 @@
 from db.model import ProductModel
 
 
-class SubtextAnalyzing:
+class SpecExtractor:
     """
-    서브텍스트 분석 클래스.
-    셀레니움 원소 형태의 subtext를 분해해서 부품 정보를 찾고,
-    그것으로 spec 객체를 만드는 클래스.
+    제품 목록에서 개별 스펙 정보를 추출하는 클래스.
     """
 
     def __init__(self, subtext_element):
