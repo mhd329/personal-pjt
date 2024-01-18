@@ -1,4 +1,3 @@
-import sys
 import time
 from modules.driver import Driver
 from modules.validation import is_valid
@@ -19,10 +18,7 @@ class DanawaCrawler:
         self.crawling_time_end = 0
         self.crawling_time_total = 0
         self.__results = {}
-        args = "--headless", "--disable-gpu"
-        if "debugpy" in sys.modules: # 디버그 모드의 경우 드라이버 재정의
-            args = None
-        self.driver = Driver(args).make_driver()
+        self.driver = Driver("--headless", "--disable-gpu").make_driver()
 
     # 동적 요소 포함한 페이지 불러오기
     def __call_page(self, url):
