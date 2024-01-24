@@ -36,8 +36,11 @@ def index():
 def simple_explore():
     time_start = time.time()
     crawler = DanawaCrawler()
-    # 크롤링 결과를 직렬화
-    response = jsonify(crawler.get_results())
+    crawler.do_crawling()
+    # 크롤링 결과
+    result = crawler.get_results()
+    # 결과를 직렬화
+    response = jsonify(result)
     time_end = time.time()
     # 약 8.5초 이상
     print(f"simple_explore: 전체 {time_end - time_start}초 소요됨")
