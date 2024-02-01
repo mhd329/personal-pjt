@@ -8,7 +8,7 @@ from selenium.webdriver.common.keys import Keys
 url_base = "https://prod.danawa.com/"
 url_cpu = url_base + "list/?cate=112747"
 url_mainboard = url_base + "list/?cate=112751"
-url_list = [url_cpu, url_mainboard]
+url_list = [url_cpu, url_mainboard] # for 문으로 순회하며 탐색
 
 # searchAttributeValueRep910402.click()
 
@@ -25,14 +25,22 @@ class DanawaCrawler:
         # 드라이버 실행
         self.driver.get(url)
 
-    # 2단계 : 불러온 페이지에서 각 소켓 체크박스 클릭
-    # def __click_socket_list(self, element_li):
-    #     target = self.driver.find_element(By.XPATH, '//*[@id="simpleSearchOptionpriceCompare"]/div/dl[3]/dd/ul[1]/li[1]')
-    #     target.click()
+    # 2-1단계 : 찾을 CPU 리스트 묶음째로 가져오기
+    def __get_cpu_checkboxlist(self):
+        ul_list = self.driver.find_element(By.XPATH, '//*[@id="simpleSearchOptionpriceCompare"]/div/dl[3]/dd/ul[1]')
+        checkbox_list = ul_list.find_elements(By.TAG_NAME, "li") # 리스트 묶음
+        return checkbox_list
 
-    # 3단계 : 소켓에 해당하는 CPU 목록 수집
+    # 3단계 : 불러온 페이지에서 특정 체크박스 클릭
+    def __click_checkbox(self, checkbox_label):
+        checkbox = checkbox_label.find_element(By.XPATH, './label/input')
+        checkbox.click()
+
+    # 4단계 : 리스트에서 정보 수집
     def __grap_list(self):
         pass
+
+    # 5단계 : 리스트에
 
     # 4단계 : 개별 CPU에 대해 소켓, 세대 등 스펙 추출
     def __extract_spec(self):
@@ -46,11 +54,10 @@ class DanawaCrawler:
             # 여기부터는 페이지가 켜져있는 상태임
             try:
                 self.__call_page(url)
-                # 모든 체크박스에 대해 동작을 반복해야 함.
-                list_ul = self.driver.find_element(By.XPATH, '//*[@id="simpleSearchOptionpriceCompare"]/div/dl[3]/dd/ul[1]')
-                list_li = list_ul.find_elements(By.TAG_NAME, "li")
-                for li in list_li:
-                    li.click()
+                checkbox_list = self.__get_cpu_checkboxlist()
+                for checkbox_label in checkbox_list:
+                    self.__click_checkbox(checkbox_label)
+
             # 모든 예외 발생시 드라이버를 종료해줘야 한다.
             except:
                 self.driver.quit()
