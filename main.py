@@ -1,29 +1,31 @@
-# This example requires the 'message_content' intent.
-
 import os
 import discord
 from dotenv import load_dotenv
 
+
+from Bot import Commands
+
+
 load_dotenv()
 
 
+token_bot = os.getenv("TOKEN_BOT")
+token_server = os.getenv("TOKEN_SERVER_DEBUG")
 
-intents = discord.Intents.default()
+from discord.ext import commands
+from discord import Game, Status,Intents
+from Log.Settings import logger
+
+
+intents = Intents.default()
 intents.message_content = True
 
-client = discord.Client(intents=intents)
+bot = Commands(token_server, intents=intents)
 
-@client.event
-async def on_ready():
-    print("111")
+# tree = app_commands.CommandTree(custom_commands)
+# @tree.command(name = "Time", description = "Gives TIme")
+# async def time(interaction):
+#     await interaction.response.send_message(f"It is {datetime.now(timezone.utc)} UTC.")
 
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-
-    if message.content.startswith('$hello'):
-        await message.channel.send('Hello!')
-
-token = os.getenv("TOKEN")
-client.run(token)
+if __name__ == "__main__":
+    bot.run(token_bot)
