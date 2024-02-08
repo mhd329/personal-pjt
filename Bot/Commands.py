@@ -43,11 +43,11 @@ class Commands(commands.Cog):
             logger_detail.error(error)
             return f"서버 상태를 확인할 수 없습니다."
 
-    @commands.command(aliases=["인사", "안녕", "hello"])
+    @commands.command(aliases=["인사", "안녕"])
     async def hello(self, ctx):
         await ctx.send(f"{ctx.author.display_name}님, 안녕하세요.")
 
-    @commands.command(aliases=["핑", "ping"])
+    @commands.command(aliases=["핑"])
     async def ping(self, ctx):
         msg = await ctx.send("핑 측정 시작.")
         latency = round((msg.created_at - ctx.message.created_at).microseconds // 1000)
