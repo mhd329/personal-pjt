@@ -1,9 +1,11 @@
 import os
-import discord
+import asyncio
+import subprocess
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 
 
-from Bot import Commands
+from Bot import Commands, Settings
 
 
 load_dotenv()
@@ -12,20 +14,14 @@ load_dotenv()
 token_bot = os.getenv("TOKEN_BOT")
 token_server = os.getenv("TOKEN_SERVER_DEBUG")
 
-from discord.ext import commands
-from discord import Game, Status,Intents
-from Log.Settings import logger
 
+bot = Settings(server_id=token_server)
 
-intents = Intents.default()
-intents.message_content = True
-
-bot = Commands(token_server, intents=intents)
-
-# tree = app_commands.CommandTree(custom_commands)
-# @tree.command(name = "Time", description = "Gives TIme")
-# async def time(interaction):
-#     await interaction.response.send_message(f"It is {datetime.now(timezone.utc)} UTC.")
 
 if __name__ == "__main__":
+    asyncio.run(bot.add_cog(Commands(bot)))
+    @bot.tree.command(name = "종료", description = "서버 컴퓨터 종료.")
+    async def terminate_server(interaction):
+        subprocess.call(["sh", "sudo", "shutdown", "-h", "now"])
+        await interaction.response.send_message(f"서버 컴퓨터가 종료되었습니다.")
     bot.run(token_bot)

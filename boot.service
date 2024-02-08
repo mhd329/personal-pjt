@@ -1,0 +1,9 @@
+[Unit]
+Description=palserver boot script
+
+[Service]
+ExecStart=./run_palserver.sh
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
