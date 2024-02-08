@@ -59,8 +59,8 @@ class Commands(commands.Cog):
         await ctx.send(embed = ebd)
         del ebd
 
-    @commands.command(name="help")
-    async def help(self, ctx):
+    @commands.command(name="명령어")
+    async def find_command(self, ctx):
         ebd = Embed(title="명령어 모음", description="서버 원격 조종 명령어 모음 안내입니다.")
         ebd.add_field(name="!!상태", value=f"서버 상태 확인", inline=False)
         ebd.add_field(name="!!열기", value=f"서버 열기", inline=False)
