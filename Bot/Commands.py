@@ -15,14 +15,14 @@ class Commands(commands.Cog):
 
     def check_server(self):
         try:
-            server_ip = subprocess.check_output(["sh", "curl", "-s", "https://ipinfo.io/ip"], universal_newlines=True).strip()
-            subprocess.call(["sh", "./get_palserver.sh"])
-            with open("~/palserver_pid.txt", 'r') as f:
+            server_ip = subprocess.check_output("curl -s https://ipinfo.io/ip", shell=True, universal_newlines=True).strip()
+            subprocess.call("./get_palserver.sh", shell=True)
+            with open("./palserver_pid.txt", 'r') as f:
                 content = f.read()
                 msg = "현재 서버 닫혀있음."
                 state_color = Color.red()
                 if content:
-                    result = subprocess.check_output(["sh", "./check_palserver.sh"], universal_newlines=True).strip()
+                    result = subprocess.check_output("./check_palserver.sh", shell=True, universal_newlines=True).strip()
                     msg = f"서버 실행중..."
                     state_color = Color.green()
             ebd = Embed(title="서버 상태", description="서버 상태 확인창", color=state_color)
@@ -32,7 +32,7 @@ class Commands(commands.Cog):
             return ebd
         except FileNotFoundError:
             logger.info("palserver_pid.txt 파일 없음.")
-            return "해당 위치에서 서버 정보를 확인할 수 없습니다."
+            return f"해당 위치({os.getcwd()})에서 서버 정보를 확인할 수 없습니다."
 
     @commands.command(name="인사")
     async def hello(self, ctx):
@@ -76,30 +76,30 @@ class Commands(commands.Cog):
     @commands.command(name="열기")
     async def open_server(self, ctx):
         try:
-            subprocess.call(["sh", "./run_palserver.sh"])
+            subprocess.call("./run_palserver.sh", shell=True)
             sleep(7)
             ebd = self.check_server()
             await ctx.send(ebd)
         except FileNotFoundError:
             logger.info("run_palserver.sh 파일 없음.")
-            await ctx.send("해당 위치에 실행 스크립트가 존재하지 않습니다.")
+            await ctx.send(f"해당 위치({os.getcwd()})에 실행 스크립트가 존재하지 않습니다.")
 
     @commands.command(name="닫기")
     async def close_server(self, ctx):
         try:
-            subprocess.call(["sh", "./close_palserver.sh"])
+            subprocess.call("./close_palserver.sh", shell=True)
             sleep(7)
             ebd = self.check_server()
             await ctx.send(ebd)
         except FileNotFoundError:
             logger.info("close_palserver.sh 파일 없음.")
-            await ctx.send("해당 위치에 종료 스크립트가 존재하지 않습니다.")
+            await ctx.send(f"해당 위치({os.getcwd()})에 종료 스크립트가 존재하지 않습니다.")
 
     @commands.command(name="업데이트")
     async def update_server(self, ctx):
         try:
-            subprocess.call(["sh", "./update_palserver.sh"])
+            subprocess.call("./update_palserver.sh", shell=True)
             await ctx.send("업데이트 완료.")
         except FileNotFoundError:
             logger.info("update_palserver.sh 파일 없음.")
-            await ctx.send("해당 위치에 업데이트 스크립트가 존재하지 않습니다.")
+            await ctx.send(f"해당 위치({os.getcwd()})에 업데이트 스크립트가 존재하지 않습니다.")
