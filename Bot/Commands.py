@@ -14,14 +14,22 @@ class Commands(commands.Cog):
 
     async def check_server(self, ctx):
         try:
+            server_ip = subprocess.check_output(["sh", "curl", "-s", "https://ipinfo.io/ip"], universal_newlines=True).strip()
             subprocess.call(["sh", "~/get_palserver.sh"])
             with open("~/palserver_pid.txt", 'r') as f:
-                msg = "현재 서버 닫혀있음."
                 content = f.read()
+                msg = "현재 서버 닫혀있음."
+                state_color = Color.red()
                 if content:
                     result = subprocess.check_output(["sh", "~/check_palserver.sh"], universal_newlines=True).strip()
-                    msg = f"서버 실행중... ({result})"
-                await ctx.send(msg)
+                    msg = f"서버 실행중..."
+                    state_color = Color.green()
+            ebd = Embed(title="서버 상태", description="서버 상태 확인창", color=state_color)
+            ebd.add_field(name="서버 상태", value=msg, inline=False)
+            ebd.add_field(name="서버 아이피", value=server_ip, inline=False)
+            ebd.add_field(name="서버 실행시간", value=result, inline=False)
+            await ctx.send(ebd)
+            del ebd
         except FileNotFoundError:
             logger.info("palserver_pid.txt 파일 없음.")
             await ctx.send("해당 위치에서 서버 정보를 확인할 수 없습니다.")
