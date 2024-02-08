@@ -4,7 +4,7 @@ if screen -ls | grep -q "$SESSION_NAME"; then
     # 스크린 진입
     cd ~
     ./get_palserver.sh
-    pid=$(<palserver_pid.txt)
+    pid=$(<./palserver_pid.txt)
     screen -x "$SESSION_NAME"
     kill -2 "$pid"
     exit
