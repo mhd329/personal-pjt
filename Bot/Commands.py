@@ -1,3 +1,4 @@
+import os
 import subprocess
 from time import sleep
 from discord import Embed, Color
@@ -40,6 +41,7 @@ class Commands(commands.Cog):
 
     @commands.command(name="핑")
     async def ping(self, ctx):
+        print(os.getcwd())
         msg = await ctx.send("핑 측정 시작.")
         latency = round((msg.created_at - ctx.message.created_at).microseconds // 1000)
         api_latency = round(self.bot.latency * 1000)
@@ -71,14 +73,14 @@ class Commands(commands.Cog):
 
     @commands.command(name="상태")
     async def state(self, ctx):
-        self.check_server(ctx)
+        await self.check_server(ctx)
 
     @commands.command(name="열기")
     async def open_server(self, ctx):
         try:
             subprocess.call(["sh", "~/run_palserver.sh"])
             sleep(7)
-            self.check_server(ctx)
+            await self.check_server(ctx)
         except FileNotFoundError:
             logger.info("run_palserver.sh 파일 없음.")
             await ctx.send("해당 위치에 실행 스크립트가 존재하지 않습니다.")
@@ -88,7 +90,7 @@ class Commands(commands.Cog):
         try:
             subprocess.call(["sh", "~/close_palserver.sh"])
             sleep(7)
-            self.check_server(ctx)
+            await self.check_server(ctx)
         except FileNotFoundError:
             logger.info("close_palserver.sh 파일 없음.")
             await ctx.send("해당 위치에 종료 스크립트가 존재하지 않습니다.")
