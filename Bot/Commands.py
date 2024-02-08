@@ -16,9 +16,15 @@ class Commands(commands.Cog):
     def check_server(self):
         try:
             server_ip = subprocess.check_output("curl -s https://ipinfo.io/ip", shell=True, universal_newlines=True).strip()
+
+            print(server_ip)
+
             subprocess.call("./get_palserver.sh", shell=True)
             with open("./palserver_pid.txt", 'r') as f:
                 content = f.read()
+                print(content)
+                print(type(content))
+                print(f"content is {content == True}")
                 msg = "현재 서버 닫혀있음."
                 state_color = Color.red()
                 if content:
@@ -33,6 +39,9 @@ class Commands(commands.Cog):
         except FileNotFoundError:
             logger.info("palserver_pid.txt 파일 없음.")
             return f"해당 위치({os.getcwd()})에서 서버 정보를 확인할 수 없습니다."
+        except Exception as error:
+            logger.error(error)
+            print(error)
 
     @commands.command(name="인사")
     async def hello(self, ctx):
@@ -83,6 +92,9 @@ class Commands(commands.Cog):
         except FileNotFoundError:
             logger.info("run_palserver.sh 파일 없음.")
             await ctx.send(f"해당 위치({os.getcwd()})에 실행 스크립트가 존재하지 않습니다.")
+        except Exception as error:
+            logger.error(error)
+            print(error)
 
     @commands.command(name="닫기")
     async def close_server(self, ctx):
@@ -94,6 +106,9 @@ class Commands(commands.Cog):
         except FileNotFoundError:
             logger.info("close_palserver.sh 파일 없음.")
             await ctx.send(f"해당 위치({os.getcwd()})에 종료 스크립트가 존재하지 않습니다.")
+        except Exception as error:
+            logger.error(error)
+            print(error)
 
     @commands.command(name="업데이트")
     async def update_server(self, ctx):
@@ -103,3 +118,6 @@ class Commands(commands.Cog):
         except FileNotFoundError:
             logger.info("update_palserver.sh 파일 없음.")
             await ctx.send(f"해당 위치({os.getcwd()})에 업데이트 스크립트가 존재하지 않습니다.")
+        except Exception as error:
+            logger.error(error)
+            print(error)
