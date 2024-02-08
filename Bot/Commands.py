@@ -43,11 +43,11 @@ class Commands(commands.Cog):
             logger_detail.error(error)
             return f"서버 상태를 확인할 수 없습니다."
 
-    @commands.command(name="인사")
+    @commands.command(aliases=["인사", "안녕", "hello"])
     async def hello(self, ctx):
         await ctx.send(f"{ctx.author.display_name}님, 안녕하세요.")
 
-    @commands.command(name="핑")
+    @commands.command(aliases=["핑", "ping"])
     async def ping(self, ctx):
         msg = await ctx.send("핑 측정 시작.")
         latency = round((msg.created_at - ctx.message.created_at).microseconds // 1000)
@@ -67,7 +67,7 @@ class Commands(commands.Cog):
         await ctx.send(embed = ebd)
         del ebd
 
-    @commands.command(name="명령어")
+    @commands.command(aliases=["명령", "명령어"])
     async def find_command(self, ctx):
         ebd = Embed(title="명령어 모음", description="서버 원격 조종 명령어 모음 안내입니다.")
         ebd.add_field(name="!!상태", value=f"서버 상태 확인", inline=False)
@@ -80,7 +80,8 @@ class Commands(commands.Cog):
     @commands.command(name="상태")
     async def state(self, ctx):
         ebd = self.check_server()
-        await ctx.send(ebd)
+        await ctx.send(embed = ebd)
+        del ebd
 
     @commands.command(name="열기")
     async def open_server(self, ctx):
@@ -88,7 +89,8 @@ class Commands(commands.Cog):
             subprocess.call("./run_palserver.sh", shell=True)
             sleep(7)
             ebd = self.check_server()
-            await ctx.send(ebd)
+            await ctx.send(embed = ebd)
+            del ebd
         except FileNotFoundError:
             logger.info("run_palserver.sh 파일 없음.")
             logger_detail.error(error)
@@ -103,7 +105,8 @@ class Commands(commands.Cog):
             subprocess.call("./close_palserver.sh", shell=True)
             sleep(7)
             ebd = self.check_server()
-            await ctx.send(ebd)
+            await ctx.send(embed = ebd)
+            del ebd
         except FileNotFoundError:
             logger.info("close_palserver.sh 파일 없음.")
             await ctx.send(f"해당 위치({os.getcwd()})에 종료 스크립트가 존재하지 않습니다.")
