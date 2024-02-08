@@ -2,8 +2,9 @@
 Description=palserver boot script
 
 [Service]
-ExecStart=./run_palserver.sh
-Restart=on-failure
+ExecStart=nohup /usr/bin/python3 -u main.py &
+WorkingDirectory=/home/mhd329
+Restart=always
 
 [Install]
 WantedBy=default.target
