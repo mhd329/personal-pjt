@@ -21,13 +21,15 @@ class Commands(commands.Cog):
                 content = f.read()
                 msg = "현재 서버 닫혀있음."
                 state_color = Color.red()
+                result = "00:00"
                 if content.strip():
                     try:
                         result = subprocess.check_output("./check_palserver.sh", shell=True, universal_newlines=True).strip()
                         msg = f"서버 실행중..."
                         state_color = Color.green()
-                    except:
-                        pass
+                    except Exception as error:
+                        logger.error("ERROR : log_detail_palserver.log 참조")
+                        logger_detail.error(error)
             ebd = Embed(title="서버 상태", description="서버 상태 확인창", color=state_color)
             ebd.add_field(name="서버 상태", value=msg, inline=False)
             ebd.add_field(name="서버 아이피", value=server_ip, inline=False)
