@@ -21,6 +21,7 @@ class Commands(commands.Cog):
                 content = f.read()
                 msg = "현재 서버 닫혀있음."
                 state_color = Color.red()
+                print(f"content is {content == True}")
                 if content:
                     print("content 진입")
                     try:
@@ -33,6 +34,7 @@ class Commands(commands.Cog):
             ebd.add_field(name="서버 상태", value=msg, inline=False)
             ebd.add_field(name="서버 아이피", value=server_ip, inline=False)
             ebd.add_field(name="서버 실행시간", value=result, inline=False)
+            print("ebd 만듦")
             return ebd
         except FileNotFoundError:
             logger.info("palserver_pid.txt 파일 없음.")
