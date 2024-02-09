@@ -3,6 +3,7 @@ import logging
 from datetime import datetime
 
 basepath = os.getcwd()
+os.mkdir("logs")
 log_path = basepath + "/logs"
 
 log_format = logging.Formatter("%(asctime)s %(levelname)-7s %(message)s [%(filename)s:%(lineno)s -> %(funcName)s()]")

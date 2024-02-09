@@ -30,8 +30,7 @@ class Commands(commands.Cog):
                     except Exception as error:
                         logger.error("ERROR : log_detail_palserver.log 참조")
                         logger_detail.error(error)
-            ebd = Embed(title="서버 상태", description="서버 상태 확인창", color=state_color)
-            ebd.add_field(name="서버 상태", value=msg, inline=False)
+            ebd = Embed(title="서버 상태", description=msg, color=state_color)
             ebd.add_field(name="서버 아이피", value=server_ip, inline=False)
             ebd.add_field(name="서버 실행시간", value=result, inline=False)
             return ebd
@@ -60,10 +59,10 @@ class Commands(commands.Cog):
         if latency < 201:
             ping_color=Color.green()
             result = "원활"
-        ebd = Embed(title="핑", description="결과", color=ping_color)
+        ebd = Embed(title="핑", description=f"결과 : {result}", color=ping_color)
         ebd.add_field(name="Latency", value=f"{latency}ms", inline=False)
         ebd.add_field(name="API Latency", value=f"{api_latency}ms", inline=False)
-        ebd.add_field(name="참고", value=f"여기서의 핑은 인게임 서버 상태와는 무관합니다.", inline=False)
+        ebd.set_footer(text=f"(참고) 이 수치는 인게임 서버 상태와는 무관합니다.")
         await ctx.send(embed = ebd)
         del ebd
 
@@ -87,7 +86,7 @@ class Commands(commands.Cog):
     async def open_server(self, ctx):
         try:
             subprocess.call("./run_palserver.sh", shell=True)
-            sleep(7)
+            sleep(20)
             ebd = self.check_server()
             await ctx.send(embed = ebd)
             del ebd
