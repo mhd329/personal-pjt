@@ -38,7 +38,7 @@ class Commands(commands.Cog):
                         logger_detail.error(error)
             ebd = Embed(title=":eyes: 서버 상태", description=msg, color=state_color)
             ebd.set_thumbnail(url=image_path)
-            ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.avatar_url)
+            ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
             ebd.add_field(name="서버 실행시간", value=result, inline=True)
             ebd.add_field(name="서버 아이피", value=f"{server_ip}:8211", inline=False)
             return ebd
@@ -79,7 +79,7 @@ class Commands(commands.Cog):
             result = "빠름"
         ebd = Embed(title=":ping_pong:", description=f"속도 : {result}", color=ping_color)
         ebd.set_thumbnail(url="./images/android.png")
-        ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.avatar_url)
+        ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
         ebd.add_field(name="Latency", value=f"{latency}ms", inline=True)
         ebd.add_field(name="API Latency", value=f"{api_latency}ms", inline=False)
         ebd.add_field(value=f"이 수치는 인게임 서버 상태와는 무관합니다.", inline=False)
@@ -91,7 +91,7 @@ class Commands(commands.Cog):
     async def find_command(self, ctx):
         ebd = Embed(title="명령어 모음", description="서버 원격 조종 명령어 모음 안내입니다.\n자세한 사항은 [여기](https://github.com/mhd329/palserver-remote-control)를 참조하세요.")
         ebd.set_thumbnail(url="./images/cogs.png")
-        ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.avatar_url)
+        ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
         ebd.add_field(name="!!상태", value=f"서버 상태 확인", inline=True)
         ebd.add_field(name="!!열기", value=f"서버 열기", inline=False)
         ebd.add_field(name="!!닫기", value=f"서버 닫기", inline=True)
@@ -154,7 +154,7 @@ class Commands(commands.Cog):
             await self.run_command("./update_palserver.sh")
             ebd = Embed(title="업데이트")
             ebd.set_thumbnail(url="./images/cogs.png")
-            ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.avatar_url)
+            ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
             ebd.add_field(value="https://store.steampowered.com/news/app/1623730", inline=False)
             ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.avatar_url)
             await ctx.send(embed = ebd)
