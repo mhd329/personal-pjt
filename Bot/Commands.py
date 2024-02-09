@@ -1,6 +1,6 @@
 import os
+import asyncio
 import subprocess
-from time import sleep
 from discord import Embed, Color
 from discord.ext import commands
 from Log.Settings import logger, logger_detail
@@ -36,11 +36,13 @@ class Commands(commands.Cog):
             return ebd
         except FileNotFoundError:
             logger.info("palserver_pid.txt 파일 없음.")
-            return f"해당 위치({os.getcwd()})에서 서버 상태를 확인할 수 없습니다."
+            error_msg = f"해당 위치({os.getcwd()})에서 서버 상태를 확인할 수 없습니다."
+            raise error_msg
         except Exception as error:
             logger.error("ERROR : log_detail_palserver.log 참조")
             logger_detail.error(error)
-            return f"서버 상태를 확인할 수 없습니다."
+            error_msg = f"서버 상태를 확인할 수 없습니다."
+            raise error_msg
 
     @commands.command(aliases=["인사", "안녕"])
     async def hello(self, ctx):
@@ -52,13 +54,13 @@ class Commands(commands.Cog):
         latency = round((msg.created_at - ctx.message.created_at).microseconds // 1000)
         api_latency = round(self.bot.latency * 1000)
         ping_color=Color.red()
-        result = "심각"
+        result = "느림"
         if latency < 501:
             ping_color=Color.yellow()
             result = "보통"
         if latency < 201:
             ping_color=Color.green()
-            result = "원활"
+            result = "빠름"
         ebd = Embed(title="핑", description=f"결과 : {result}", color=ping_color)
         ebd.add_field(name="Latency", value=f"{latency}ms", inline=False)
         ebd.add_field(name="API Latency", value=f"{api_latency}ms", inline=False)
@@ -78,18 +80,23 @@ class Commands(commands.Cog):
 
     @commands.command(name="상태")
     async def state(self, ctx):
-        ebd = self.check_server()
-        await ctx.send(embed = ebd)
-        del ebd
+        try:
+            ebd = await asyncio.to_thread(self.check_server())
+            await ctx.send(embed = ebd)
+            del ebd
+        except Exception as error:
+            await ctx.send(error)
 
     @commands.command(name="열기")
     async def open_server(self, ctx):
         try:
-            subprocess.call("./run_palserver.sh", shell=True)
-            sleep(20)
-            ebd = self.check_server()
-            await ctx.send(embed = ebd)
-            del ebd
+            await asyncio.create_subprocess_shell("./run_palserver.sh", shell=True).wait()
+            try:
+                ebd = await asyncio.to_thread(self.check_server())
+                await ctx.send(embed = ebd)
+                del ebd
+            except Exception as error:
+                await ctx.send(error)
         except FileNotFoundError:
             logger.info("run_palserver.sh 파일 없음.")
             logger_detail.error(error)
@@ -97,15 +104,18 @@ class Commands(commands.Cog):
         except Exception as error:
             logger.error("ERROR : log_detail_palserver.log 참조")
             logger_detail.error(error)
+            await ctx.send(error)
 
     @commands.command(name="닫기")
     async def close_server(self, ctx):
         try:
-            subprocess.call("./close_palserver.sh", shell=True)
-            sleep(7)
-            ebd = self.check_server()
-            await ctx.send(embed = ebd)
-            del ebd
+            await asyncio.create_subprocess_shell("./close_palserver.sh", shell=True).wait()
+            try:
+                ebd = await asyncio.to_thread(self.check_server())
+                await ctx.send(embed = ebd)
+                del ebd
+            except Exception as error:
+                await ctx.send(error)
         except FileNotFoundError:
             logger.info("close_palserver.sh 파일 없음.")
             await ctx.send(f"해당 위치({os.getcwd()})에 종료 스크립트가 존재하지 않습니다.")
@@ -116,7 +126,7 @@ class Commands(commands.Cog):
     @commands.command(name="업데이트")
     async def update_server(self, ctx):
         try:
-            subprocess.call("./update_palserver.sh", shell=True)
+            await asyncio.create_subprocess_shell("./update_palserver.sh", shell=True).wait()
             await ctx.send("업데이트 완료.")
         except FileNotFoundError:
             logger.info("update_palserver.sh 파일 없음.")
@@ -124,3 +134,4 @@ class Commands(commands.Cog):
         except Exception as error:
             logger.error("ERROR : log_detail_palserver.log 참조")
             logger_detail.error(error)
+            await ctx.send("예상치 못한 예외가 발생했습니다.")

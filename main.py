@@ -20,8 +20,13 @@ if __name__ == "__main__":
         token_server = os.getenv("TOKEN_SERVER_DEBUG")
     bot = Settings(server_id=token_server)
     asyncio.run(bot.add_cog(Commands(bot)))
+
     @bot.tree.command(name = "종료", description = "서버 컴퓨터 종료.")
     async def terminate_server(interaction):
-        subprocess.call(["sh", "sudo", "shutdown", "-h", "now"])
-        await interaction.response.send_message(f"서버 컴퓨터가 종료되었습니다.")
+        subprocess.call(["sudo shutdown -h now"], shell=True)
+
+    @bot.tree.command(aliases=["재시작", "재부팅"], description = "서버 컴퓨터 재시작.")
+    async def reboot_server(interaction):
+        subprocess.call(["sudo shutdown -r now"], shell=True)
+
     bot.run(token_bot)
