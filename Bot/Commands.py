@@ -19,19 +19,19 @@ class Commands(commands.Cog):
             subprocess.call("./get_palserver.sh", shell=True)
             with open("./palserver_pid.txt", 'r') as f:
                 content = f.read()
-                msg = "현재 서버 닫혀있음."
+                msg = "닫혀있음."
                 state_color = Color.red()
                 result = "00:00"
                 if content.strip():
                     try:
                         result = subprocess.check_output("./check_palserver.sh", shell=True, universal_newlines=True).strip()
-                        msg = f"서버 실행중..."
+                        msg = f"가동중..."
                         state_color = Color.green()
                     except Exception as error:
                         logger.error("ERROR : log_detail_palserver.log 참조")
                         logger_detail.error(error)
             ebd = Embed(title="서버 상태", description=msg, color=state_color)
-            ebd.add_field(name="서버 아이피", value=server_ip, inline=False)
+            ebd.add_field(name="서버 아이피", value=f"{server_ip}:8211", inline=False)
             ebd.add_field(name="서버 실행시간", value=result, inline=False)
             return ebd
         except FileNotFoundError:
