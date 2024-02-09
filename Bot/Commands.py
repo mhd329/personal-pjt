@@ -24,7 +24,7 @@ class Commands(commands.Cog):
                 content = f.read()
                 msg = "닫혀있음."
                 state_color = Color.red()
-                image_path="./images/x.png"
+                image_url="https://cdn.discordapp.com/attachments/995736483854036994/1205592700745818162/x.png?ex=65d8eeb2&is=65c679b2&hm=bd8089fbe2fbb0d94abbca73ed09e1c424af835a4f1fd53e4459a7f7c07750db&"
                 result = ":electric_plug: 00:00 :electric_plug:"
                 if content.strip():
                     try:
@@ -32,12 +32,12 @@ class Commands(commands.Cog):
                         result = ":bulb: " + running_time + " :bulb:"
                         msg = f"가동중..."
                         state_color = Color.green()
-                        image_path="./images/check.png"
+                        image_url="https://cdn.discordapp.com/attachments/995736483854036994/1205592578523660338/check.png?ex=65d8ee95&is=65c67995&hm=2db71be4aefe65ab0867ca6e724930cd9b6e5485131b3759eb515d066d4fcb94&"
                     except Exception as error:
                         logger.error("ERROR : log_detail_palserver.log 참조")
                         logger_detail.error(error)
             ebd = Embed(title=":eyes: 서버 상태", description=msg, color=state_color)
-            ebd.set_thumbnail(url=image_path)
+            ebd.set_thumbnail(url=image_url)
             ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
             ebd.add_field(name="서버 실행시간", value=result, inline=True)
             ebd.add_field(name="서버 아이피", value=f"{server_ip}:8211", inline=False)
@@ -78,7 +78,7 @@ class Commands(commands.Cog):
             ping_color=Color.green()
             result = "빠름"
         ebd = Embed(title=":ping_pong:", description=f"속도 : {result}", color=ping_color)
-        ebd.set_thumbnail(url="./images/android.png")
+        ebd.set_thumbnail(url="https://cdn.discordapp.com/attachments/995736483854036994/1205592106110820383/android.png?ex=65d8ee24&is=65c67924&hm=1106bc390dc587d8b5a328d23dd03a515fda2a178761aa62ca7f3914edc7ce6c&")
         ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
         ebd.add_field(name="Latency", value=f"{latency}ms", inline=True)
         ebd.add_field(name="API Latency", value=f"{api_latency}ms", inline=False)
@@ -90,7 +90,7 @@ class Commands(commands.Cog):
     @commands.command(aliases=["명령", "명령어"])
     async def find_command(self, ctx):
         ebd = Embed(title="명령어 모음", description="서버 원격 조종 명령어 모음 안내입니다.\n자세한 사항은 [여기](https://github.com/mhd329/palserver-remote-control)를 참조하세요.")
-        ebd.set_thumbnail(url="./images/cogs.png")
+        ebd.set_thumbnail(url="https://cdn.discordapp.com/attachments/995736483854036994/1205592066768379944/cogs.png?ex=65d8ee1b&is=65c6791b&hm=ecb652eceda7a55fca809a5641e64ccdaad6a95ee90040f4c2c5e016972bef33&")
         ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
         ebd.add_field(name="!!상태", value=f"서버 상태 확인", inline=True)
         ebd.add_field(name="!!열기", value=f"서버 열기", inline=False)
@@ -153,7 +153,7 @@ class Commands(commands.Cog):
         try:
             await self.run_command("./update_palserver.sh")
             ebd = Embed(title="업데이트")
-            ebd.set_thumbnail(url="./images/cogs.png")
+            ebd.set_thumbnail(url="https://cdn.discordapp.com/attachments/995736483854036994/1205592066768379944/cogs.png?ex=65d8ee1b&is=65c6791b&hm=ecb652eceda7a55fca809a5641e64ccdaad6a95ee90040f4c2c5e016972bef33&")
             ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
             ebd.add_field(value="https://store.steampowered.com/news/app/1623730", inline=False)
             ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.display_avatar)
