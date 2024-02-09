@@ -1,14 +1,16 @@
 #!/bin/bash
-cd ~/Steam/steamapps/common/PalServer
+# cd ~/Steam/steamapps/common/PalServer >>> Change to move the path within the screen.
 SESSION_NAME="palserver-screen"
 if screen -ls | grep -q "$SESSION_NAME"; then
-    echo "서버가 이미 실행중입니다."
+    echo "The server is already running."
 else
-    screen -S "$SESSION_NAME"
-    # 스크린 진입
-    echo -ne "\n"
-    ./PalServer.sh -useperfthreads -NoAsyncLoadingThread -UseMultithreadForDS
-    screen -X detach
-    exit
+    echo "Start the server."
+    screen -dmS "$SESSION_NAME"
+    sleep 1
+    screen -S "$SESSION_NAME" -p 0 -X stuff "cd ~/Steam/steamapps/common/PalServer"
+    screen -S "$SESSION_NAME" -p 0 -X stuff $'\n'
+    screen -S "$SESSION_NAME" -p 0 -X stuff "./PalServer.sh -useperfthreads -NoAsyncLoadingThread -UseMultithreadForDS"
+    screen -S "$SESSION_NAME" -p 0 -X stuff $'\n'
+    echo "The server is now running."
 fi
 # 스크린 탈출

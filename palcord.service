@@ -1,0 +1,10 @@
+[Unit]
+Description=palserver boot script
+
+[Service]
+ExecStart=nohup /usr/bin/python3 -u main.py > ~/logs/pyout_$(date +\%Y\%m\%d).out 2> ~/logs/pyerr_$(date +\%Y\%m\%d).out &
+WorkingDirectory=%h
+Restart=always
+
+[Install]
+WantedBy=default.target

@@ -1,14 +1,23 @@
 #!/bin/bash
 SESSION_NAME="palserver-screen"
 if screen -ls | grep -q "$SESSION_NAME"; then
-    # 스크린 진입
+    echo "Shut down the currently running server."
+
+    # Gets the palserver pid.
     cd ~
     ./get_palserver.sh
     pid=$(<./palserver_pid.txt)
-    screen -x "$SESSION_NAME"
-    kill -2 "$pid"
-    exit
-    # 스크린 탈출
+
+    # Forwarding commands into the screen
+    screen -S "$SESSION_NAME" -p 0 -X stuff "^C"
+    WAIT_TIME=5
+    while [ -e /proc/$pid ]; do
+        sleep $WAIT_TIME
+    done
+    
+    echo "Server shut down."
+    screen -XS "$SESSION_NAME" quit
+    echo "Screen shut down."
 else
-    echo "스크린 찾을 수 없음."
+    echo "The screen was not found."
 fi
