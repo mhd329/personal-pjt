@@ -25,22 +25,19 @@ class Commands(commands.Cog):
                 msg = "닫혀있음."
                 state_color = Color.red()
                 image_url="https://cdn.discordapp.com/attachments/995736483854036994/1205592081553166487/x.png?ex=65d8ee1f&is=65c6791f&hm=2b5695918f375cb7a187bd3a5023b2a0aec938a3f090ee617a9f55217dd76ab5&"
-                result = ":electric_plug: 00:00 :electric_plug:"
+                result = "00:00"
                 if content.strip():
                     try:
-                        running_time = subprocess.check_output("./check_palserver.sh", shell=True, universal_newlines=True).strip()
-                        result = ":bulb: " + running_time + " :bulb:"
+                        result = subprocess.check_output("./check_palserver.sh", shell=True, universal_newlines=True).strip()
                         msg = f"가동중..."
                         state_color = Color.green()
                         image_url="https://cdn.discordapp.com/attachments/995736483854036994/1205594709817303150/check.png?ex=65d8f091&is=65c67b91&hm=e786e3b318775aa822b0bbb1dd7b119ad7a7672232b1fa81574e24347774208f&"
                     except Exception as error:
                         logger.error("ERROR : log_detail_palserver.log 참조")
                         logger_detail.error(error)
-            ebd = Embed(title=":eyes: 서버 상태", description=msg, color=state_color)
+            ebd = Embed(title=f"\n:eyes:\t서버 상태\n{msg}\n\n", description=f":bulb:\t서버 실행시간\n{result}\n\n서버 아이피\n{server_ip}:8211\n", color=state_color)
             ebd.set_thumbnail(url=image_url)
             ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
-            ebd.add_field(name="서버 실행시간", value=result, inline=True)
-            ebd.add_field(name="서버 아이피", value=f"{server_ip}:8211", inline=False)
             return ebd
         except FileNotFoundError:
             logger.info("palserver_pid.txt 파일 없음.")
@@ -66,13 +63,9 @@ class Commands(commands.Cog):
 
     @commands.command(aliases=["명령", "명령어"])
     async def find_command(self, ctx):
-        ebd = Embed(title="명령어 모음", description="서버 원격 조종 명령어 모음 안내입니다.\n자세한 사항은 [여기](https://github.com/mhd329/palserver-remote-control)를 참조하세요.")
+        ebd = Embed(title="명령어 모음", description="서버 원격 조종 명령어 모음 안내입니다.\n자세한 사항은 [여기](https://github.com/mhd329/palserver-remote-control)를 참조하세요.\n```md\n[!!상태][서버 상태 확인하기.]\n\n[!!열기][서버 열기.]\n\n[!!닫기][서버 닫기.]\n\n[!!업데이트][서버 업데이트 하기.]\n```")
         ebd.set_thumbnail(url="https://cdn.discordapp.com/attachments/995736483854036994/1205592066768379944/cogs.png?ex=65d8ee1b&is=65c6791b&hm=ecb652eceda7a55fca809a5641e64ccdaad6a95ee90040f4c2c5e016972bef33&")
         ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
-        ebd.add_field(name="!!상태", value=f"서버 상태 확인", inline=True)
-        ebd.add_field(name="!!열기", value=f"서버 열기", inline=False)
-        ebd.add_field(name="!!닫기", value=f"서버 닫기", inline=True)
-        ebd.add_field(name="!!업데이트", value=f"서버 업데이트", inline=False)
         ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.display_avatar)
         await ctx.send(embed = ebd)
         del ebd
@@ -90,7 +83,7 @@ class Commands(commands.Cog):
         if latency < 201:
             ping_color=Color.green()
             result = "빠름"
-        ebd = Embed(title=":ping_pong:", description=f"속도 : {result}\n\n**Latency** : `{latency}ms`\n\n**API Latency** : `{api_latency}ms`\n\n`위 수치들은 인게임 서버 상태와는 무관합니다.`", color=ping_color)
+        ebd = Embed(title="측정 결과", description=f"```\n속도 : {result}\n**Latency** : `{latency}ms`\n**API Latency** : `{api_latency}ms`\n**위 수치들은 인게임 서버 상태와는 무관합니다.**\n```", color=ping_color)
         ebd.set_thumbnail(url="https://cdn.discordapp.com/attachments/995736483854036994/1205592106110820383/android.png?ex=65d8ee24&is=65c67924&hm=1106bc390dc587d8b5a328d23dd03a515fda2a178761aa62ca7f3914edc7ce6c&")
         ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
         ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.display_avatar)
