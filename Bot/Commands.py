@@ -2,7 +2,7 @@ import os
 import random
 import asyncio
 import subprocess
-from discord import Embed, Color
+from discord import Embed, Color, Member
 from discord.ext import commands
 from Log.Settings import logger, logger_detail
 
@@ -83,7 +83,7 @@ class Commands(commands.Cog):
         ebd.add_field(name="Latency", value=f"{latency}ms", inline=True)
         ebd.add_field(name="API Latency", value=f"{api_latency}ms", inline=False)
         ebd.add_field(value=f"이 수치는 인게임 서버 상태와는 무관합니다.", inline=False)
-        ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.avatar_url)
+        ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.display_avatar)
         await ctx.send(embed = ebd)
         del ebd
 
@@ -96,7 +96,7 @@ class Commands(commands.Cog):
         ebd.add_field(name="!!열기", value=f"서버 열기", inline=False)
         ebd.add_field(name="!!닫기", value=f"서버 닫기", inline=True)
         ebd.add_field(name="!!업데이트", value=f"서버 업데이트", inline=False)
-        ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.avatar_url)
+        ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.display_avatar)
         await ctx.send(embed = ebd)
         del ebd
 
@@ -104,7 +104,7 @@ class Commands(commands.Cog):
     async def state(self, ctx):
         try:
             ebd = await asyncio.to_thread(self.check_server)
-            ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.avatar_url)
+            ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.display_avatar)
             await ctx.send(embed = ebd)
             del ebd
         except Exception as error:
@@ -116,7 +116,7 @@ class Commands(commands.Cog):
             await self.run_command("./run_palserver.sh")
             try:
                 ebd = await asyncio.to_thread(self.check_server)
-                ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.avatar_url)
+                ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.display_avatar)
                 await ctx.send(embed = ebd)
                 del ebd
             except Exception as error:
@@ -136,7 +136,7 @@ class Commands(commands.Cog):
             await self.run_command("./close_palserver.sh")
             try:
                 ebd = await asyncio.to_thread(self.check_server)
-                ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.avatar_url)
+                ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.display_avatar)
                 await ctx.send(embed = ebd)
                 del ebd
             except Exception as error:
@@ -156,7 +156,7 @@ class Commands(commands.Cog):
             ebd.set_thumbnail(url="./images/cogs.png")
             ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
             ebd.add_field(value="https://store.steampowered.com/news/app/1623730", inline=False)
-            ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.avatar_url)
+            ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.display_avatar)
             await ctx.send(embed = ebd)
         except FileNotFoundError:
             logger.info("update_palserver.sh 파일 없음.")
