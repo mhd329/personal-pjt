@@ -25,7 +25,7 @@ if __name__ == "__main__":
     async def terminate_server(interaction):
         subprocess.call(["sudo shutdown -h now"], shell=True)
 
-    @bot.tree.command(aliases=["재시작", "재부팅"], description = "서버 컴퓨터 재시작.")
+    @bot.tree.command(aliases=["재부팅"], description = "서버 컴퓨터 재시작.")
     async def reboot_server(interaction):
         subprocess.call(["sudo shutdown -r now"], shell=True)
 
