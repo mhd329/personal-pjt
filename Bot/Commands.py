@@ -35,7 +35,7 @@ class Commands(commands.Cog):
                     except Exception as error:
                         logger.error("ERROR : log_detail_palserver.log 참조")
                         logger_detail.error(error)
-            ebd = Embed(title=f"\n:eyes: 서버 상태\n{msg}\n\n", description=f"\n:bulb: 서버 실행시간\n{result}\n서버 아이피\n{server_ip}:8211\n", color=state_color)
+            ebd = Embed(title=f"\n:eyes: 서버 상태\n\t{msg}\n\n", description=f"\n:bulb: 서버 실행시간\n\t{result}\n\n:globe_with_meridians: 서버 아이피\n\t{server_ip}:8211\n", color=state_color)
             ebd.set_thumbnail(url=image_url)
             ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
             return ebd
