@@ -44,6 +44,10 @@ class Commands(commands.Cog):
             error_msg = f"서버 상태를 확인할 수 없습니다."
             raise error_msg
 
+    async def run_command(self, command):
+        proc = await asyncio.create_subprocess_shell(command, shell=True)
+        await proc.wait()
+
     @commands.command(aliases=["인사", "안녕"])
     async def hello(self, ctx):
         await ctx.send(f"{ctx.author.display_name}님, 안녕하세요.")
@@ -81,7 +85,7 @@ class Commands(commands.Cog):
     @commands.command(name="상태")
     async def state(self, ctx):
         try:
-            ebd = await asyncio.to_thread(self.check_server())
+            ebd = await asyncio.to_thread(self.check_server)
             await ctx.send(embed = ebd)
             del ebd
         except Exception as error:
@@ -90,9 +94,9 @@ class Commands(commands.Cog):
     @commands.command(name="열기")
     async def open_server(self, ctx):
         try:
-            await asyncio.create_subprocess_shell("./run_palserver.sh", shell=True).wait()
+            await self.run_command("./run_palserver.sh")
             try:
-                ebd = await asyncio.to_thread(self.check_server())
+                ebd = await asyncio.to_thread(self.check_server)
                 await ctx.send(embed = ebd)
                 del ebd
             except Exception as error:
@@ -109,9 +113,9 @@ class Commands(commands.Cog):
     @commands.command(name="닫기")
     async def close_server(self, ctx):
         try:
-            await asyncio.create_subprocess_shell("./close_palserver.sh", shell=True).wait()
+            await self.run_command("./close_palserver.sh")
             try:
-                ebd = await asyncio.to_thread(self.check_server())
+                ebd = await asyncio.to_thread(self.check_server)
                 await ctx.send(embed = ebd)
                 del ebd
             except Exception as error:
@@ -126,7 +130,7 @@ class Commands(commands.Cog):
     @commands.command(name="업데이트")
     async def update_server(self, ctx):
         try:
-            await asyncio.create_subprocess_shell("./update_palserver.sh", shell=True).wait()
+            await self.run_command("./update_palserver.sh")
             await ctx.send("업데이트 완료.")
         except FileNotFoundError:
             logger.info("update_palserver.sh 파일 없음.")
