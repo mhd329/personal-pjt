@@ -28,7 +28,7 @@ class Settings(commands.Bot):
 
     async def on_ready(self):
         try:
-            activity = Game("서버 모니터링중")
+            activity = Game("서버 모니터링")
             await self.change_presence(status=Status.online, activity=activity)
             logger.info("Start.")
         except Exception as error:

@@ -1,4 +1,5 @@
 import os
+import random
 import asyncio
 import subprocess
 from discord import Embed, Color
@@ -12,6 +13,8 @@ class Commands(commands.Cog):
     '''
     def __init__(self, bot):
         self.bot = bot
+        self.emo_list = (":grinning:", ":partying_face:", ":star_struck:", ":sunglasses:", ":cowboy:",)
+        self.funny_list = ("으거려으", "으으으", "으?", "으",":grimacing:", ":face_with_spiral_eyes:",)
 
     def check_server(self):
         try:
@@ -21,18 +24,23 @@ class Commands(commands.Cog):
                 content = f.read()
                 msg = "닫혀있음."
                 state_color = Color.red()
-                result = "00:00"
+                image_path="./images/x.png"
+                result = ":electric_plug: 00:00 :electric_plug:"
                 if content.strip():
                     try:
-                        result = subprocess.check_output("./check_palserver.sh", shell=True, universal_newlines=True).strip()
+                        running_time = subprocess.check_output("./check_palserver.sh", shell=True, universal_newlines=True).strip()
+                        result = ":bulb: " + running_time + " :bulb:"
                         msg = f"가동중..."
                         state_color = Color.green()
+                        image_path="./images/check.png"
                     except Exception as error:
                         logger.error("ERROR : log_detail_palserver.log 참조")
                         logger_detail.error(error)
-            ebd = Embed(title="서버 상태", description=msg, color=state_color)
+            ebd = Embed(title=":eyes: 서버 상태", description=msg, color=state_color)
+            ebd.set_thumbnail(url=image_path)
+            ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.avatar_url)
+            ebd.add_field(name="서버 실행시간", value=result, inline=True)
             ebd.add_field(name="서버 아이피", value=f"{server_ip}:8211", inline=False)
-            ebd.add_field(name="서버 실행시간", value=result, inline=False)
             return ebd
         except FileNotFoundError:
             logger.info("palserver_pid.txt 파일 없음.")
@@ -48,37 +56,47 @@ class Commands(commands.Cog):
         proc = await asyncio.create_subprocess_shell(command, shell=True)
         await proc.wait()
 
+    @commands.command(name="으")
+    async def funny_sound(self, ctx):
+        await ctx.send(f"{self.funny_list[random.randrange(len(self.funny_list))]}")
+
     @commands.command(aliases=["인사", "안녕"])
     async def hello(self, ctx):
-        await ctx.send(f"{ctx.author.display_name}님, 안녕하세요.")
+        await ctx.send(f"{ctx.author.display_name}님, 안녕하세요! {self.emo_list[random.randrange(len(self.emo_list))]}")
 
     @commands.command(aliases=["핑"])
     async def ping(self, ctx):
-        msg = await ctx.send("핑 측정 시작.")
+        msg = await ctx.send(":ping_pong:")
         latency = round((msg.created_at - ctx.message.created_at).microseconds // 1000)
         api_latency = round(self.bot.latency * 1000)
         ping_color=Color.red()
         result = "느림"
         if latency < 501:
             ping_color=Color.yellow()
-            result = "보통"
+            result = "보통 "
         if latency < 201:
             ping_color=Color.green()
             result = "빠름"
-        ebd = Embed(title="핑", description=f"결과 : {result}", color=ping_color)
-        ebd.add_field(name="Latency", value=f"{latency}ms", inline=False)
+        ebd = Embed(title=":ping_pong:", description=f"속도 : {result}", color=ping_color)
+        ebd.set_thumbnail(url="./images/android.png")
+        ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.avatar_url)
+        ebd.add_field(name="Latency", value=f"{latency}ms", inline=True)
         ebd.add_field(name="API Latency", value=f"{api_latency}ms", inline=False)
-        ebd.set_footer(text=f"(참고) 이 수치는 인게임 서버 상태와는 무관합니다.")
+        ebd.add_field(value=f"이 수치는 인게임 서버 상태와는 무관합니다.", inline=False)
+        ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.avatar_url)
         await ctx.send(embed = ebd)
         del ebd
 
     @commands.command(aliases=["명령", "명령어"])
     async def find_command(self, ctx):
-        ebd = Embed(title="명령어 모음", description="서버 원격 조종 명령어 모음 안내입니다.")
-        ebd.add_field(name="!!상태", value=f"서버 상태 확인", inline=False)
+        ebd = Embed(title="명령어 모음", description="서버 원격 조종 명령어 모음 안내입니다.\n자세한 사항은 [여기](https://github.com/mhd329/palserver-remote-control)를 참조하세요.")
+        ebd.set_thumbnail(url="./images/cogs.png")
+        ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.avatar_url)
+        ebd.add_field(name="!!상태", value=f"서버 상태 확인", inline=True)
         ebd.add_field(name="!!열기", value=f"서버 열기", inline=False)
-        ebd.add_field(name="!!닫기", value=f"서버 닫기", inline=False)
+        ebd.add_field(name="!!닫기", value=f"서버 닫기", inline=True)
         ebd.add_field(name="!!업데이트", value=f"서버 업데이트", inline=False)
+        ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.avatar_url)
         await ctx.send(embed = ebd)
         del ebd
 
@@ -86,6 +104,7 @@ class Commands(commands.Cog):
     async def state(self, ctx):
         try:
             ebd = await asyncio.to_thread(self.check_server)
+            ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.avatar_url)
             await ctx.send(embed = ebd)
             del ebd
         except Exception as error:
@@ -97,6 +116,7 @@ class Commands(commands.Cog):
             await self.run_command("./run_palserver.sh")
             try:
                 ebd = await asyncio.to_thread(self.check_server)
+                ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.avatar_url)
                 await ctx.send(embed = ebd)
                 del ebd
             except Exception as error:
@@ -116,6 +136,7 @@ class Commands(commands.Cog):
             await self.run_command("./close_palserver.sh")
             try:
                 ebd = await asyncio.to_thread(self.check_server)
+                ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.avatar_url)
                 await ctx.send(embed = ebd)
                 del ebd
             except Exception as error:
@@ -131,7 +152,12 @@ class Commands(commands.Cog):
     async def update_server(self, ctx):
         try:
             await self.run_command("./update_palserver.sh")
-            await ctx.send("업데이트 완료.")
+            ebd = Embed(title="업데이트")
+            ebd.set_thumbnail(url="./images/cogs.png")
+            ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.avatar_url)
+            ebd.add_field(value="https://store.steampowered.com/news/app/1623730", inline=False)
+            ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.avatar_url)
+            await ctx.send(embed = ebd)
         except FileNotFoundError:
             logger.info("update_palserver.sh 파일 없음.")
             await ctx.send(f"해당 위치({os.getcwd()})에 업데이트 스크립트가 존재하지 않습니다.")
