@@ -2,7 +2,7 @@ import os
 import random
 import asyncio
 import subprocess
-from discord import Embed, Color, Message
+from discord import Embed, Color
 from discord.ext import commands
 from Log.Settings import logger, logger_detail
 
@@ -53,7 +53,7 @@ class Commands(commands.Cog):
         proc = await asyncio.create_subprocess_shell(command, shell=True)
         await proc.wait()
 
-    @commands.command(name="으")
+    @commands.command(aliases=["으"])
     async def funny_sound(self, ctx):
         await ctx.send(f"{self.funny_list[random.randrange(len(self.funny_list))]}")
 
@@ -63,7 +63,7 @@ class Commands(commands.Cog):
 
     @commands.command(aliases=["명령", "명령어"])
     async def find_command(self, ctx):
-        ebd = Embed(title="명령어 모음", description="서버 원격 조종 명령어 모음 안내입니다.\n자세한 사항은 [여기](https://github.com/mhd329/palserver-remote-control)를 참조하세요.\n```md\n 1. [!!핑][서버 핑 확인하기.]\n\n 2. [!!인사][봇과 인사하기.]\n\n 3. [!!명령][봇 명령어 확인.]\n\n 4. [!!상태][서버 상태 확인.]\n\n 5. [!!열기][서버 열기.]\n\n 6. [!!닫기][서버 닫기.]\n\n 7. [!!업데이트][서버 업데이트.]\n```")
+        ebd = Embed(title="명령어 모음", description="서버 원격 조종 명령어 모음 안내입니다.\n자세한 사항은 [여기](https://github.com/mhd329/palserver-remote-control)를 참조하세요.\n```md\n 1. [!!핑][서버 핑 확인하기.]\n\n 2. [!!인사][봇과 인사 주고받기.]\n\n 3. [!!명령][봇 명령어 확인.]\n\n 4. [!!상태][서버 상태 확인.]\n\n 5. [!!열기][서버 열기.]\n\n 6. [!!닫기][서버 닫기.]\n\n 7. [!!업데이트][서버 업데이트.]\n```")
         ebd.set_thumbnail(url="https://cdn.discordapp.com/attachments/995736483854036994/1205592066768379944/cogs.png?ex=65d8ee1b&is=65c6791b&hm=ecb652eceda7a55fca809a5641e64ccdaad6a95ee90040f4c2c5e016972bef33&")
         ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
         ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.display_avatar)
@@ -83,14 +83,14 @@ class Commands(commands.Cog):
         if latency < 201:
             ping_color=Color.green()
             result = "빠름"
-        ebd = Embed(title="측정 결과", description=f"```\n속도 : {result}\n**Latency** : `{latency}ms`\n**API Latency** : `{api_latency}ms`\n**위 수치들은 인게임 서버 상태와는 무관합니다.**\n```", color=ping_color)
+        ebd = Embed(title="측정 결과", description=f"```md\n---\n**속도** : {result}\n**Latency** : `{latency}ms`\n**API Latency** : `{api_latency}ms`\n---\n위 수치들은 인게임 서버 상태와는 무관합니다.\n```", color=ping_color)
         ebd.set_thumbnail(url="https://cdn.discordapp.com/attachments/995736483854036994/1205592106110820383/android.png?ex=65d8ee24&is=65c67924&hm=1106bc390dc587d8b5a328d23dd03a515fda2a178761aa62ca7f3914edc7ce6c&")
         ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
         ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.display_avatar)
-        await msg.edit(embed = ebd)
+        await msg.edit(content=None, embed = ebd)
         del ebd
 
-    @commands.command(name="상태")
+    @commands.command(aliases=["상태"])
     async def state(self, ctx):
         try:
             ebd = await asyncio.to_thread(self.check_server)
@@ -100,7 +100,7 @@ class Commands(commands.Cog):
         except Exception as error:
             await ctx.send(error)
 
-    @commands.command(name="열기")
+    @commands.command(aliases=["열기"])
     async def open_server(self, ctx):
         msg = await ctx.send("서버를 시작합니다. 잠시만 기다려주세요...")
         try:
@@ -108,20 +108,20 @@ class Commands(commands.Cog):
             try:
                 ebd = await asyncio.to_thread(self.check_server)
                 ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.display_avatar)
-                await msg.edit(embed = ebd)
+                await msg.edit(content=None, embed = ebd)
                 del ebd
             except Exception as error:
-                await ctx.send(error)
+                await ctx.send(content=error)
         except FileNotFoundError:
             logger.info("run_palserver.sh 파일 없음.")
             logger_detail.error(error)
-            await ctx.send(f"해당 위치({os.getcwd()})에 실행 스크립트가 존재하지 않습니다.")
+            await ctx.send(content=f"해당 위치({os.getcwd()})에 실행 스크립트가 존재하지 않습니다.")
         except Exception as error:
             logger.error("ERROR : log_detail_palserver.log 참조")
             logger_detail.error(error)
-            await ctx.send(error)
+            await ctx.send(content=error)
 
-    @commands.command(name="닫기")
+    @commands.command(aliases=["닫기"])
     async def close_server(self, ctx):
         msg = await ctx.send("서버를 종료합니다. 잠시만 기다려주세요...")
         try:
@@ -129,18 +129,18 @@ class Commands(commands.Cog):
             try:
                 ebd = await asyncio.to_thread(self.check_server)
                 ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.display_avatar)
-                await msg.edit(embed = ebd)
+                await msg.edit(content=None, embed = ebd)
                 del ebd
             except Exception as error:
-                await ctx.send(error)
+                await ctx.send(content=error)
         except FileNotFoundError:
             logger.info("close_palserver.sh 파일 없음.")
-            await ctx.send(f"해당 위치({os.getcwd()})에 종료 스크립트가 존재하지 않습니다.")
+            await ctx.send(content=f"해당 위치({os.getcwd()})에 종료 스크립트가 존재하지 않습니다.")
         except Exception as error:
             logger.error("ERROR : log_detail_palserver.log 참조")
             logger_detail.error(error)
 
-    @commands.command(name="업데이트")
+    @commands.command(aliases=["업데이트"])
     async def update_server(self, ctx):
         msg = await ctx.send("업데이트 중입니다. 잠시만 기다려주세요...")
         try:
@@ -149,11 +149,11 @@ class Commands(commands.Cog):
             ebd.set_thumbnail(url="https://cdn.discordapp.com/attachments/995736483854036994/1205592106110820383/android.png?ex=65d8ee24&is=65c67924&hm=1106bc390dc587d8b5a328d23dd03a515fda2a178761aa62ca7f3914edc7ce6c&")
             ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
             ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.display_avatar)
-            await msg.edit(embed = ebd)
+            await msg.edit(content=None, embed = ebd)
         except FileNotFoundError:
             logger.info("update_palserver.sh 파일 없음.")
-            await ctx.send(f"해당 위치({os.getcwd()})에 업데이트 스크립트가 존재하지 않습니다.")
+            await ctx.send(content=f"해당 위치({os.getcwd()})에 업데이트 스크립트가 존재하지 않습니다.")
         except Exception as error:
             logger.error("ERROR : log_detail_palserver.log 참조")
             logger_detail.error(error)
-            await ctx.send("예상치 못한 예외가 발생했습니다.")
+            await ctx.send(content="예상치 못한 예외가 발생했습니다.")

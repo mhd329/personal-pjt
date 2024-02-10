@@ -20,7 +20,7 @@ class Settings(commands.Bot):
 
     async def setup_hook(self):
         try:
-            self.tree.copy_global_to(guild=Object(id=self.server_id))
+            await self.tree.copy_global_to(guild=Object(id=self.server_id))
             await self.tree.sync(guild=Object(id=self.server_id))
             logger.info("Setup pass.")
         except Exception as error:
@@ -30,6 +30,6 @@ class Settings(commands.Bot):
         try:
             activity = Game("서버 모니터링")
             await self.change_presence(status=Status.online, activity=activity)
-            logger.info("Start.")
+            logger.info(f"{self.user.id} is Start.")
         except Exception as error:
             logger.error(error)

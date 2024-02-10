@@ -5,6 +5,7 @@ import subprocess
 from dotenv import load_dotenv
 
 
+from discord import Object
 from Bot import Commands, Settings
 
 
@@ -21,11 +22,11 @@ if __name__ == "__main__":
     bot = Settings(server_id=token_server)
     asyncio.run(bot.add_cog(Commands(bot)))
 
-    @bot.tree.command(name = "종료", description = "서버 컴퓨터 종료.")
+    @bot.tree.command(name = "종료", description = "서버 컴퓨터 종료.", guild=Object(id=token_server))
     async def terminate_server(interaction):
         subprocess.call(["sudo shutdown -h now"], shell=True)
 
-    @bot.tree.command(name = "재부팅", description = "서버 컴퓨터 재시작.")
+    @bot.tree.command(name = "재부팅", description = "서버 컴퓨터 재시작.",  guild=Object(id=token_server)) ### 
     async def reboot_server(interaction):
         subprocess.call(["sudo shutdown -r now"], shell=True)
 
