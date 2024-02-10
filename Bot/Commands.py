@@ -102,7 +102,7 @@ class Commands(commands.Cog):
 
     @commands.command(aliases=["열기"])
     async def open_server(self, ctx):
-        msg = await ctx.send("서버를 시작합니다. 잠시만 기다려주세요...")
+        msg = await ctx.send("서버를 시작합니다.\n잠시만 기다려주세요...")
         try:
             await self.run_command("./run_palserver.sh")
             try:
@@ -123,7 +123,7 @@ class Commands(commands.Cog):
 
     @commands.command(aliases=["닫기"])
     async def close_server(self, ctx):
-        msg = await ctx.send("서버를 종료합니다. 잠시만 기다려주세요...")
+        msg = await ctx.send("서버를 종료합니다.\n잠시만 기다려주세요...")
         try:
             await self.run_command("./close_palserver.sh")
             try:
@@ -142,7 +142,7 @@ class Commands(commands.Cog):
 
     @commands.command(aliases=["업데이트"])
     async def update_server(self, ctx):
-        msg = await ctx.send("업데이트 중입니다. 잠시만 기다려주세요...")
+        msg = await ctx.send("업데이트 중입니다.\n잠시만 기다려주세요...")
         try:
             await self.run_command("./update_palserver.sh")
             ebd = Embed(title="업데이트", description="https://store.steampowered.com/news/app/1623730")
