@@ -14,7 +14,7 @@ class Commands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.emo_list = (":grinning:", ":partying_face:", ":star_struck:", ":sunglasses:", ":cowboy:",)
-        self.funny_list = ("으거려으", "으으으", "으?", "으",":grimacing:", ":face_with_spiral_eyes:",)
+        self.funny_list = ("으거려으", "으으으", "으?", "으.",":grimacing:", ":face_with_spiral_eyes:",)
 
     def check_server(self):
         try:
