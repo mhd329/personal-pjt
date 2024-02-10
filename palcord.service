@@ -2,8 +2,8 @@
 Description=palserver boot script
 
 [Service]
-ExecStart=nohup /usr/bin/python3 -u main.py > ~/logs/pyout_$(date +\%Y\%m\%d).out 2> ~/logs/pyerr_$(date +\%Y\%m\%d).out &
-WorkingDirectory=%h
+ExecStart=/usr/bin/python3 -u /home/mhd329/main.py > /home/mhd329/logs/pyout_$(date +\%Y\%m\%d).out 2> /home/mhd329/logs/pyerr_$(date +\%Y\%m\%d).out
+WorkingDirectory=/home/mhd329/
 Restart=always
 
 [Install]
