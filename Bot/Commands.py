@@ -83,7 +83,7 @@ class Commands(commands.Cog):
         if latency < 201:
             ping_color=Color.green()
             result = "빠름"
-        ebd = Embed(title="측정 결과", description=f"```md\n---\n**속도** : {result}\n**Latency** : `{latency}ms`\n**API Latency** : `{api_latency}ms`\n---\n위 수치들은 인게임 서버 상태와는 무관합니다.\n```", color=ping_color)
+        ebd = Embed(title=":ping_pong:", description=f"\n**속도** : {result}\n**Latency** : `{latency}ms`\n**API Latency** : `{api_latency}ms`\n위 수치들은 인게임 서버 상태와는 무관합니다.\n", color=ping_color)
         ebd.set_thumbnail(url="https://cdn.discordapp.com/attachments/995736483854036994/1205592106110820383/android.png?ex=65d8ee24&is=65c67924&hm=1106bc390dc587d8b5a328d23dd03a515fda2a178761aa62ca7f3914edc7ce6c&")
         ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
         ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.display_avatar)
@@ -121,7 +121,7 @@ class Commands(commands.Cog):
             logger_detail.error(error)
             await ctx.send(content=error)
 
-    @commands.command(aliases=["닫기"])
+    @commands.command(aliases=["닫기", "서버닫기", "끄기", "서버끄기"])
     async def close_server(self, ctx):
         msg = await ctx.send("서버를 종료합니다.\n잠시만 기다려주세요...")
         try:
