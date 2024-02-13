@@ -13,4 +13,3 @@ else
     screen -S "$SESSION_NAME" -p 0 -X stuff $'\n'
     echo "The server is now running."
 fi
-# 스크린 탈출

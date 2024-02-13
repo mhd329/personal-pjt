@@ -5,7 +5,6 @@ import subprocess
 from dotenv import load_dotenv
 
 
-from discord import Object
 from Bot import Commands, Settings
 
 

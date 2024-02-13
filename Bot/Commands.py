@@ -2,8 +2,13 @@ import os
 import random
 import asyncio
 import subprocess
+from datetime import datetime, timedelta
+
+
 from discord import Embed, Color
 from discord.ext import commands
+
+
 from Log.Settings import logger, logger_detail
 
 
@@ -14,28 +19,36 @@ class Commands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.emo_list = (":grinning:", ":partying_face:", ":star_struck:", ":sunglasses:", ":cowboy:",)
-        self.funny_list = ("으거려으", "으으으", "으?", "으.",":grimacing:", ":face_with_spiral_eyes:",)
+        self.funny_list = ("으거려으", "으으으", "으그래으", "으?", "으.",":grimacing:", ":face_with_spiral_eyes:",)
+        self.member_open = None
+        self.member_close = None
+        self.member_update = None
+        self.time_update = None
 
     def check_server(self):
         try:
             server_ip = subprocess.check_output("curl -s https://ipinfo.io/ip", shell=True, universal_newlines=True).strip()
-            subprocess.call("./get_palserver.sh", shell=True)
-            with open("./palserver_pid.txt", 'r') as f:
+            subprocess.call("./scripts/get_palserver.sh", shell=True)
+            with open("./scripts/palserver_pid.txt", 'r') as f:
                 content = f.read()
                 msg = "닫혀있음."
                 state_color = Color.red()
                 image_url="https://cdn.discordapp.com/attachments/995736483854036994/1205592081553166487/x.png?ex=65d8ee1f&is=65c6791f&hm=2b5695918f375cb7a187bd3a5023b2a0aec938a3f090ee617a9f55217dd76ab5&"
                 result = "00:00"
+                person_title = "닫은 사람"
+                person_name = f"{self.member_close[1]} {self.member_close[0]}"
                 if content.strip():
                     try:
-                        result = subprocess.check_output("./check_palserver.sh", shell=True, universal_newlines=True).strip()
+                        result = subprocess.check_output("./scripts/check_palserver.sh", shell=True, universal_newlines=True).strip()
                         msg = f"가동중..."
                         state_color = Color.green()
                         image_url="https://cdn.discordapp.com/attachments/995736483854036994/1205594709817303150/check.png?ex=65d8f091&is=65c67b91&hm=e786e3b318775aa822b0bbb1dd7b119ad7a7672232b1fa81574e24347774208f&"
+                        person_title = "연 사람"
+                        person_name = f"{self.member_open[1]} {self.member_open[0]}"
                     except Exception as error:
                         logger.error("ERROR : log_detail_palserver.log 참조")
                         logger_detail.error(error)
-            ebd = Embed(title=f"\n:eyes: 서버 상태\n{msg}", description=f"\n\n:bulb: 서버 실행시간\n\t{result}\n\n:globe_with_meridians: 서버 아이피\n\t{server_ip}:8211\n", color=state_color)
+            ebd = Embed(title=f"\n:eyes: 서버 상태\n{msg}", description=f"\n\n:gear: 서버 {person_title}\n\t{person_name}\n\n:bulb: 서버 실행시간\n\t{result}\n\n:globe_with_meridians: 서버 아이피\n\t{server_ip}:8211\n\n:loudspeaker: 마지막 업데이트 확인 일자\n\t{self.time_update} : {self.member_update[1]} {self.member_update[0]}\n", color=state_color)
             ebd.set_thumbnail(url=image_url)
             ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
             return ebd
@@ -49,6 +62,7 @@ class Commands(commands.Cog):
             error_msg = f"서버 상태를 확인할 수 없습니다."
             raise error_msg
 
+    # 스크립트를 비동기 함수 내에서 사용하기 위해 비동기화 해주는 함수.
     async def run_command(self, command):
         proc = await asyncio.create_subprocess_shell(command, shell=True)
         await proc.wait()
@@ -94,17 +108,20 @@ class Commands(commands.Cog):
     async def state(self, ctx):
         try:
             ebd = await asyncio.to_thread(self.check_server)
+            
             ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.display_avatar)
             await ctx.send(embed = ebd)
             del ebd
         except Exception as error:
             await ctx.send(error)
 
+    @commands.cooldown(1, 60, commands.BucketType.guild) # 1분에 한 번만 가능
     @commands.command(aliases=["열기"])
     async def open_server(self, ctx):
         msg = await ctx.send("서버를 시작합니다.\n잠시만 기다려주세요...")
         try:
-            await self.run_command("./run_palserver.sh")
+            await self.run_command("./scripts/run_palserver.sh")
+            self.member_open = (ctx.message.author.display_name, ctx.message.author.display_avatar)
             try:
                 ebd = await asyncio.to_thread(self.check_server)
                 ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.display_avatar)
@@ -121,11 +138,13 @@ class Commands(commands.Cog):
             logger_detail.error(error)
             await ctx.send(content=error)
 
+    @commands.cooldown(1, 60, commands.BucketType.guild) # 1분에 한 번만 가능
     @commands.command(aliases=["닫기", "서버닫기", "끄기", "서버끄기"])
     async def close_server(self, ctx):
         msg = await ctx.send("서버를 종료합니다.\n잠시만 기다려주세요...")
         try:
-            await self.run_command("./close_palserver.sh")
+            await self.run_command("./scripts/close_palserver.sh")
+            self.member_close = (ctx.message.author.display_name, ctx.message.author.display_avatar)
             try:
                 ebd = await asyncio.to_thread(self.check_server)
                 ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.display_avatar)
@@ -140,11 +159,14 @@ class Commands(commands.Cog):
             logger.error("ERROR : log_detail_palserver.log 참조")
             logger_detail.error(error)
 
+    @commands.cooldown(1, 3600, commands.BucketType.guild) # 한 시간에 한 번만 가능
     @commands.command(aliases=["업데이트"])
     async def update_server(self, ctx):
         msg = await ctx.send("업데이트 중입니다.\n잠시만 기다려주세요...")
         try:
-            await self.run_command("./update_palserver.sh")
+            await self.run_command("./scripts/update_palserver.sh")
+            self.time_update = datetime.utcnow() + timedelta(hours=9)
+            self.member_update = (ctx.message.author.display_name, ctx.message.author.display_avatar)
             ebd = Embed(title="업데이트", description="https://store.steampowered.com/news/app/1623730")
             ebd.set_thumbnail(url="https://cdn.discordapp.com/attachments/995736483854036994/1205592106110820383/android.png?ex=65d8ee24&is=65c67924&hm=1106bc390dc587d8b5a328d23dd03a515fda2a178761aa62ca7f3914edc7ce6c&")
             ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
