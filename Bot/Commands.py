@@ -48,7 +48,8 @@ class Commands(commands.Cog):
                     except Exception as error:
                         logger.error("ERROR : log_detail_palserver.log 참조")
                         logger_detail.error(error)
-            ebd = Embed(title=f"\n:eyes: 서버 상태\n{msg}", description=f"\n\n:gear: 서버 {person_title}\n\t{person_name}\n\n:bulb: 서버 실행시간\n\t{result}\n\n:globe_with_meridians: 서버 아이피\n\t{server_ip}:8211\n\n:loudspeaker: 마지막 업데이트 확인 일자\n\t{self.time_update} : {"업데이트 한 번도 하지 않음." if self.member_update is None else f"{self.member_update[1]} {self.member_update[0]}"}\n", color=state_color)
+            person_update =  "업데이트 한 번도 하지 않음." if self.member_update is None else f"{self.member_update[1]} {self.member_update[0]}"
+            ebd = Embed(title=f"\n:eyes: 서버 상태\n{msg}", description=f"\n\n:gear: 서버 {person_title}\n\t{person_name}\n\n:bulb: 서버 실행시간\n\t{result}\n\n:globe_with_meridians: 서버 아이피\n\t{server_ip}:8211\n\n:loudspeaker: 마지막 업데이트 확인 일자\n\t{self.time_update} : {person_update}\n", color=state_color)
             ebd.set_thumbnail(url=image_url)
             ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
             return ebd
