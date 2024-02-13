@@ -36,7 +36,7 @@ class Commands(commands.Cog):
                 image_url="https://cdn.discordapp.com/attachments/995736483854036994/1205592081553166487/x.png?ex=65d8ee1f&is=65c6791f&hm=2b5695918f375cb7a187bd3a5023b2a0aec938a3f090ee617a9f55217dd76ab5&"
                 result = "00:00"
                 person_title = "닫은 사람"
-                person_name = f"{self.member_close[1]} {self.member_close[0]}"
+                person_name = "열린적 한 번도 없음." if self.member_close is None else f"{self.member_close[1]} {self.member_close[0]}"
                 if content.strip():
                     try:
                         result = subprocess.check_output("./scripts/check_palserver.sh", shell=True, universal_newlines=True).strip()
@@ -48,19 +48,20 @@ class Commands(commands.Cog):
                     except Exception as error:
                         logger.error("ERROR : log_detail_palserver.log 참조")
                         logger_detail.error(error)
-            ebd = Embed(title=f"\n:eyes: 서버 상태\n{msg}", description=f"\n\n:gear: 서버 {person_title}\n\t{person_name}\n\n:bulb: 서버 실행시간\n\t{result}\n\n:globe_with_meridians: 서버 아이피\n\t{server_ip}:8211\n\n:loudspeaker: 마지막 업데이트 확인 일자\n\t{self.time_update} : {self.member_update[1]} {self.member_update[0]}\n", color=state_color)
+            ebd = Embed(title=f"\n:eyes: 서버 상태\n{msg}", description=f"\n\n:gear: 서버 {person_title}\n\t{person_name}\n\n:bulb: 서버 실행시간\n\t{result}\n\n:globe_with_meridians: 서버 아이피\n\t{server_ip}:8211\n\n:loudspeaker: 마지막 업데이트 확인 일자\n\t{self.time_update} : {"업데이트 한 번도 하지 않음." if self.member_update is None else f"{self.member_update[1]} {self.member_update[0]}"}\n", color=state_color)
             ebd.set_thumbnail(url=image_url)
             ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
             return ebd
-        except FileNotFoundError:
+        except FileNotFoundError as file_not_found:
             logger.info("palserver_pid.txt 파일 없음.")
+            logger_detail.info(file_not_found)
             error_msg = f"해당 위치({os.getcwd()})에서 서버 상태를 확인할 수 없습니다."
-            raise error_msg
+            return error_msg
         except Exception as error:
             logger.error("ERROR : log_detail_palserver.log 참조")
             logger_detail.error(error)
             error_msg = f"서버 상태를 확인할 수 없습니다."
-            raise error_msg
+            return error_msg
 
     # 스크립트를 비동기 함수 내에서 사용하기 위해 비동기화 해주는 함수.
     async def run_command(self, command):
@@ -108,12 +109,13 @@ class Commands(commands.Cog):
     async def state(self, ctx):
         try:
             ebd = await asyncio.to_thread(self.check_server)
-            
             ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.display_avatar)
             await ctx.send(embed = ebd)
             del ebd
         except Exception as error:
-            await ctx.send(error.args)
+            logger.error("ERROR : log_detail_palserver.log 참조")
+            logger_detail.error(error)
+            await ctx.send("예상하지 못한 에러가 발생했습니다.")
 
     @commands.cooldown(1, 60, commands.BucketType.guild) # 1분에 한 번만 가능
     @commands.command(aliases=["열기"])
@@ -128,15 +130,15 @@ class Commands(commands.Cog):
                 await msg.edit(content=None, embed = ebd)
                 del ebd
             except Exception as error:
-                await ctx.send(content=error.args)
-        except FileNotFoundError:
+                await ctx.send(content=error)
+        except FileNotFoundError as file_not_found:
             logger.info("run_palserver.sh 파일 없음.")
-            logger_detail.error(error)
+            logger_detail.info(file_not_found)
             await ctx.send(content=f"해당 위치({os.getcwd()})에 실행 스크립트가 존재하지 않습니다.")
         except Exception as error:
             logger.error("ERROR : log_detail_palserver.log 참조")
             logger_detail.error(error)
-            await ctx.send(content=error.args)
+            await ctx.send(content="예상하지 못한 에러가 발생했습니다.")
 
     @commands.cooldown(1, 60, commands.BucketType.guild) # 1분에 한 번만 가능
     @commands.command(aliases=["닫기", "서버닫기", "끄기", "서버끄기"])
@@ -151,13 +153,15 @@ class Commands(commands.Cog):
                 await msg.edit(content=None, embed = ebd)
                 del ebd
             except Exception as error:
-                await ctx.send(content=error.args)
-        except FileNotFoundError:
+                await ctx.send(content=error)
+        except FileNotFoundError as file_not_found:
             logger.info("close_palserver.sh 파일 없음.")
+            logger_detail.info(file_not_found)
             await ctx.send(content=f"해당 위치({os.getcwd()})에 종료 스크립트가 존재하지 않습니다.")
         except Exception as error:
             logger.error("ERROR : log_detail_palserver.log 참조")
-            logger_detail.error(error.args)
+            logger_detail.error(error)
+            await ctx.send(content="예상하지 못한 에러가 발생했습니다.")
 
     @commands.cooldown(1, 3600, commands.BucketType.guild) # 한 시간에 한 번만 가능
     @commands.command(aliases=["업데이트"])
@@ -172,10 +176,11 @@ class Commands(commands.Cog):
             ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
             ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.display_avatar)
             await msg.edit(content=None, embed = ebd)
-        except FileNotFoundError:
+        except FileNotFoundError as file_not_found:
             logger.info("update_palserver.sh 파일 없음.")
+            logger_detail.info(file_not_found)
             await ctx.send(content=f"해당 위치({os.getcwd()})에 업데이트 스크립트가 존재하지 않습니다.")
         except Exception as error:
             logger.error("ERROR : log_detail_palserver.log 참조")
             logger_detail.error(error)
-            await ctx.send(content="예상치 못한 예외가 발생했습니다.")
+            await ctx.send(content="예상하지 못한 에러가 발생했습니다.")
