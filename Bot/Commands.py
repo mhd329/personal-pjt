@@ -113,7 +113,7 @@ class Commands(commands.Cog):
             await ctx.send(embed = ebd)
             del ebd
         except Exception as error:
-            await ctx.send(error)
+            await ctx.send(error.args)
 
     @commands.cooldown(1, 60, commands.BucketType.guild) # 1분에 한 번만 가능
     @commands.command(aliases=["열기"])
@@ -128,7 +128,7 @@ class Commands(commands.Cog):
                 await msg.edit(content=None, embed = ebd)
                 del ebd
             except Exception as error:
-                await ctx.send(content=error)
+                await ctx.send(content=error.args)
         except FileNotFoundError:
             logger.info("run_palserver.sh 파일 없음.")
             logger_detail.error(error)
@@ -136,7 +136,7 @@ class Commands(commands.Cog):
         except Exception as error:
             logger.error("ERROR : log_detail_palserver.log 참조")
             logger_detail.error(error)
-            await ctx.send(content=error)
+            await ctx.send(content=error.args)
 
     @commands.cooldown(1, 60, commands.BucketType.guild) # 1분에 한 번만 가능
     @commands.command(aliases=["닫기", "서버닫기", "끄기", "서버끄기"])
@@ -151,13 +151,13 @@ class Commands(commands.Cog):
                 await msg.edit(content=None, embed = ebd)
                 del ebd
             except Exception as error:
-                await ctx.send(content=error)
+                await ctx.send(content=error.args)
         except FileNotFoundError:
             logger.info("close_palserver.sh 파일 없음.")
             await ctx.send(content=f"해당 위치({os.getcwd()})에 종료 스크립트가 존재하지 않습니다.")
         except Exception as error:
             logger.error("ERROR : log_detail_palserver.log 참조")
-            logger_detail.error(error)
+            logger_detail.error(error.args)
 
     @commands.cooldown(1, 3600, commands.BucketType.guild) # 한 시간에 한 번만 가능
     @commands.command(aliases=["업데이트"])
