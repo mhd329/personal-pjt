@@ -48,7 +48,7 @@ class Commands(commands.Cog):
                     except Exception as error:
                         logger.error("ERROR : log_detail_palserver.log 참조")
                         logger_detail.error(error)
-            person_update =  "업데이트 한 번도 하지 않음." if self.member_update is None else f"{self.member_update}이(가) {self.time_update}에 업데이트 하였음."
+            person_update =  "업데이트 한 번도 하지 않음." if self.member_update is None else f"{self.member_update} -> {self.time_update} 업데이트."
             ebd = Embed(title=f"\n:eyes: 서버 상태\n{msg}", description=f"\n\n:gear: 서버 {person_title}\n\t{person_name}\n\n:bulb: 서버 실행시간\n\t{result}\n\n:globe_with_meridians: 서버 아이피\n\t{server_ip}:8211\n\n:loudspeaker: 마지막 업데이트 확인 일자\n\t{person_update}\n", color=state_color)
             ebd.set_thumbnail(url=image_url)
             ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
@@ -175,7 +175,7 @@ class Commands(commands.Cog):
         try:
             await self.run_command("./scripts/update_palserver.sh")
             self.time_update = datetime.utcnow() + timedelta(hours=9)
-            self.time_update = self.time_update.strftime("%Y년 %m월 %d일 %p %I시 %M분 %S초")
+            self.time_update = self.time_update.strftime("%Y년 %m월 %d일 %p %I:%M:%S")
             self.member_update = ctx.message.author.display_name
             ebd = Embed(title="업데이트", description="https://store.steampowered.com/news/app/1623730")
             ebd.set_thumbnail(url="https://cdn.discordapp.com/attachments/995736483854036994/1205592106110820383/android.png?ex=65d8ee24&is=65c67924&hm=1106bc390dc587d8b5a328d23dd03a515fda2a178761aa62ca7f3914edc7ce6c&")
