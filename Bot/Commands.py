@@ -36,7 +36,7 @@ class Commands(commands.Cog):
                 image_url="https://cdn.discordapp.com/attachments/995736483854036994/1205592081553166487/x.png?ex=65d8ee1f&is=65c6791f&hm=2b5695918f375cb7a187bd3a5023b2a0aec938a3f090ee617a9f55217dd76ab5&"
                 result = "00:00"
                 person_title = "닫은 사람"
-                person_name = "열린적 한 번도 없음." if self.member_close is None else f"{self.member_close[1]} {self.member_close[0]}"
+                person_name = "열린적 한 번도 없음." if self.member_close is None else self.member_close
                 if content.strip():
                     try:
                         result = subprocess.check_output("./scripts/check_palserver.sh", shell=True, universal_newlines=True).strip()
@@ -44,12 +44,12 @@ class Commands(commands.Cog):
                         state_color = Color.green()
                         image_url="https://cdn.discordapp.com/attachments/995736483854036994/1205594709817303150/check.png?ex=65d8f091&is=65c67b91&hm=e786e3b318775aa822b0bbb1dd7b119ad7a7672232b1fa81574e24347774208f&"
                         person_title = "연 사람"
-                        person_name = f"{self.member_open[1]} {self.member_open[0]}"
+                        person_name = self.member_open
                     except Exception as error:
                         logger.error("ERROR : log_detail_palserver.log 참조")
                         logger_detail.error(error)
-            person_update =  "업데이트 한 번도 하지 않음." if self.member_update is None else f"{self.member_update[1]} {self.member_update[0]}"
-            ebd = Embed(title=f"\n:eyes: 서버 상태\n{msg}", description=f"\n\n:gear: 서버 {person_title}\n\t{person_name}\n\n:bulb: 서버 실행시간\n\t{result}\n\n:globe_with_meridians: 서버 아이피\n\t{server_ip}:8211\n\n:loudspeaker: 마지막 업데이트 확인 일자\n\t{self.time_update} : {person_update}\n", color=state_color)
+            person_update =  "업데이트 한 번도 하지 않음." if self.member_update is None else f"{self.time_update}이(가) {self.time_update}에 업데이트 하였음."
+            ebd = Embed(title=f"\n:eyes: 서버 상태\n{msg}", description=f"\n\n:gear: 서버 {person_title}\n\t{person_name}\n\n:bulb: 서버 실행시간\n\t{result}\n\n:globe_with_meridians: 서버 아이피\n\t{server_ip}:8211\n\n:loudspeaker: 마지막 업데이트 확인 일자\n\t{person_update}\n", color=state_color)
             ebd.set_thumbnail(url=image_url)
             ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
             return ebd
@@ -124,7 +124,7 @@ class Commands(commands.Cog):
         msg = await ctx.send("서버를 시작합니다.\n잠시만 기다려주세요...")
         try:
             await self.run_command("./scripts/run_palserver.sh")
-            self.member_open = (ctx.message.author.display_name, ctx.message.author.display_avatar)
+            self.member_open = ctx.message.author.display_name
             try:
                 ebd = await asyncio.to_thread(self.check_server)
                 ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.display_avatar)
@@ -147,7 +147,7 @@ class Commands(commands.Cog):
         msg = await ctx.send("서버를 종료합니다.\n잠시만 기다려주세요...")
         try:
             await self.run_command("./scripts/close_palserver.sh")
-            self.member_close = (ctx.message.author.display_name, ctx.message.author.display_avatar)
+            self.member_close = ctx.message.author.display_name
             try:
                 ebd = await asyncio.to_thread(self.check_server)
                 ebd.set_footer(text = f"{ctx.message.author.display_name}", icon_url = ctx.message.author.display_avatar)
@@ -171,7 +171,8 @@ class Commands(commands.Cog):
         try:
             await self.run_command("./scripts/update_palserver.sh")
             self.time_update = datetime.utcnow() + timedelta(hours=9)
-            self.member_update = (ctx.message.author.display_name, ctx.message.author.display_avatar)
+            self.time_update = self.time_update.strftime("%Y년 %m월 %d일 %p %I시 %M분 %S초")
+            self.member_update = ctx.message.author.display_name
             ebd = Embed(title="업데이트", description="https://store.steampowered.com/news/app/1623730")
             ebd.set_thumbnail(url="https://cdn.discordapp.com/attachments/995736483854036994/1205592106110820383/android.png?ex=65d8ee24&is=65c67924&hm=1106bc390dc587d8b5a328d23dd03a515fda2a178761aa62ca7f3914edc7ce6c&")
             ebd.set_author(name=self.bot.user.display_name, icon_url = self.bot.user.display_avatar)
