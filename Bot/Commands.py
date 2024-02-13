@@ -1,5 +1,4 @@
 import os
-import locale
 import random
 import asyncio
 import subprocess
@@ -132,15 +131,17 @@ class Commands(commands.Cog):
                 await msg.edit(content=None, embed = ebd)
                 del ebd
             except Exception as error:
-                await ctx.send(content=error)
+                logger.error("ERROR : log_detail_palserver.log 참조")
+                logger_detail.error(error)
+                await msg.edit(content="예상치 못한 에러가 발생했습니다.")
         except FileNotFoundError as file_not_found:
             logger.info("run_palserver.sh 파일 없음.")
             logger_detail.info(file_not_found)
-            await ctx.send(content=f"해당 위치({os.getcwd()})에 실행 스크립트가 존재하지 않습니다.")
+            await msg.edit(content=f"해당 위치({os.getcwd()})에 실행 스크립트가 존재하지 않습니다.")
         except Exception as error:
             logger.error("ERROR : log_detail_palserver.log 참조")
             logger_detail.error(error)
-            await ctx.send(content="예상하지 못한 에러가 발생했습니다.")
+            await msg.edit(content="예상치 못한 에러가 발생했습니다.")
 
     @commands.cooldown(1, 60, commands.BucketType.guild) # 1분에 한 번만 가능
     @commands.command(aliases=["닫기", "서버닫기", "끄기", "서버끄기"])
@@ -155,15 +156,17 @@ class Commands(commands.Cog):
                 await msg.edit(content=None, embed = ebd)
                 del ebd
             except Exception as error:
-                await ctx.send(content=error)
+                logger.error("ERROR : log_detail_palserver.log 참조")
+                logger_detail.error(error)
+                await msg.edit(content="예상치 못한 에러가 발생했습니다.")
         except FileNotFoundError as file_not_found:
             logger.info("close_palserver.sh 파일 없음.")
             logger_detail.info(file_not_found)
-            await ctx.send(content=f"해당 위치({os.getcwd()})에 종료 스크립트가 존재하지 않습니다.")
+            await msg.edit(content=f"해당 위치({os.getcwd()})에 종료 스크립트가 존재하지 않습니다.")
         except Exception as error:
             logger.error("ERROR : log_detail_palserver.log 참조")
             logger_detail.error(error)
-            await ctx.send(content="예상하지 못한 에러가 발생했습니다.")
+            await msg.edit(content="예상치 못한 에러가 발생했습니다.")
 
     @commands.cooldown(1, 3600, commands.BucketType.guild) # 한 시간에 한 번만 가능
     @commands.command(aliases=["업데이트"])
@@ -172,7 +175,6 @@ class Commands(commands.Cog):
         try:
             await self.run_command("./scripts/update_palserver.sh")
             self.time_update = datetime.utcnow() + timedelta(hours=9)
-            locale.setlocale(locale.LC_TIME, 'ko_KR')
             self.time_update = self.time_update.strftime("%Y년 %m월 %d일 %p %I시 %M분 %S초")
             self.member_update = ctx.message.author.display_name
             ebd = Embed(title="업데이트", description="https://store.steampowered.com/news/app/1623730")
@@ -183,8 +185,8 @@ class Commands(commands.Cog):
         except FileNotFoundError as file_not_found:
             logger.info("update_palserver.sh 파일 없음.")
             logger_detail.info(file_not_found)
-            await ctx.send(content=f"해당 위치({os.getcwd()})에 업데이트 스크립트가 존재하지 않습니다.")
+            await msg.edit(content=f"해당 위치({os.getcwd()})에 업데이트 스크립트가 존재하지 않습니다.")
         except Exception as error:
             logger.error("ERROR : log_detail_palserver.log 참조")
             logger_detail.error(error)
-            await ctx.send(content="예상하지 못한 에러가 발생했습니다.")
+            await msg.edit(content="예상치 못한 에러가 발생했습니다.")
