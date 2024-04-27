@@ -1,5 +1,6 @@
 import os
 import time
+from modules import Driver
 from dotenv import load_dotenv
 from flask_caching import Cache
 from modules.scraper import DanawaScraper
@@ -8,25 +9,22 @@ from flask import Flask, render_template, Response, jsonify
 
 # 다나와 기본 URL
 
-url_base: str = "https://prod.danawa.com/"
-url_cpu: str = url_base + "list/?cate=112747"
-url_mainboard: str = url_base + "list/?cate=112751"
-url_list: list[str] = [url_cpu, url_mainboard] # CPU, Mainboard 멀티프로세싱 -> page 멀티쓰레딩
+components: list[str] = ["cpu", "mainboard"] # CPU, Mainboard 멀티프로세싱 -> page 멀티쓰레딩
 
 load_dotenv()
 server = Flask(__name__, static_url_path="/static/")
 # django secret key generator 사용함
 server.secret_key = os.getenv("SECRET_KEY")
 
-
-def scrap_with_multiprocessing():
+# 스크래퍼를 멀티프로세싱 하기 위해 필요한 함수.
+# 크롬의 작동방식은 멀티프로세싱 방식이므로,
+# CPU scraping, Mainborad scraping 두 작업을 수행할 프로세서들을 할당한다.
+def make_processor(components):
     """
-    스크래퍼를 멀티프로세싱 하기 위해 필요한 함수.
-    크롬의 작동방식은 멀티프로세싱 방식이므로,
-    CPU scraping, Mainborad scraping 두 작업을 수행할 프로세서들을 할당한다.
     각 프로세서는 페이지 탐색을 위한 자식 쓰레드들을 만들고 멀티쓰레딩 후 결과를 반환한다.
     """
-    scraper = DanawaScraper()
+    driver = Driver("--headless", "--disable-gpu").make_driver()
+    scraper = DanawaScraper(driver, components)
     crawler.crawl_with_multiprocessing()
     res = crawler.get_results()
     return res
@@ -72,7 +70,7 @@ def simple_explore():
 with ProcessPoolExecutor(max_workers=2) as excutor:
     # results는 generator object
     # 한 번 풀어야 함
-    results = excutor.map(crawl_wide, [*range(1, exp_range + 1)])
+    results = excutor.map(make_processor, url_list)
 
 #     for dict_obj in results:
 #         # k = list(dict_obj.keys())

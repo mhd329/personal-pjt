@@ -10,31 +10,31 @@ from concurrent.futures import ThreadPoolExecutor
 from selenium import webdriver
 from selenium.webdriver.remote.webelement import WebElement
 
-# 다나와 기본 URL
-
-url_base: str = "https://prod.danawa.com/"
-url_cpu: str = url_base + "list/?cate=112747"
-url_mainboard: str = url_base + "list/?cate=112751"
-url_list: list[str] = [url_cpu, url_mainboard] # CPU, Mainboard 멀티프로세싱 -> page 멀티쓰레딩
-
 # searchAttributeValueRep910402.click()
-
-class Url(Enum):
-    CPU = 0
-    MAINBOARD = 1
 
 class DanawaScraper:
     """
     각 스크래퍼는 탐색할 페이지 수 만큼 자식 쓰레드를 생성한다.
     """
-    def __init__(self, driver, target_url):
+
+    url_base: str = "https://prod.danawa.com/"
+    urls = {
+        "cpu" : url_base + "list/?cate=112747",
+        "mainboard" : url_base + "list/?cate=112747",
+    }
+
+    def select_url(cls, component_name):
+        
+        return urls[component_name]
+
+    def __init__(self, driver: webdriver.Chrome, component_name: str):
         # 시간 측정용 멤버변수
         self.crawling_time_start: int = 0
         self.crawling_time_end: int = 0
         self.crawling_time_total: int = 0
         self.__results: dict = {}
         self.driver: webdriver.Chrome = driver
-        self.url = target_url
+        self.url: str = self.select_url(component_name)
 
     # 1단계 : 동적 요소 포함한 페이지 불러오기
     def __call_page(self, url: str) -> None:
@@ -52,9 +52,6 @@ class DanawaScraper:
         ul_list: WebElement = self.driver.find_element(By.XPATH, '//*[@id="simpleSearchOptionpriceCompare"]/div/dl[2]/dd/ul[1]')
         checkbox_list = ul_list.find_elements(By.TAG_NAME, "li") # 리스트 묶음
         return checkbox_list
-    url_base: str = "https://prod.danawa.com/"
-    url_cpu: str = url_base + "list/?cate=112747"
-    url_mainboard: str = url_base + "list/?cate=112751"
 
     # 3단계 : 불러온 페이지에서 특정 체크박스 클릭
     def __click_checkbox(self, checkbox_label: WebElement) -> None:
@@ -75,27 +72,26 @@ class DanawaScraper:
     def do_crawling(self):
         self.crawling_time_start = time.time() # 시간 측정용
         # cpu, 메인보드 url에 대하여 탐색 수행
-        for url in url_list:
             # 여기부터는 페이지가 켜져있는 상태임
-            try:
-                self.__call_page(url)
-                checkbox_list = self.__get_cpu_checkboxlist()
-                for checkbox_label in checkbox_list:
-                    self.__click_checkbox(checkbox_label)
-                    # 개별 체크박스 선택 마다 나오는 여러 페이지에 대해 멀티쓰레딩 수행
-                    
+        try:
+            self.__call_page(url)
+            checkbox_list = self.__get_cpu_checkboxlist()
+            for checkbox_label in checkbox_list:
+                self.__click_checkbox(checkbox_label)
+                # 개별 체크박스 선택 마다 나오는 여러 페이지에 대해 멀티쓰레딩 수행
+                
 
-            # 모든 예외 발생시 드라이버를 종료해줘야 한다.
-            except:
-                self.driver.quit()
-            finally:
-                # 시간 측정용
-                self.crawling_time_end = time.time()
-                # 5초 내외로 나옴
-                self.crawling_time_total = self.crawling_time_end - self.crawling_time_start
-                print(f"크롤링 소요 시간: {self.crawling_time_total}")
-            # 페이지 번호와 그에 해당하는 제품 리스트를 반환
-            return 
+        # 모든 예외 발생시 드라이버를 종료해줘야 한다.
+        except:
+            self.driver.quit()
+        finally:
+            # 시간 측정용
+            self.crawling_time_end = time.time()
+            # 5초 내외로 나옴
+            self.crawling_time_total = self.crawling_time_end - self.crawling_time_start
+            print(f"크롤링 소요 시간: {self.crawling_time_total}")
+        # 페이지 번호와 그에 해당하는 제품 리스트를 반환
+        return 
 
     # 결과를 받아오는 메서드
     def get_results(self):
