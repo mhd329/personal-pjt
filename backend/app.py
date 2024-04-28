@@ -1,26 +1,30 @@
 import os
 import time
+from modules import Driver
 from dotenv import load_dotenv
 from flask_caching import Cache
-from modules.crawler import DanawaCrawler
+from modules.scraper import DanawaScraper
 from concurrent.futures import ProcessPoolExecutor
 from flask import Flask, render_template, Response, jsonify
 
+# 다나와 기본 URL
 
-# 스케줄된 작업을 처리하는 별도의 서버를 구성할지, 본 서버에서 멀티프로세싱을 할지 고민
-# 선택에 따라 redis 캐시스토어를 어떻게 구성할지가 달라진다.
-
+components: list[str] = ["cpu", "mainboard"] # CPU, Mainboard 멀티프로세싱 -> page 멀티쓰레딩
 
 load_dotenv()
 server = Flask(__name__, static_url_path="/static/")
 # django secret key generator 사용함
 server.secret_key = os.getenv("SECRET_KEY")
 
-
-# 크롤러를 멀티프로세싱 하기 위해 필요한 함수
-# 각 프로세서는 크롤러 객체를 만들고 멀티프로세싱 후 결과를 반환한다.
-def crawl_wide():
-    crawler = DanawaCrawler()
+# 스크래퍼를 멀티프로세싱 하기 위해 필요한 함수.
+# 크롬의 작동방식은 멀티프로세싱 방식이므로,
+# CPU scraping, Mainborad scraping 두 작업을 수행할 프로세서들을 할당한다.
+def make_processor(components):
+    """
+    각 프로세서는 페이지 탐색을 위한 자식 쓰레드들을 만들고 멀티쓰레딩 후 결과를 반환한다.
+    """
+    driver = Driver("--headless", "--disable-gpu").make_driver()
+    scraper = DanawaScraper(driver, components)
     crawler.crawl_with_multiprocessing()
     res = crawler.get_results()
     return res
@@ -53,7 +57,7 @@ def simple_explore():
 #     start = time.time()
 #     response = {}
 #     # crawler = DanawaCrawler(exp_range)
-    
+
 #     # for문으로 크롤링
 #     # crawler.crawl_with_for()
 #     # results = crawler.get_results()
@@ -62,11 +66,11 @@ def simple_explore():
 #     # crawler.crawl_with_multithreading()
 #     # results = crawler.get_results()
 
-#     # 멀티프로세싱
-#     with ProcessPoolExecutor(max_workers=24) as excutor:
-#         # results는 generator object
-#         # 한 번 풀어야 함
-#         results = excutor.map(crawl_wide, [*range(1, exp_range + 1)])
+# 멀티프로세싱을 위한 이름공간 만들기
+with ProcessPoolExecutor(max_workers=2) as excutor:
+    # results는 generator object
+    # 한 번 풀어야 함
+    results = excutor.map(make_processor, url_list)
 
 #     for dict_obj in results:
 #         # k = list(dict_obj.keys())
