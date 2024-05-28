@@ -21,7 +21,7 @@ def main(args):
     try:
         video = VideoFileClip(input_path)
         audio = video.audio
-        audio.write_audiofile(output_path, codec="aac") # 코덱은 소문자로 작성
+        audio.write_audiofile(output_path, codec="mp4") # 코덱은 소문자로 작성
         flag = True
     except Exception as error:
         print(f"Error : {error}")
