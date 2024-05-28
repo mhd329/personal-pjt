@@ -11,7 +11,9 @@ def main(args):
     """
     if len(args) > 1:
         input_path = args[1]
-        output_path = input_path
+        path, file = os.path.split(input_path)
+        name, ext = os.path.splitext(file)
+        output_path = fr"{path}/{name}_converted{ext}"
     if len(args) > 2:
         output_path = args[2]
     assert input_path is not None, "입력 경로를 입력해주세요."
