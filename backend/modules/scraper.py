@@ -6,6 +6,7 @@ from collections import deque
 from modules.driver import Driver
 from modules.validation import is_valid
 from selenium.webdriver.common.by import By
+from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -41,6 +42,7 @@ class DanawaScraper:
         self.results: list = []
         self.driver: webdriver.Chrome = driver
         self.wait = WebDriverWait(driver, 15)
+        self.action = ActionChains(driver)
         self.url: str = self.__select_url(component_name)
         self.component_type: int = Component[component_name].value
 
@@ -48,10 +50,14 @@ class DanawaScraper:
     def __wait_elements(self) -> None:
         container: WebElement = self.driver.find_element(By.ID, "danawa_container")
         product_list_cover = container.find_element(By.CLASS_NAME, "product_list_cover")
-        def check_loading(driver):
+        def check_loading(driver): # 아무 인자도 받지 않는 경우 에러가 발생함
             if product_list_cover.value_of_css_property("display") == "none":
                 return True
-        self.wait.until(check_loading) # 드라이버가 매개변수로 주어짐
+            # while True:
+            #     print(product_list_cover.value_of_css_property("display"))
+            #     if product_list_cover.value_of_css_property("display") == "none":
+            #         return True
+        self.wait.until(check_loading) # check_loading에는 드라이버가 매개변수로 주어짐
 
     # 1단계 : 찾을 CPU / Mainboard 리스트 가져오기
     def __get_checkbox_list(self) -> list[WebElement]:
@@ -66,12 +72,18 @@ class DanawaScraper:
             checkbox_label: WebElement = checkbox.find_element(By.XPATH, './label/input')
         except:
             # 라벨 찾지 못함
+            print("Label not found.")
             return False
         checkbox_label.click()
         return True
 
     # 3단계 : 클릭된 체크박스당 pagenation 개수 파악
     def __find_pagenation_num(self) -> tuple[list[WebElement]]:
+        """
+        tuple 형식으로 반환 : \n
+        [0] 번째 요소는 page numbers, \n
+        [1] 번째 요소는 buttons
+        """
         # page_box: WebElement = self.driver.find_element(By.XPATH, f'//*[@id="productListArea"]/div[{self.component_type}]/div')
         num_nav_wrap: WebElement = self.driver.find_element(By.CLASS_NAME, "num_nav_wrap")
         number_wrap: WebElement = num_nav_wrap.find_element(By.TAG_NAME, "div")
@@ -165,7 +177,7 @@ class DanawaScraper:
 
                     pagenation_set: tuple[list[WebElement]] = self.__find_pagenation_num() # 3
                     number_list: list[WebElement] = pagenation_set[0]
-                    index_initial_number = int(number_list[0].text)
+                    index_initial_number = int(number_list[0].text) # 1, 11, 21, ...
                     index_numbers: deque = deque(str(i) for i in range(index_initial_number, index_initial_number + len(number_list)))
 
                     for index_number in index_numbers:
@@ -175,13 +187,15 @@ class DanawaScraper:
                         pagenation_set: tuple[list[WebElement]] = self.__find_pagenation_num() # 3
                         new_numbers: deque[WebElement] = deque(pagenation_set[0])
                         """
-                        number.click() 할 때 마다 새로 number를 찾아주지 않으면 number.click() 시 stale error 발생
-                        button.click() 도 마찬가지
+                        매번 self.__find_pagenation_num() 를 하는 이유는,
+                        number.click() 할 때 마다 새로 number 요소를 찾아주지 않으면 number.click() 시 stale error 가 발생함
+                        (페이지가 새로 갱신되었을 때 예전의 요소를 불러오려고 하면 발생)
+                        button.click() 의 경우도 마찬가지임
                         """
                         while index_number != new_numbers[0].text:
                             new_numbers.popleft()
-                        print(new_numbers[0].text, new_numbers[0].get_attribute("class"), self.component_type)
-                        new_numbers[0].click()
+                        self.action.move_to_element(new_numbers[0]).click().perform()
+                        # new_numbers[0].click()
                         self.__wait_elements()
                         product_list: list[WebElement] = self.__find_products() # 4
                         result_specs = []
