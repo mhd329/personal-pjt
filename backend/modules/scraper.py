@@ -48,7 +48,7 @@ class DanawaScraper:
     def __wait_elements(self) -> None:
         container: WebElement = self.driver.find_element(By.ID, "danawa_container")
         product_list_cover = container.find_element(By.CLASS_NAME, "product_list_cover")
-        def check_loading(driver): 
+        def check_loading(driver):
             if product_list_cover.value_of_css_property("display") == "none":
                 return True
         self.wait.until(check_loading) # 드라이버가 매개변수로 주어짐
@@ -180,6 +180,7 @@ class DanawaScraper:
                         """
                         while index_number != new_numbers[0].text:
                             new_numbers.popleft()
+                        print(new_numbers[0].text, new_numbers[0].get_attribute("class"), self.component_type)
                         new_numbers[0].click()
                         self.__wait_elements()
                         product_list: list[WebElement] = self.__find_products() # 4

@@ -2,8 +2,15 @@ import os
 import time
 import json
 from modules import Driver
+from datetime import datetime
 from modules.scraper import DanawaScraper
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+
+# 현재 파일이 실행되는 위치를 기본경로로 한다.
+basepath = os.getcwd()
+
+# 날짜별로 파일 생성.
+today = datetime.today().strftime("%y%m%d")
 
 # CPU, Mainboard 멀티프로세싱 -> page 멀티쓰레딩
 
@@ -15,7 +22,7 @@ def make_scraper(components):
     각 프로세서는 페이지 탐색을 위한 자식 쓰레드들을 만들고 멀티쓰레딩 후 결과를 반환한다.
     """
     # driver = Driver("--headless", "--disable-gpu").make_driver()
-    json_dir = f"F:/Github/projects/python-scraping/test"
+    json_dir = f"{basepath}/test"
     if not os.path.exists(json_dir):
         os.makedirs(json_dir)
     os.chmod(json_dir, 0o777)
@@ -24,7 +31,7 @@ def make_scraper(components):
     scraper = DanawaScraper(driver, components)
     results = scraper.main()
     scraper.driver.quit()
-    with open(f"F:/Github/projects/python-scraping/test/result_{components}.json", 'w', encoding="utf-8") as file:
+    with open(f"{basepath}/test/{today}_result_{components}.json", 'w', encoding="utf-8") as file:
         json.dump(results, file, ensure_ascii=False, indent="\t")
     return results
 
@@ -35,7 +42,7 @@ def run_test():
     # components: list[str] = ["CPU"]
     time_start = time.time()
 
-    json_dir = f"F:/Github/projects/python-scraping/test"
+    json_dir = f"{basepath}/test"
     if not os.path.exists(json_dir):
         os.makedirs(json_dir)
     os.chmod(json_dir, 0o777)
