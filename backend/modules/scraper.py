@@ -45,6 +45,7 @@ class DanawaScraper:
         self.action = ActionChains(driver)
         self.url: str = self.__select_url(component_name)
         self.component_type: int = Component[component_name].value
+        self.component_name: str = Component[component_name].name
 
     # 체크박스 클릭 시 요소 로딩 기다리기
     def __wait_elements(self) -> None:
@@ -108,6 +109,36 @@ class DanawaScraper:
         product_info_box: WebElement = product.find_element(By.CLASS_NAME, "prod_main_info")
 
         spec_list = []
+        if self.component_name == "CPU":
+            spec_detail = {
+                "core" : "",
+                "thread" : "",
+                "nm" : "",
+                "clock" : {
+                    "default" : "",
+                    "maximum" : "",
+                },
+                "cache" : {
+                    "l2" : "",
+                    "l3" : "",
+                },
+                "memory" : {
+                    "DDR4" : "",
+                    "DDR5" : "",
+                },
+                "pbp" : "",
+                "iGPU" : "",
+                "bench" : "",
+            }
+        else:
+            spec_detail = {
+                "core" : "",
+                "thread" : "",
+                "core" : "",
+                "core" : "",
+                "core" : "",
+                "core" : "",
+            }
         price_list = []
 
         # 상품 이미지
