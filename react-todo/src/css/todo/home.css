@@ -1,0 +1,33 @@
+.todo__home--title {
+  margin: 3rem 0 6rem 0;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.todo__home--content {
+  border: solid rgb(218, 218, 218);
+  border-radius: 0.5rem;
+  margin: 1rem;
+}
+
+.todo__home--buttons {
+  display: flex;
+  flex-flow: column;
+}
+
+.todo__home--buttons>.buttons {
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.todo__home--buttons>.refresh-button {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  align-items: center;
+}
