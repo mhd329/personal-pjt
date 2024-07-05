@@ -1,0 +1,28 @@
+.signup {
+  margin-top: 10rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.signup__title {
+  margin: 1rem 0;
+}
+
+.signup__form {
+  width: 30%;
+}
+
+.signup__buttons {
+  display: flex;
+  justify-content: center;
+}
+
+.signup__buttons--cancel {
+  margin-left: 1rem;
+}
+
+.form-text {
+  word-break: keep-all;
+}
