@@ -1,0 +1,29 @@
+version: "3"
+services:
+  backend:
+    image: mhd329/todo-backend
+    environment:
+      - MYSQL_PASSWORD=$MYSQL_PASSWORD
+      - MYSQL_HOST=$MYSQL_HOST
+      - MYSQL_PORT=$MYSQL_PORT
+      - MYSQL_DATABASE=$MYSQL_DATABASE
+      - MYSQL_USER=$MYSQL_USER
+      - SECRET_KEY=$SECRET_KEY
+      - JWT_SECRET_KEY=$JWT_SECRET_KEY
+    mem_limit: 128m
+
+  frontend:
+    image: mhd329/todo-frontend
+    stdin_open: true
+    mem_limit: 128m
+
+  nginx:
+    restart: always
+    image: mhd329/todo-nginx
+    ports:
+      - "80:80"
+      # - "443:443"
+    mem_limit: 128m
+    links:
+      - frontend
+      - backend

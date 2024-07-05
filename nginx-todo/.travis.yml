@@ -1,0 +1,26 @@
+language: generic
+
+sudo: required
+
+services:
+  - docker
+
+script:
+  - docker build -t mhd329/todo-nginx .
+
+after_success:
+  - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_ID" --password-stdin
+  - docker push mhd329/todo-nginx
+
+deploy:
+  provider: elasticbeanstalk
+  region: "ap-northeast-2"
+  app: "docker-fullstack-app"
+  env: "Docker-fullstack-app-env"
+  bucket_name: elasticbeanstalk-ap-northeast-2-544545176142 # 해당 eb를 위한 s3 버킷 이름
+  bucket_path: "docker-fullstack-app" # 버킷 경로 (앱 이름과 동일)
+  on:
+    branch: master # 어떤 branch에 push할 때 AWS 배포를 할 것인지 설정
+
+  access_key_id: $AWS_ACCESS_KEY # aws iam의 access key
+  secret_access_key: $AWS_SECRET_ACCESS_KEY # aws iam의 secret access key
