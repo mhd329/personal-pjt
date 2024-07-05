@@ -1,0 +1,52 @@
+version: "3"
+services:
+  websocket:
+    image: mhd329/docker-websocket
+    container_name: app_websocket
+    restart: unless-stopped
+    volumes:
+      - /app/node_modules
+      - ./websocket:/app
+    environment:
+      - DEBUG="False"
+      - REDIS_HOST=$REDIS_HOST
+    mem_limit: 128m
+
+  backend:
+    image: mhd329/docker-backend
+    container_name: app_backend
+    restart: unless-stopped
+    volumes:
+      - /app/node_modules
+      - ./backend:/app
+    environment:
+      - MYSQL_HOST=$MYSQL_HOST
+      - MYSQL_USER=$MYSQL_USER
+      - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
+      - MYSQL_DATABASE=$MYSQL_DATABASE
+      - MYSQL_PORT=$MYSQL_PORT
+    mem_limit: 128m
+
+  frontend:
+    image: mhd329/docker-frontend
+    container_name: app_frontend
+    volumes:
+      - /app/node_modules
+      - ./frontend:/app
+    stdin_open: true
+    environment:
+      # cra에서 기본 포트를 3000포트로 설정해서 ws와 충돌하기 때문에 아래와 같이 설정해야한다.
+      - WDS_SOCKET_PORT=0
+    mem_limit: 128m
+
+  nginx:
+    image: mhd329/docker-nginx
+    container_name: app_nginx
+    restart: always
+    ports:
+      - "80:80"
+    mem_limit: 128m
+    links:
+      - frontend
+      - websocket
+      - backend
