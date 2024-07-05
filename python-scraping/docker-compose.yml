@@ -1,0 +1,17 @@
+version: "3"
+services:
+  backend:
+    image: mhd329/crawler-backend
+    mem_limit: 128m
+    environment:
+      MYSQL_HOST: $MYSQL_HOST
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+      MYSQL_DATABASE: $MYSQL_DATABASE
+      MYSQL_PORT: $MYSQL_PORT
+
+  nginx:
+    restart: always
+    image: mhd329/crawler-nginx
+    ports:
+      - "80:80"
